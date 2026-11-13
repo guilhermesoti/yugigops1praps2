@@ -58,6 +58,7 @@ static const u8 quant[64] = {
     26, 27, 29, 34, 38, 46, 56, 69, 27, 29, 35, 38, 46, 56, 69, 83};
 
 typedef struct Bits { const u16 *words; size_t at; } Bits;
+static u8 vlc_lut[65536]; /* the first 16 bits of a code -> its entry + 1 */
 
 static unsigned peek(const Bits *bits, unsigned count)
 {
@@ -79,6 +80,13 @@ int DecDCTvlc2(u32 *bitstream, u32 *out, DECDCTTAB table)
     unsigned qscale = header[2], produced = 0, i;
     u16 *codes = (u16 *)(out + 1);
     (void)table;
+    if (!vlc_lut[0xFFFF]) {
+        for (i = 0; i < sizeof(vlc_table) / sizeof(vlc_table[0]); i++) {
+            unsigned first = (unsigned)vlc_table[i].code << (16 - vlc_table[i].bits), k;
+            for (k = 0; k < 1u << (16 - vlc_table[i].bits); k++)
+                if (!vlc_lut[first + k]) vlc_lut[first + k] = (u8)(i + 1);
+        }
+    }
     /* A frame ends with the marker 0111111111 where a block would start. */
     for (;;) {
         unsigned dc;
@@ -101,18 +109,18 @@ int DecDCTvlc2(u32 *bitstream, u32 *out, DECDCTTAB table)
                 bits.at += 16;
                 continue;
             }
-            for (i = 0; i < sizeof(vlc_table) / sizeof(vlc_table[0]); i++) {
-                const Vlc *entry = &vlc_table[i];
-                if ((window >> (17 - entry->bits)) == entry->code) {
-                    int negative = (window >> (16 - entry->bits)) & 1;
-                    int level = negative ? -(int)entry->level : entry->level;
-                    codes[produced++] = (u16)((entry->run << 10) | (level & 0x3ff));
-                    bits.at += entry->bits + 1u;
-                    break;
-                }
-            }
-            if (i == sizeof(vlc_table) / sizeof(vlc_table[0])) {
+            /* The table's codes are prefix-free and at most 16 bits: the
+             * window's first 16 bits name the entry (vlc_lut, built once). */
+            i = vlc_lut[window >> 1];
+            if (!i) {
                 goto done; /* corrupt stream: stop with what decoded cleanly */
+            }
+            {
+                const Vlc *entry = &vlc_table[i - 1];
+                int negative = (window >> (16 - entry->bits)) & 1;
+                int level = negative ? -(int)entry->level : entry->level;
+                codes[produced++] = (u16)((entry->run << 10) | (level & 0x3ff));
+                bits.at += entry->bits + 1u;
             }
         }
         if (produced > 0x6f00) {

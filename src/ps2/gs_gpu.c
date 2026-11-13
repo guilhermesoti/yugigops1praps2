@@ -641,8 +641,10 @@ static void fill(int x, int y, int w, int h, uint32_t rgb)
     set_mask();
 }
 
+static void flush_pending(void);
 size_t GsGpu_Gp0(const uint32_t *words, size_t count)
 {
+    flush_pending();
     size_t at = 0;
     while (at < count) {
         uint32_t word = words[at], command = word >> 24;
@@ -710,11 +712,10 @@ size_t GsGpu_Gp0(const uint32_t *words, size_t count)
 /* ---- the CPU side (soft_gpu.c calls these after its own copy changed) ---- */
 static uint16_t staging[1024 * 512] __attribute__((aligned(64)));
 
-void GsGpu_Load(int x, int y, int w, int h)
+static void load_now(int x, int y, int w, int h)
 {
     const uint16_t *vram = SoftGpu_Vram();
     int row, bx, by;
-    if (!active || w <= 0 || h <= 0) return;
     if (GsGpu_Trace) printf("ps2: load %d,%d %dx%d\n", x, y, w, h);
     x &= 1023;
     y &= 511;
@@ -735,8 +736,37 @@ void GsGpu_Load(int x, int y, int w, int h)
                 gs_newer[by * 16 + bx] = 0;
 }
 
+/* While a 24-bit picture (a movie) is shown, the GS's copy of VRAM is not:
+ * the movie's strips (LoadImage, 20 a frame) only change the CPU side, and
+ * the rows they cover go to the GS in one transfer when anything next needs
+ * the GS's VRAM (a primitive, a fill, a move, a 16-bit picture). */
+static int shown_24_now, pending_y0 = 512, pending_y1 = -1;
+static void flush_pending(void)
+{
+    int y0 = pending_y0, y1 = pending_y1;
+    if (y1 < y0) return;
+    pending_y0 = 512, pending_y1 = -1;
+    load_now(0, y0, 1024, y1 - y0 + 1);
+}
+
+void GsGpu_Load(int x, int y, int w, int h)
+{
+    if (!active || w <= 0 || h <= 0) return;
+    if (shown_24_now) {
+        int y0 = y & 511, y1 = y0 + h - 1;
+        touch_cpu(x & 1023, y0, w, h);
+        if (y1 > 511) y0 = 0, y1 = 511;
+        if (y0 < pending_y0) pending_y0 = y0;
+        if (y1 > pending_y1) pending_y1 = y1;
+        return;
+    }
+    flush_pending();
+    load_now(x, y, w, h);
+}
+
 void GsGpu_Fill(int x, int y, int w, int h, uint32_t rgb)
 {
+    flush_pending();
     if (!active) return;
     if (GsGpu_Trace) printf("ps2: fill %d,%d %dx%d %06x\n", x, y, w, h, (unsigned)rgb);
     FRAME_NOTE(" fill%d,%d,%dx%d:%06x", x, y, w, h, (unsigned)rgb);
@@ -751,6 +781,7 @@ void GsGpu_Fill(int x, int y, int w, int h, uint32_t rgb)
 
 void GsGpu_Move(int sx, int sy, int dx, int dy, int w, int h)
 {
+    flush_pending();
     if (!active || w <= 0 || h <= 0) return;
     if (GsGpu_Trace) printf("ps2: move %d,%d -> %d,%d %dx%d\n", sx, sy, dx, dy, w, h);
     /* The CPU side already moved its copy: send the destination from it,
@@ -853,7 +884,10 @@ static int draw_overlay(int x, int y)
 
 void GsGpu_Show(int x, int y, int w, int h, int rgb24)
 {
-    if (!active || rgb24) return;
+    if (!active) return;
+    shown_24_now = rgb24;
+    if (rgb24) return;
+    flush_pending();
     if (draw_overlay(x & 1023, y & 511)) {
         wait_idle();
         display(COMPOSE_PAGE, 5, PSM_CT16, 0, 0, w, h, h > 256);
@@ -894,6 +928,7 @@ void GsGpu_Present(const uint16_t *vram, int x, int y, int w, int h, int rgb24)
     if ((w != shown_w || h != shown_h || rgb24 != shown_24) && display_notes++ < 16)
         printf("ps2: display %d,%d %dx%d%s\n", x, y, w, h, rgb24 ? " 24-bit" : "");
     shown_x = x, shown_y = y, shown_w = w, shown_h = h, shown_24 = rgb24;
+    shown_24_now = rgb24;
 }
 
 unsigned GsGpu_Stats(unsigned *tiles)
@@ -909,6 +944,7 @@ int GsGpu_Active(void) { return active; }
 /* The GS's VRAM into `out` (1024 x 512 words), for debugging. */
 void GsGpu_ReadVram(uint16_t *out)
 {
+    flush_pending();
     int y;
     for (y = 0; y < 512; y += 64) download(0, y, 1024, 64, out + y * 1024);
 }

@@ -553,7 +553,9 @@ void Memories_DiscService(uint64_t now_us)
             stream_next_us = now_us;
         }
         budget = 0;
-        while (now_us >= stream_next_us && budget < 4) {
+        /* Up to 16 sectors to catch up: a movie frame's decode can keep the
+         * game from servicing the drive for tens of milliseconds. */
+        while (now_us >= stream_next_us && budget < 16) {
             stream_next_us += period;
             budget++;
         }

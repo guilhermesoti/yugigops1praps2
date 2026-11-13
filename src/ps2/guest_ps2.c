@@ -294,7 +294,7 @@ size_t Ps2_Fwrite(const void *buffer, size_t size, size_t count, FILE *file)
  * two calls to the IOP and a trip to the USB stick: a 32 KiB read-ahead
  * turns a movie's 150 reads a second into ten; 32 KiB, a stop of about
  * 40 ms on the console's USB 1.1, so no read stalls a movie's frame long. */
-static uint8_t ahead[32 * 1024] __attribute__((aligned(64)));
+static uint8_t ahead[16 * 2352] __attribute__((aligned(64))); /* 16 whole sectors */
 static int ahead_fd = -1;
 static off_t ahead_start;
 static size_t ahead_length;
