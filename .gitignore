@@ -1,0 +1,10 @@
+build/
+__pycache__/
+*.pyc
+*.ELF
+*.elf
+*.bin
+*.cue
+*.iso
+*.zip
+assets/frontend/
