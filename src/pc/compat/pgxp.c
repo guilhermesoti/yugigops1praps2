@@ -11,7 +11,7 @@
  * projects about 16000 and places about 20000): full tables probed their
  * whole way on every miss, which halved the frame rate. */
 #ifdef MEMORIES_PS2
-#define TABLE_SIZE 4096 /* the PS2's renderer draws the console's integer vertices */
+#define TABLE_SIZE 16 /* the PS2: Pgxp_Active is never set (libgpu.c), the tables unused */
 #else
 #define TABLE_SIZE 65536
 #endif

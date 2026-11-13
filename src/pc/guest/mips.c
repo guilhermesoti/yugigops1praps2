@@ -372,7 +372,17 @@ static void plain(State *s, uint32_t pc)
     case 0x29: s16(s->r[rs] + (uint32_t)im, (uint16_t)s->r[rt]); break;
     case 0x2a: a = s->r[rs] + (uint32_t)im; word = l32(a & ~3u); s32(a & ~3u, (word & (0xffffff00u << ((a & 3) * 8))) | (s->r[rt] >> ((3 - (a & 3)) * 8))); break;
 #ifdef MEMORIES_PS2
-    case 0x2b: s32(s->r[rs] + (uint32_t)im, Memories_Ps2Canonical(s->r[rt])); break;
+    case 0x2b: {
+        /* A retail RAM pointer stored by a module becomes the window's, as
+         * lui makes it: only the game's own range (0x80010000-0x801FFFFF,
+         * as force.h and lui), so a flag word such as 0x80000000 | n with a
+         * small n is stored as it is. */
+        uint32_t value = s->r[rt];
+        if ((value >= 0x80010000u && value < 0x80200000u) || (value >= 0xA0010000u && value < 0xA0200000u))
+            value = Memories_Ps2Canonical(value);
+        s32(s->r[rs] + (uint32_t)im, value);
+        break;
+    }
 #else
     case 0x2b: s32(s->r[rs] + (uint32_t)im, s->r[rt]); break;
 #endif

@@ -20,6 +20,7 @@ extern int fileXioInit(void); /* newlib then goes through fileXio (iomanX device
 #include <dmaKit.h>
 #include <debug.h>
 #include <stdarg.h>
+#include <malloc.h>
 #include <sys/stat.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -513,8 +514,10 @@ void Platform_Frame(unsigned frame)
     }
     if ((getenv("PS2_DUMP_FRAME") && frame == (unsigned)atoi(getenv("PS2_DUMP_FRAME"))) || live_bits == 0xFFFF) {
         live_bits = 0;
-        static uint16_t dump[1024 * 512] __attribute__((aligned(64)));
+        /* Host debugging only: the buffer is taken for the dump and given back. */
+        uint16_t *dump = memalign(64, 1024 * 512 * 2);
         FILE *file;
+        if (!dump) return;
         GsGpu_ReadVram(dump);
         if ((file = fopen("host:gsvram.bin", "wb"))) {
             fwrite(dump, 2, 1024 * 512, file);
@@ -525,6 +528,7 @@ void Platform_Frame(unsigned frame)
             fwrite(SoftGpu_Vram(), 2, 1024 * 512, file);
             fclose(file);
         }
+        free(dump);
         printf("ps2: dumped VRAM at frame %u\n", frame);
         {
             extern int GsGpu_Trace;

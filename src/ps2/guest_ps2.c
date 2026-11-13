@@ -379,12 +379,14 @@ void Ps2_GuestDump(const char *why, int index)
     if (!prefix || count >= 24) return;
     snprintf(path, sizeof(path), "%s-%02d-%s-%d.bin", prefix, count++, why, index);
     if ((out = fopen(path, "wb"))) {
-        static uint8_t chunk[0x10000] __attribute__((aligned(64)));
+        enum { CHUNK = 0x10000 };
+        uint8_t *chunk = memalign(64, CHUNK);
         uint32_t at;
-        for (at = 0; at < 0x200000u; at += sizeof(chunk)) {
-            memcpy(chunk, (const void *)(uintptr_t)(0xC0000000u + at), sizeof(chunk));
-            fwrite(chunk, 1, sizeof(chunk), out);
+        for (at = 0; chunk && at < 0x200000u; at += CHUNK) {
+            memcpy(chunk, (const void *)(uintptr_t)(0xC0000000u + at), CHUNK);
+            fwrite(chunk, 1, CHUNK, out);
         }
+        free(chunk);
         fclose(out);
     }
     printf("ps2: guest RAM dumped: %s\n", path);

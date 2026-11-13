@@ -338,7 +338,11 @@ void Spu_Mix(int16_t *out, size_t frames)
 #ifdef MEMORIES_PS2
             /* The R5900 has no count-trailing-zeros: GCC's library call cost a
              * tenth of the frame. The lowest set bit by its own test. */
-            for (v = 0; !(left_to_mix >> v & 1); v++) {}
+            {
+                static const uint8_t debruijn[32] = {0,  1,  28, 2,  29, 14, 24, 3, 30, 22, 20, 15, 25, 17, 4,  8,
+                                                     31, 27, 13, 23, 21, 19, 16, 7, 26, 12, 18, 6,  11, 5,  10, 9};
+                v = debruijn[((left_to_mix & (0u - left_to_mix)) * 0x077CB531u) >> 27];
+            }
 #else
             v = (unsigned)__builtin_ctz(left_to_mix);
 #endif

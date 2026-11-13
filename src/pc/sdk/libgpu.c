@@ -616,7 +616,11 @@ void DrawOTag(u32 *list)
     Pgxp_NextFrame();
     /* Only the OpenGL picture draws the precise vertices (SoftGpu_Gp0 hands
      * them to its recorder): without one at 2x and up, nothing is tracked. */
+#ifdef MEMORIES_PS2
+    Pgxp_Active = 0; /* the GS renderer draws the console's integer vertices: nothing to track */
+#else
     Pgxp_Active = Settings_Get(SET_PGXP) && !SoftGpu_WideRastered();
+#endif
 }
 
 void GsDrawOt(void *descriptor)
