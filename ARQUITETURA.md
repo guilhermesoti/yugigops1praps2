@@ -56,7 +56,7 @@ arquivos de `src/pc/` e `src/game/`. Para ver só o que o port mudou no projeto 
 
 | Arquivo | Função |
 |---|---|
-| `platform_ps2.c` | `main()`; sobe o IOP e os drivers (USB, controle, áudio); acha o `YFM.bin`; log de boot (`YFM-LOG.txt`, `passo.txt`); controle (libpad); áudio (audsrv); quadro a quadro (`Platform_Frame`); desenha os menus do port (save) por cima do jogo |
+| `platform_ps2.c` | `main()`; sobe o IOP e os drivers (USB, controle, áudio); acha o `YFM.bin`; log de boot (`YFM-LOG.txt`); controle (libpad); áudio (audsrv); quadro a quadro (`Platform_Frame`); desenha os menus do port (save) por cima do jogo |
 | `guest_ps2.c` | Mapa de memória do jogo (TLB), modo supervisor, carga do executável do PS1 e relocação dos ponteiros dele, `Memories_Resolve` (endereço do PS1 → ponteiro), leitura do disco com read-ahead (`pread`), `fread`/`fwrite` com buffer intermediário, `mmap` (blocos de heap), `rename`/`fsync` para o FAT do USB |
 | `gs_gpu.c` / `.h` | **Renderizador**: traduz os comandos da GPU do PS1 (GP0) em primitivas do GS do PS2 |
 | `thunk.S` | `Memories_Icall` (chamada por ponteiro: função C ou endereço do PS1), `setjmp`/`longjmp` do jogo (com cópia dos registradores de 64 bits), `VSync` |
