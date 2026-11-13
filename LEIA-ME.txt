@@ -1,0 +1,79 @@
+RETROGAMES - FORBIDDEN MEMORIES PS2 - DUELO LIVRE
+
+YFM_DISCO.ELF executa no Emotion Engine do PS2 e inclui dados extraidos
+da copia americana enviada pelo usuario. Os hashes dos tres arquivos
+SLUS_014.11, WA_MRG.MRG e SU.MRG foram conferidos com o projeto upstream.
+
+Esta entrega e um prototipo de treino com interface e controlador de duelo
+novos. Reutiliza rotinas do projeto original para fusao, equipamento,
+estrelas guardias, calculo de atributos, comparacao de combate e embaralhamento.
+A campanha, animacoes e batalhas 3D, audio, salvamento e scripts completos
+de magias, armadilhas e rituais ainda precisam ser portados.
+A inteligencia do adversario e simplificada. O baralho do jogador e gerado
+para treino. O prototipo 0.1 foi testado no PS2 pelo usuario: controle, passagem de turno,
+vitoria e aparente funcionamento da fusao. O usuario confirmou o funcionamento do controle na revisao de Duelo Livre.
+
+PARA TESTAR
+Copie YFM_DISCO.ELF para o pendrive. Abra pelo gerenciador de arquivos
+do PS2 ou cadastre como aplicativo no OPL. Use controle na porta 1.
+START ou X abre o menu de modos. X entra em Duelo Livre.
+Use o direcional na grade. A primeira casa permite consultar as 40 cartas
+do baralho da sessao. O retorna. Nas outras casas, X inicia o duelo.
+Os rivais estao liberados para teste. Apos o resultado, X volta ao rival
+selecionado. Vitorias e derrotas por rival duram ate sair do aplicativo.
+A grade e o menu sao adaptacoes nativas. Edicao do baralho, desbloqueios
+pela campanha e recompensas do original seguem pendentes.
+Direcional escolhe cartas. Quadrado marca materiais na ordem.
+X confirma e depois escolhe a posicao no campo.
+L1 alterna ataque/defesa e R1 alterna estrela antes de colocar.
+X seleciona atacante e alvo. START passa o turno.
+Na mao, START descarta a carta selecionada e passa.
+O primeiro turno do jogador tem ataque bloqueado neste treino.
+
+VALIDACAO DO PROTOTIPO 0.1
+Compilado com GCC 15.2 para MIPS R5900, ELF32 little endian.
+Testado no emulador Play! via libretro com renderizacao OpenGL.
+Dados sinteticos foram usados para verificar empacotamento e rejeicao de CRC.
+Um duelo completo com cartas de exemplo chegou ao resultado.
+O ELF com dados reais foi gerado para verificacao de abertura e controle.
+Consulte validation-resumo.txt para o estado observado.
+
+CODIGO
+src/ contem a plataforma PS2 e o controlador de treino.
+vendor/fm/ contem o subconjunto de fontes utilizado.
+Base upstream
+https://github.com/Unchiga/Yu-Gi-Oh-Forbidden-Memories-Recompiled
+Commit 36d499c13522402a83c5b4772714f66046f80357
+
+Para compilar, instale ps2dev com PS2SDK e gsKit e execute make.
+O modelo sem dados e YFM.ELF.
+PREPARAR_NO_WINDOWS.bat usa Python 3 para gerar o ELF com o disco proprio.
+Arraste um BIN ou CUE americano sobre o BAT.
+As fontes e ferramentas nao incluem a imagem completa do disco.
+O ELF YFM_DISCO.ELF contem dados da copia pessoal, portanto mantenha-o
+para seu uso. Licencas de componentes constam em licenses/.
+
+AJUSTES NOS HEADERS UPSTREAM
+Dois macros de verificacao de layout usam offsetof para GCC moderno.
+O wrapper Duel_ShuffleBothDecks foi excluido no alvo YFM_PS2 pois nao e usado.
+psyq/rand.h e um adaptador que seleciona o RNG local do treino.
+
+
+ABERTURA ORIGINAL
+Copie YFM_ABERTURA.ELF para o pendrive e abra pelo mesmo carregador.
+A abertura usa 346 quadros do MOVIE.STR da edicao americana a 320x240,
+15 quadros por segundo, com o audio XA convertido para PCM estereo.
+START pula o filme. Ao terminar, o aplicativo entra no titulo do port.
+O video e o audio da abertura estao dentro desse ELF.
+Musica de duelo e batalhas 3D seguem pendentes.
+
+Para reconstruir com Python 3, FFmpeg no PATH, ps2dev e libturbojpeg:
+python tools/opening.py "Yu-Gi-Oh! Forbidden Memories (USA).cue"
+make OPENING=1
+python tools/preparar.py "Yu-Gi-Oh! Forbidden Memories (USA).cue" --modelo build/YFM_OPENING.ELF -o YFM_ABERTURA.ELF
+Atualizacao do ELF de abertura: inclui telas Konami e de apresentacao da
+empresa antes do filme. Titulo e menu de modos reproduzem uma captura de
+38 segundos da musica de titulo do disco, em loop. Os dois quadros RGB565
+e a captura PCM para recompilar ficam em assets/frontend/konami.565, company.565
+e title.pcm. A musica de duelo e o motor de campanha e de cenas 3D
+ainda precisam ser implementados no executavel nativo.
