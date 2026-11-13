@@ -71,19 +71,18 @@ void Ps2_LogSync(void)
     if (!freopen(log_path, "a", stdout)) log_path[0] = 0;
     else setvbuf(stdout, NULL, _IOLBF, 0);
 }
-/* A boot step that may hang on some console: named in YFM-SAVE/passo.txt
- * before it is tried, so the next boot skips it (Ps2_SkipStep). */
-static char step_path[300], failed_step[32];
-void Ps2_RiskyStep(const char *name)
+static char quiet_buffer[16384];
+void Ps2_LogQuiet(void)
 {
-    FILE *file;
-    if (!step_path[0]) return;
-    if ((file = fopen(step_path, "w"))) {
-        fputs(name, file);
-        fclose(file);
+    if (!log_path[0]) return;
+    fflush(stdout);
+    if (!freopen(log_path, "a", stdout)) {
+        log_path[0] = 0;
+        return;
     }
+    setvbuf(stdout, quiet_buffer, _IOFBF, sizeof(quiet_buffer));
+    log_path[0] = 0; /* no more syncs, but Ps2_Fatal's flush */
 }
-int Ps2_SkipStep(const char *name) { return failed_step[0] && !strcmp(failed_step, name); }
 void Ps2_Stage(const char *format, ...)
 {
     char line[160];
@@ -100,7 +99,9 @@ void Ps2_Fatal(const char *message)
 {
     unsigned i;
     printf("ps2: FATAL: %s\n", message);
+    fflush(stdout);
     Ps2_LogSync();
+    fclose(stdout); /* the stick's file gets its size at the close */
     video_close();
     init_scr();
     scr_printf("\n\n  Yu-Gi-Oh! Forbidden Memories - PS2\n\n  %s\n\n", message);
@@ -219,9 +220,10 @@ void Platform_Present(const uint16_t *vram, int stride, int x, int y, int w, int
     if (GsGpu_Active()) {
         if (++presents == 1) Ps2_Stage("primeira imagem %dx%d%s", w, h, rgb24 ? " (24-bit)" : "");
         if (presents == 120) {
-            /* Booted: what was skipped stays skipped (passo.txt keeps its name). */
-            Ps2_RiskyStep(failed_step[0] ? failed_step : "ok");
             Ps2_Stage("120 quadros ok");
+            /* Booted: from here the log is kept in memory and written in
+             * 16 KiB pieces, never in the middle of a movie's reads. */
+            Ps2_LogQuiet();
         }
         GsGpu_Present(vram, x, y, w, h, rgb24);
         return;
@@ -475,7 +477,19 @@ void Platform_Frame(unsigned frame)
      * kernel mode) is put back before the game touches its memory again. */
     Ps2_EnterGuestMode();
     if (frame == 1 || frame % 600 == 0) printf("ps2: frame %u\n", frame);
-    if (frame <= 1800 && (frame <= 3 || frame % 60 == 0)) Ps2_LogSync();
+    {
+        /* The game's accesses to PS1 physical addresses that the fault
+         * handler served (sampler_ps2.c), each place once. */
+        extern volatile int retail_reported;
+        extern unsigned Ps2_RetailSites(const uint32_t **sites);
+        static unsigned printed;
+        if (retail_reported) {
+            const uint32_t *sites;
+            unsigned count = Ps2_RetailSites(&sites);
+            retail_reported = 0;
+            for (; printed < count; printed++) printf("ps2: retail access served at pc 0x%08x\n", (unsigned)sites[printed]);
+        }
+    }
     {
         extern int Ps2_ModelCalls;
         static int model_dumped, model_frames;
@@ -603,23 +617,7 @@ int main(int argc, char **argv)
         }
     }
     Ps2_Stage("disco: %s", disc);
-    if (strncmp(program_dir, "host", 4)) {
-        FILE *file;
-        char dir[300];
-        snprintf(dir, sizeof(dir), "%s/YFM-SAVE", program_dir);
-        mkdir(dir, 0777);
-        snprintf(step_path, sizeof(step_path), "%s/YFM-SAVE/passo.txt", program_dir);
-        if ((file = fopen(step_path, "r"))) {
-            size_t got = fread(failed_step, 1, sizeof(failed_step) - 1, file);
-            fclose(file);
-            failed_step[got] = 0;
-            if (!strcmp(failed_step, "ok")) failed_step[0] = 0;
-            else if (!strcmp(failed_step, "espelho")) {
-                /* the low mirror hung once; then the supervisor mode is next */
-            }
-        }
-        if (failed_step[0]) Ps2_Stage("a ultima vez travou em '%s': pulando", failed_step);
-    }
+
     {
         struct timespec a, b;
         volatile unsigned spin;
@@ -694,11 +692,6 @@ const uint32_t *Ps2_OverlayPicture(int *changed)
         for (i = 0; i < 320 * 240; i++) {
             uint32_t p = overlay_argb[i], a = p >> 24;
             overlay_gs[i] = ((p >> 16) & 0xFF) | (p & 0xFF00) | ((p & 0xFF) << 16) | (((a + 1) >> 1) << 24);
-        }
-        {
-            unsigned nz = 0, op = 0;
-            for (i = 0; i < 320 * 240; i++) nz += overlay_argb[i] != 0, op += (overlay_argb[i] >> 24) != 0;
-            printf("ps2: overlay drawn %d,%d %dx%d: %u pixels, %u with alpha\n", x, y, w, h, nz, op);
         }
         last_signature = signature;
         was_shown = 1;

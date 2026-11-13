@@ -53,8 +53,19 @@ Memories_Icall:
     .size Memories_Icall, . - Memories_Icall
 
 /* The game's jmp_buf is the Psy-Q int[12] at a fixed guest address: the
- * twelve callee-saved words of the n32 ABI fit it (s0-s7, fp, sp, ra, gp),
- * as 32-bit values, which is all the game's code keeps in them. */
+ * twelve callee-saved registers (s0-s7, fp, sp, ra, gp) as 32-bit words.
+ * The n32 ABI's registers are 64 bits wide and native code above the
+ * setjmp may keep 64-bit values in them, so the full registers also go to
+ * a shadow copy here, kept for the last jmp_buf set (the game has one:
+ * Main_Init's), and longjmp restores from it when it is that jmp_buf. */
+    .bss
+    .align 4
+Psx_jmp_key:
+    .space 16
+Psx_jmp_shadow:
+    .space 96
+    .text
+
     .globl Psx_setjmp
     .type Psx_setjmp, @function
     .ent Psx_setjmp
@@ -71,6 +82,22 @@ Psx_setjmp:
     sw $29, 36($4)
     sw $31, 40($4)
     sw $28, 44($4)
+    lui $8, %hi(Psx_jmp_key)
+    sw $4, %lo(Psx_jmp_key)($8)
+    lui $8, %hi(Psx_jmp_shadow)
+    addiu $8, $8, %lo(Psx_jmp_shadow)
+    sd $16, 0($8)
+    sd $17, 8($8)
+    sd $18, 16($8)
+    sd $19, 24($8)
+    sd $20, 32($8)
+    sd $21, 40($8)
+    sd $22, 48($8)
+    sd $23, 56($8)
+    sd $30, 64($8)
+    sd $29, 72($8)
+    sd $31, 80($8)
+    sd $28, 88($8)
     jr $31
     move $2, $0
     .end Psx_setjmp
@@ -80,7 +107,26 @@ Psx_setjmp:
     .type Psx_longjmp, @function
     .ent Psx_longjmp
 Psx_longjmp:
-    lw $16, 0($4)
+    lui $8, %hi(Psx_jmp_key)
+    lw $8, %lo(Psx_jmp_key)($8)
+    bne $8, $4, 2f
+    nop
+    lui $8, %hi(Psx_jmp_shadow)
+    addiu $8, $8, %lo(Psx_jmp_shadow)
+    ld $16, 0($8)
+    ld $17, 8($8)
+    ld $18, 16($8)
+    ld $19, 24($8)
+    ld $20, 32($8)
+    ld $21, 40($8)
+    ld $22, 48($8)
+    ld $23, 56($8)
+    ld $30, 64($8)
+    ld $29, 72($8)
+    ld $31, 80($8)
+    b 3f
+    ld $28, 88($8)
+2:  lw $16, 0($4)
     lw $17, 4($4)
     lw $18, 8($4)
     lw $19, 12($4)
@@ -92,7 +138,7 @@ Psx_longjmp:
     lw $29, 36($4)
     lw $31, 40($4)
     lw $28, 44($4)
-    bnez $5, 1f
+3:  bnez $5, 1f
     move $2, $5
     li $2, 1
 1:  jr $31

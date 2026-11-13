@@ -79,40 +79,18 @@ int Memories_GuestMap(void)
      * address. The kernel maps nothing below 0x00080000 and the program's
      * own memory 1:1 above; the first 2 MiB become guest RAM (the program
      * starts at 0x00400000, ps2/linkfile), as on the PC (image.c's mirror). */
-    {
-        static const struct { int index; unsigned va; } low[] = {
-            {47, 0x00000000u}, {13, 0x00080000u}, {14, 0x00100000u}, {15, 0x00180000u}};
-        unsigned i;
-        int skip0 = Ps2_SkipStep("espelho0"), skip1 = skip0 || Ps2_SkipStep("espelho1");
-        int skip = skip0 && skip1;
-        for (i = 0; i < sizeof(low) / sizeof(low[0]); i++) {
-            unsigned mask, hi, lo0, lo1;
-            if (low[i].index == 47 ? skip0 : skip1) continue;
-            Ps2_RiskyStep(low[i].index == 47 ? "espelho0" : "espelho1");
-            if (low[i].index != 47 && (GetTLBEntry(low[i].index, &mask, &hi, &lo0, &lo1) < 0 || hi != low[i].va ||
-                                       mask != 0x0007E000u)) {
-                printf("ps2: TLB entry %d is not the expected 0x%08x map; the low mirror stays off\n", low[i].index,
-                       low[i].va);
-                break;
-            }
-            _SetTLBEntry(low[i].index, 0x0007E000u, low[i].va, entry_lo(GUEST_PHYSICAL + low[i].va),
-                         entry_lo(GUEST_PHYSICAL + low[i].va + 0x40000u));
-            Ps2_Stage("espelho: entrada %d", low[i].index);
-        }
-        Ps2_Stage(skip ? "espelho baixo: pulado" : skip1 ? "espelho baixo: so a entrada 47" : "espelho baixo ok");
-    }
+    /* Only entry 47 (VA 0-0x7FFFF, which the kernel leaves unmapped): on a
+     * real console, remapping the kernel's entries 13-15 (0x80000-0x1FFFFF)
+     * hangs it. Accesses above 0x80000 that the game makes through a null
+     * pointer fall to sampler_ps2.c, which serves them from the window. */
+    _SetTLBEntry(47, 0x0007E000u, 0, entry_lo(GUEST_PHYSICAL), entry_lo(GUEST_PHYSICAL + 0x40000u));
+    Ps2_Stage("espelho baixo: entrada 47");
     if (a < 0 || b < 0) {
         Ps2_Fatal("Could not map the game's memory (TLB).");
         return -1;
     }
-    if (Ps2_SkipStep("supervisor")) {
-        Ps2_GuestMode = 0; /* kernel mode: the window without the supervisor's fault on KSEG0 */
-        Ps2_Stage("modo kernel");
-    } else {
-        Ps2_RiskyStep("supervisor");
-        Ps2_EnterGuestMode();
-        Ps2_Stage("modo supervisor ok");
-    }
+    Ps2_EnterGuestMode();
+    Ps2_Stage("modo supervisor ok");
     mapped = 1;
     memset((void *)(uintptr_t)WINDOW, 0, 0x200000u);
     memset((void *)(uintptr_t)(WINDOW + 0x300000u), 0, 0x100000u);
@@ -313,9 +291,10 @@ size_t Ps2_Fwrite(const void *buffer, size_t size, size_t count, FILE *file)
 }
 
 /* The disc image is read a sector (2352 bytes) at a time, and each read is
- * two calls to the IOP and a trip to the USB stick: a 128 KiB read-ahead
- * turns a movie's 150 reads a second into a few. */
-static uint8_t ahead[128 * 1024] __attribute__((aligned(64)));
+ * two calls to the IOP and a trip to the USB stick: a 32 KiB read-ahead
+ * turns a movie's 150 reads a second into ten; 32 KiB, a stop of about
+ * 40 ms on the console's USB 1.1, so no read stalls a movie's frame long. */
+static uint8_t ahead[32 * 1024] __attribute__((aligned(64)));
 static int ahead_fd = -1;
 static off_t ahead_start;
 static size_t ahead_length;

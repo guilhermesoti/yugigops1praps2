@@ -41,9 +41,8 @@ Testado no PCSX2 e num PS2 de verdade (USB exFAT, pelo OPL):
 | Som | funciona (mixado a 22 kHz) |
 | Save / load | funciona: 5 slots em `YFM-SAVE/saves/` |
 
-A versão atual é de diagnóstico: grava `YFM-LOG.txt` ao lado do ELF e mostra as etapas da
-inicialização na tela. Se uma etapa travar o console, ela é anotada em `YFM-SAVE/passo.txt` e
-pulada no boot seguinte. Se algo der errado, mande o `YFM-LOG.txt` e uma foto da tela.
+O jogo grava `YFM-LOG.txt` ao lado do ELF e mostra as etapas da inicialização na tela. Se algo der
+errado, mande o `YFM-LOG.txt` e uma foto da tela.
 
 ## Como compilar
 

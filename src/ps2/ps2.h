@@ -13,6 +13,5 @@ void *Memories_GuestCallTarget(uint32_t address);
 /* A boot step: on the boot screen and in YFM-LOG.txt (platform_ps2.c). */
 void Ps2_Stage(const char *format, ...) __attribute__((format(printf, 1, 2)));
 void Ps2_LogSync(void);
-void Ps2_RiskyStep(const char *name);
-int Ps2_SkipStep(const char *name);
+void Ps2_LogQuiet(void);
 #endif

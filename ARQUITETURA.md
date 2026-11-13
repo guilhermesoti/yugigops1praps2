@@ -59,7 +59,7 @@ arquivos de `src/pc/` e `src/game/`. Para ver só o que o port mudou no projeto 
 | `platform_ps2.c` | `main()`; sobe o IOP e os drivers (USB, controle, áudio); acha o `YFM.bin`; log de boot (`YFM-LOG.txt`, `passo.txt`); controle (libpad); áudio (audsrv); quadro a quadro (`Platform_Frame`); desenha os menus do port (save) por cima do jogo |
 | `guest_ps2.c` | Mapa de memória do jogo (TLB), modo supervisor, carga do executável do PS1 e relocação dos ponteiros dele, `Memories_Resolve` (endereço do PS1 → ponteiro), leitura do disco com read-ahead (`pread`), `fread`/`fwrite` com buffer intermediário, `mmap` (blocos de heap), `rename`/`fsync` para o FAT do USB |
 | `gs_gpu.c` / `.h` | **Renderizador**: traduz os comandos da GPU do PS1 (GP0) em primitivas do GS do PS2 |
-| `thunk.S` | `Memories_Icall` (chamada por ponteiro: função C ou endereço do PS1), `setjmp`/`longjmp` do jogo, `VSync` |
+| `thunk.S` | `Memories_Icall` (chamada por ponteiro: função C ou endereço do PS1), `setjmp`/`longjmp` do jogo (com cópia dos registradores de 64 bits), `VSync` |
 | `relocate_ps2.c` | Corrige ponteiros dentro dos módulos que o jogo carrega do disco (e desfaz isso em dados de modelo 3D carregados por cima, ver seção 8) |
 | `sampler_ps2.c` | Tratamento de falhas da CPU (tela de erro com o endereço) e emulação de acessos do jogo a endereços físicos do PS1; amostrador de desempenho (só com `host:`) |
 | `stubs_ps2.c` | Funções do port de PC que não existem no PS2 (monitor de crash, rede, importação de mods) |
@@ -84,8 +84,9 @@ O PS1 tem 2 MB de RAM em `0x80000000`. No PS2 essa RAM vira uma **janela mapeada
 - O jogo roda em **modo supervisor**: acessos perdidos a `0x80xxxxxx` (KSEG0) geram falha, e a
   falha é emulada lendo a janela (`sampler_ps2.c`).
 - Num PS2 real, remapear as entradas 13–15 da TLB (espelho de `0x80000`–`0x200000`) **trava o
-  console**. Por isso só a entrada 47 é usada, e o boot pula a etapa que travou antes
-  (`passo.txt`).
+  console**. Por isso só a entrada 47 é usada; acessos do jogo acima de `0x80000` por ponteiro nulo
+  são atendidos pelo tratador de falhas (`sampler_ps2.c`) e cada lugar aparece uma vez no log
+  (`retail access served at pc ...`).
 
 ## 6. Chamadas por ponteiro (`Memories_Icall`)
 
@@ -107,7 +108,8 @@ viram `0xC004xxxx` (negativos). `Memories_Icall` (`thunk.S`) faz assim:
   `ALPHA` de cada modo do PS1.
 - A troca de buffer acontece em `PutDispEnv` (`GsGpu_Show`), como no console. Antes acontecia no
   `VSync`, e a tela piscava mostrando o buffer em desenho.
-- Vídeos (STR, 24 bits): convertidos para `CT32` (páginas 128–167) e exibidos de lá.
+- Vídeos (STR, 24 bits): o formato do PS1 é igual ao `PSMCT24` do GS; as linhas são copiadas sem
+  conversão (páginas 128–167) e exibidas de lá.
 - Menus do port (tela de save): desenhados num quadro de 320×240 com alfa, compostos numa **cópia**
   do buffer exibido (páginas 472–491). A VRAM do jogo nunca é alterada.
 
@@ -117,7 +119,7 @@ Mapa da memória do GS (páginas de 8 KB): 0–127 VRAM do PS1, 128–167 vídeo
 ## 8. Disco, módulos e o bug das batalhas 3D
 
 - `src/pc/sdk/libds.c` emula o drive de CD lendo setores de 2352 bytes do `YFM.bin`. No PS2 cada
-  leitura passa pelo IOP e pelo USB, então `pread` (`guest_ps2.c`) lê 128 KB de uma vez.
+  leitura passa pelo IOP e pelo USB, então `pread` (`guest_ps2.c`) lê 32 KB de uma vez (≈40 ms no USB 1.1, menos que um quadro de vídeo).
 - Módulos carregados do disco em "bancos" fixos (`0x8013A000`, `0x80146000`, `0x80168000`,
   `0x8017A000`, `0x80180000`) contêm ponteiros do PS1. Eles são reescritos para a janela quando
   chegam (`Ps2_RelocateDelivery`).
@@ -147,10 +149,9 @@ Mapa da memória do GS (páginas de 8 KB): 0–127 VRAM do PS1, 128–167 vídeo
 
 ## 10. Diagnóstico
 
-- `YFM-LOG.txt` (ao lado do ELF): etapas do boot, imagem, erros; fechado e reaberto a cada etapa
-  para sobreviver a um travamento.
-- `YFM-SAVE/passo.txt`: última etapa arriscada tentada (`espelho0`, `espelho1`, `supervisor`). Se
-  ela travar, é pulada no boot seguinte.
+- `YFM-LOG.txt` (ao lado do ELF): etapas do boot (fechado e reaberto a cada etapa, para sobreviver
+  a um travamento); depois dos primeiros 120 quadros ele passa a ser gravado em blocos de 16 KB, sem
+  tocar no pendrive a cada segundo (isso engasgava os vídeos).
 - Tela de erro: `Exception N at <pc> (address <endereço>, ra ...)`. Para achar a função:
   `mips64r5900el-ps2-elf-addr2line -f -e tmp/ps2/YFM_PS2.ELF <pc>`. O endereço só vale para o
   mesmo build.

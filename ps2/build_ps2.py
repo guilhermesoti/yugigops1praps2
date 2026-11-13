@@ -134,6 +134,7 @@ def thunk_assembly(text):
 UNIT_FLAGS = {"src/pc/guest/main.c": ["-Dmain=Memories_PcMain"],
               "src/pc/render/soft_gpu.c": ["-O3"],
               "src/pc/sdk/libpress.c": ["-O3"],
+              "src/pc/audio/spu.c": ["-O3"],
               "src/ps2/stubs_ps2.c": ["-fno-builtin"],
               "src/ps2/irx.S": ["-Wa,-I" + PS2SDK + "/iop/irx"]}
 

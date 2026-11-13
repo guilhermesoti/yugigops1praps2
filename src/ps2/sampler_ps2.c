@@ -85,6 +85,7 @@ void Ps2_StartSampler(void)
  * skipped. Supervisor mode makes these fault on the console; each place is
  * logged once, so it can be fixed at its source. */
 static uint32_t retail_sites[16];
+volatile int retail_reported;
 static unsigned retail_site_count;
 static int emulate_retail_access(EE_RegFrame *frame)
 {
@@ -111,7 +112,10 @@ static int emulate_retail_access(EE_RegFrame *frame)
     if (!rt) target[0] = target[1] = 0;
 stored:
     for (i = 0; i < retail_site_count && retail_sites[i] != frame->epc; i++) {}
-    if (i == retail_site_count && retail_site_count < 16) retail_sites[retail_site_count++] = frame->epc;
+    if (i == retail_site_count && retail_site_count < 16) {
+        retail_sites[retail_site_count++] = frame->epc;
+        retail_reported = 1; /* platform_ps2.c's frame prints it, outside the handler */
+    }
     frame->epc += 4;
     return 1;
 }

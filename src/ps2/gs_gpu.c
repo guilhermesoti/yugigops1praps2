@@ -42,6 +42,7 @@ enum {
     R_FINISH = 0x61
 };
 #define PSM_CT32 0x00
+#define PSM_CT24 0x01
 #define PSM_CT16 0x02
 #define PSM_T8 0x13
 #define PSM_T4 0x14
@@ -876,16 +877,16 @@ void GsGpu_Present(const uint16_t *vram, int x, int y, int w, int h, int rgb24)
     flush();
     frame_number++;
     if (rgb24) {
-        int row, i, cw = w > 320 ? 320 : w, ch = h > 256 ? 256 : h;
-        for (row = 0; row < ch; row++) {
-            const uint8_t *bytes = (const uint8_t *)(vram + ((y + row) & 511) * 1024 + x);
-            uint32_t *out = picture24 + row * 320;
-            for (i = 0; i < cw; i++, bytes += 3) out[i] = bytes[0] | (bytes[1] << 8) | (bytes[2] << 16);
-        }
-        upload(FBP_24 * 32, 5, PSM_CT32, 0, 0, 320, ch, picture24, (unsigned)(320 * ch * 4));
+        /* The PS1's 24-bit picture is the GS's PSMCT24 byte for byte: rows
+         * copied as they are, no conversion on the EE. */
+        int row, cw = w > 320 ? 320 : w, ch = h > 256 ? 256 : h;
+        uint8_t *out = (uint8_t *)picture24;
+        for (row = 0; row < ch; row++)
+            memcpy(out + row * 960, (const uint8_t *)(vram + ((y + row) & 511) * 1024 + x), (size_t)cw * 3);
+        upload(FBP_24 * 32, 5, PSM_CT24, 0, 0, 320, ch, picture24, (unsigned)(960 * ch));
         overlay_lost = 1;
         flush();
-        display(FBP_24, 5, PSM_CT32, 0, 0, cw, ch, h > 256);
+        display(FBP_24, 5, PSM_CT24, 0, 0, cw, ch, h > 256);
     } else {
         GsGpu_Show(x, y, w, h, 0); /* with the port's menus, redrawn at each VBlank */
     }
