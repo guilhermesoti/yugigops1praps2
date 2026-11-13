@@ -26,20 +26,24 @@ O controle do PS2 funciona exatamente como o do PS1 (porta 1).
 Dica do jogo: ao escolher o alvo do ataque, **Quadrado** mostra a batalha 3D dos
 monstros; **X** faz o ataque rápido.
 
-## O que já funciona (testado no PCSX2)
+## Situação
 
-- Vídeo de abertura, título, menus, entrada de nome, prólogo, montagem de deck
-- Duelos completos: mão, campo 3D, estrelas guardiãs, cartas de campo,
+Testado no PCSX2 e num PS2 de verdade (USB em exFAT, pelo OPL):
+
+- Abertura, título, menus, prólogo, montagem de deck
+- Duelos completos: mão, campo 3D, estrelas guardiãs, fusão, cartas de campo,
   turnos da CPU, batalhas 2D e **batalhas 3D com os modelos dos monstros**
-- 60 fps nos duelos e nas batalhas 3D, sem tremedeira de tela
-- Som pelo `audsrv` (mixado a 22 kHz para caber no tempo do EE)
+- 60 fps nos duelos e batalhas; vídeos a 15 fps (a velocidade original deles)
+- Som pelo `audsrv` (mixado a 22 kHz)
+- Tela de save/load por cima do jogo, com 5 slots em `YFM-SAVE/saves/`
+  (a gravação no pendrive ainda está sendo testada no console)
 
-## Ainda não testado em console real
+## Diagnóstico
 
-Só testei no PCSX2. Em hardware real ainda falta confirmar: o modo supervisor
-do EE (usado para mapear a RAM do PS1), o driver do controle, leitura pelo USB,
-áudio e gravação dos saves. Se der erro, a tela mostra a mensagem — me mande uma
-foto dela.
+Esta versão grava `YFM-LOG.txt` ao lado do ELF e mostra as etapas da
+inicialização na tela. Se uma etapa travar o console, ela fica anotada em
+`YFM-SAVE/passo.txt` e é pulada no próximo boot. Se der problema, mande o
+`YFM-LOG.txt` e uma foto da tela.
 
 ## Como compilar
 

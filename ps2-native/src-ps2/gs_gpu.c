@@ -149,8 +149,17 @@ static void download(int x, int y, int w, int h, uint16_t *out)
     *D1_QWC = qwc;
     *D1_MADR = (uint32_t)(uintptr_t)out & 0x0FFFFFFFu;
     *D1_CHCR = 0x100; /* start, to memory */
-    while (*D1_CHCR & 0x100) {}
-    while ((*VIF1_STAT >> 24) & 0x1F) {}
+    {
+        static int reads;
+        unsigned spin = 0;
+        while ((*D1_CHCR & 0x100) && ++spin < 50000000u) {}
+        if (spin >= 50000000u || reads++ < 2) {
+            extern void Ps2_Stage(const char *format, ...);
+            Ps2_Stage("GS leitura %d,%d %dx%d: %s", x, y, w, h, spin >= 50000000u ? "TRAVOU" : "ok");
+        }
+        spin = 0;
+        while (((*VIF1_STAT >> 24) & 0x1F) && ++spin < 50000000u) {}
+    }
     *VIF1_STAT = 0;
     *GS_BUSDIR = 0;
     FlushCache(0);
@@ -800,9 +809,40 @@ static void display(int fbp, int fbw, int psm, int x, int y, int w, int h, int i
     *GS_DISPFB2 = dispfb;
 }
 
+/* The port's own menus (the save slots, the deck slots, a question):
+ * platform_ps2.c renders them into a 320x240 picture with alpha (GS order,
+ * alpha 0x80 opaque) and they are blended over the buffer about to be shown. */
+extern const uint32_t *Ps2_OverlayPicture(int *changed);
+static int overlay_lost = 1; /* the movies' picture shares its GS memory */
+static void draw_overlay(int x, int y)
+{
+    int changed = 0;
+    const uint32_t *picture = Ps2_OverlayPicture(&changed);
+    if (!picture) return;
+    if (changed || overlay_lost) upload(FBP_24 * 32, 5, PSM_CT32, 0, 0, 320, 240, picture, 320 * 240 * 4);
+    overlay_lost = 0;
+    reg(R_SCISSOR, (uint64_t)(x & 2047) | ((uint64_t)((x + 319) & 2047) << 16) | ((uint64_t)(y & 2047) << 32) |
+                       ((uint64_t)((y + 239) & 2047) << 48));
+    reg(R_FBA, 0);
+    reg(R_DTHE, 0);
+    reg(R_CLAMP, 0);
+    reg(R_TEST, (1ull << 16) | (1ull << 17));
+    reg(R_ALPHA, 0 | (1 << 2) | (0 << 4) | (1 << 6)); /* (Cs - Cd) * As + Cd */
+    reg(R_TEX0, (uint64_t)(FBP_24 * 32) | (5ull << 14) | ((uint64_t)PSM_CT32 << 20) | (9ull << 26) | (8ull << 30) |
+                    (1ull << 34) | (1ull << 35));
+    reg(R_PRIM, 6 | 16 | 64 | 256); /* sprite, textured, blended, UV */
+    reg(R_UV, 0);
+    reg(R_XYZ2, xyz(x, y));
+    reg(R_UV, (uint64_t)(320 << 4) | ((uint64_t)(240 << 4) << 16));
+    reg(R_XYZ2, xyz(x + 320, y + 240));
+    set_scissor();
+    set_mask();
+}
+
 void GsGpu_Show(int x, int y, int w, int h, int rgb24)
 {
     if (!active || rgb24) return;
+    draw_overlay(x & 1023, y & 511);
     wait_idle();
     display(0, VRAM_FBW, PSM_CT16, x & 1023, y & 511, w, h, h > 256);
 }
@@ -828,12 +868,14 @@ void GsGpu_Present(const uint16_t *vram, int x, int y, int w, int h, int rgb24)
             for (i = 0; i < cw; i++, bytes += 3) out[i] = bytes[0] | (bytes[1] << 8) | (bytes[2] << 16);
         }
         upload(FBP_24 * 32, 5, PSM_CT32, 0, 0, 320, ch, picture24, (unsigned)(320 * ch * 4));
+        overlay_lost = 1;
         flush();
         display(FBP_24, 5, PSM_CT32, 0, 0, cw, ch, h > 256);
     } else {
         display(0, VRAM_FBW, PSM_CT16, x & 1023, y & 511, w, h, h > 256);
     }
-    if (x != shown_x || y != shown_y || w != shown_w || h != shown_h || rgb24 != shown_24)
+    static unsigned display_notes;
+    if ((w != shown_w || h != shown_h || rgb24 != shown_24) && display_notes++ < 16)
         printf("ps2: display %d,%d %dx%d%s\n", x, y, w, h, rgb24 ? " 24-bit" : "");
     shown_x = x, shown_y = y, shown_w = w, shown_h = h, shown_24 = rgb24;
 }

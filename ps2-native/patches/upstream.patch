@@ -171,6 +171,20 @@ index 3ca55134c..275cf7c62 100644
          }
          out[n * 2] = (int16_t)(left < -32768 ? -32768 : left > 32767 ? 32767 : left);
          out[n * 2 + 1] = (int16_t)(right < -32768 ? -32768 : right > 32767 ? 32767 : right);
+diff --git a/src/pc/cards/pack_shop.c b/src/pc/cards/pack_shop.c
+index 10ab08efa..7688697db 100644
+--- a/src/pc/cards/pack_shop.c
++++ b/src/pc/cards/pack_shop.c
+@@ -70,6 +70,9 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
++#ifdef MEMORIES_PS2
++#include "ps2/compat/ps2_files.h"
++#endif
+ 
+ u32 Text_LookupString(s32 bank, s32 id);
+ 
 diff --git a/src/pc/compat/pgxp.c b/src/pc/compat/pgxp.c
 index 171b6bbc6..b56a52407 100644
 --- a/src/pc/compat/pgxp.c
@@ -434,6 +448,62 @@ index 910e29fe0..8ab9690db 100644
      static uint32_t failed[2][2]; /* [slot][variant]: identifier of a module that failed */
      int slot = module >= 0x8017A000u;
      uint32_t identifier = *(const uint32_t *)(uintptr_t)module;
+diff --git a/src/pc/platform/controls_config.c b/src/pc/platform/controls_config.c
+index e8caaff6a..fa35a7b20 100644
+--- a/src/pc/platform/controls_config.c
++++ b/src/pc/platform/controls_config.c
+@@ -9,6 +9,9 @@
+ #include <sys/stat.h>
+ #include <unistd.h>
+ #include "pc/compat/posix.h"
++#ifdef MEMORIES_PS2
++#include "ps2/compat/ps2_files.h"
++#endif
+ 
+ static int path(char *out, size_t size)
+ {
+diff --git a/src/pc/platform/game_files.c b/src/pc/platform/game_files.c
+index 8c85b83a7..70572fb32 100644
+--- a/src/pc/platform/game_files.c
++++ b/src/pc/platform/game_files.c
+@@ -10,6 +10,9 @@
+ #include <stdio.h>
+ #include <stdlib.h>
+ #include <string.h>
++#ifdef MEMORIES_PS2
++#include "ps2/compat/ps2_files.h"
++#endif
+ 
+ #define RAW_SECTOR 2352
+ #define USER_DATA 24
+diff --git a/src/pc/platform/paths.c b/src/pc/platform/paths.c
+index d9e75ecad..6f9f3af6a 100644
+--- a/src/pc/platform/paths.c
++++ b/src/pc/platform/paths.c
+@@ -18,6 +18,9 @@
+ #include <sys/stat.h>
+ #ifdef __APPLE__
+ #include <mach-o/dyld.h>
++#ifdef MEMORIES_PS2
++#include "ps2/compat/ps2_files.h"
++#endif
+ #endif
+ 
+ #define PATH_MAX_ 1024
+@@ -39,6 +42,13 @@ static int make_dir(const char *path)
+ #endif
+     if (!mkdir(path, 0777)) return 0;
+     error = errno;
++#ifdef MEMORIES_PS2
++    /* fileXio's mkdir fails on a folder that exists with its own codes, and
++     * a device root ("mass:") is no folder to stat: taken as there. */
++    (void)error;
++    (void)info;
++    return 0;
++#endif
+ #ifdef _WIN32
+     code = GetLastError();
+     dos = _doserrno;
 diff --git a/src/pc/platform/platform_common.c b/src/pc/platform/platform_common.c
 index a0a21f8fa..8ccb4f1cc 100644
 --- a/src/pc/platform/platform_common.c
@@ -699,6 +769,32 @@ index 1ace02382..d30116823 100644
      if (recorder && scale > 1) {
          if (precise_count && recorder->precise) recorder->precise(precise, precise_count);
          recorder->gp0(words, count);
+diff --git a/src/pc/saves/save_slots.c b/src/pc/saves/save_slots.c
+index 56cafd25a..cf8bb4bd8 100644
+--- a/src/pc/saves/save_slots.c
++++ b/src/pc/saves/save_slots.c
+@@ -11,6 +11,9 @@
+ #include <sys/stat.h>
+ #include <time.h>
+ #include "pc/compat/posix.h"
++#ifdef MEMORIES_PS2
++#include "ps2/compat/ps2_files.h"
++#endif
+ 
+ /* Offsets in the save state (src/game/save_data.h). */
+ #define STATE_DECK 0x0
+@@ -104,6 +107,11 @@ static long read_file(int slot, unsigned char image[SAVE_SLOT_FILE_SIZE], long l
+     file = fopen(path, "rb");
+     if (!file) {
+         if (errno == ENOENT) return -1;
++#ifdef MEMORIES_PS2
++        /* fileXio's errors are not errno's: a file that is not there is missing. */
++        if (stat(path, &info) != 0) return -1;
++        printf("ps2: save slot %s: fopen failed (errno %d) but stat finds it\n", path, errno);
++#endif
+         snprintf(read_error, sizeof(read_error), "%s: %s.", path, strerror(errno));
+         return -2;
+     }
 diff --git a/src/pc/sdk/libgpu.c b/src/pc/sdk/libgpu.c
 index 26e2f08ee..92769b22b 100644
 --- a/src/pc/sdk/libgpu.c
@@ -780,6 +876,190 @@ index 019c6de32..7e900126d 100644
          scratch[SCRATCH_PRIMITIVE] = (u32)(uintptr_t)(block + 3);
          for (i = 0; i < count; i++) {
              u32 *primitive = WORDS(scratch[SCRATCH_PRIMITIVE]);
+diff --git a/src/pc/sdk/libmcrd.c b/src/pc/sdk/libmcrd.c
+index be33bc1c6..80f4940c0 100644
+--- a/src/pc/sdk/libmcrd.c
++++ b/src/pc/sdk/libmcrd.c
+@@ -29,6 +29,9 @@
+  * definition below that disagrees with one is a compile error rather than a
+  * result of the wrong width on LP64 hosts. */
+ #include "psyq/libmcrd.h"
++#ifdef MEMORIES_PS2
++#include "ps2/compat/ps2_files.h"
++#endif
+ 
+ _Static_assert(sizeof(struct DIRENTRY) == 40, "DIRENTRY keeps its 32-bit layout");
+ 
+diff --git a/src/pc/sdk/libpress.c b/src/pc/sdk/libpress.c
+index e7ab6d1da..3b4b5c165 100644
+--- a/src/pc/sdk/libpress.c
++++ b/src/pc/sdk/libpress.c
+@@ -219,8 +219,165 @@ void Memories_MdecService(void)
+     }
+ }
+ 
++#ifdef MEMORIES_PS2
++/* The PS2's EE: the float transform cost a 9 fps intro. The same IDCT in
++ * integers (the classic separable LLM one, 13-bit constants), skipping the
++ * columns and rows whose AC terms are all zero, and the colours in fixed
++ * point. Output: the block's values, centred on 0 as the float one's. */
++#define IC_BITS 13
++#define IP1_BITS 2
++#define F0298 2446
++#define F0390 3196
++#define F0541 4433
++#define F0765 6270
++#define F0899 7373
++#define F1175 9633
++#define F1501 12299
++#define F1847 15137
++#define F1961 16069
++#define F2053 16819
++#define F2562 20995
++#define F3072 25172
++#define IDESCALE(x, n) (((x) + (1 << ((n) - 1))) >> (n))
++
++static void idct_int(const int *in, int *out)
++{
++    int ws[64], c, r;
++    for (c = 0; c < 8; c++) {
++        const int *col = in + c;
++        int *w = ws + c;
++        int tmp0, tmp1, tmp2, tmp3, tmp10, tmp11, tmp12, tmp13, z1, z2, z3, z4, z5;
++        if (!(col[8] | col[16] | col[24] | col[32] | col[40] | col[48] | col[56])) {
++            int dc = col[0] << IP1_BITS;
++            w[0] = w[8] = w[16] = w[24] = w[32] = w[40] = w[48] = w[56] = dc;
++            continue;
++        }
++        z2 = col[16]; z3 = col[48];
++        z1 = (z2 + z3) * F0541;
++        tmp2 = z1 - z3 * F1847;
++        tmp3 = z1 + z2 * F0765;
++        z2 = col[0]; z3 = col[32];
++        tmp0 = (z2 + z3) << IC_BITS;
++        tmp1 = (z2 - z3) << IC_BITS;
++        tmp10 = tmp0 + tmp3; tmp13 = tmp0 - tmp3; tmp11 = tmp1 + tmp2; tmp12 = tmp1 - tmp2;
++        tmp0 = col[56]; tmp1 = col[40]; tmp2 = col[24]; tmp3 = col[8];
++        z1 = tmp0 + tmp3; z2 = tmp1 + tmp2; z3 = tmp0 + tmp2; z4 = tmp1 + tmp3;
++        z5 = (z3 + z4) * F1175;
++        tmp0 *= F0298; tmp1 *= F2053; tmp2 *= F3072; tmp3 *= F1501;
++        z1 *= -F0899; z2 *= -F2562; z3 *= -F1961; z4 *= -F0390;
++        z3 += z5; z4 += z5;
++        tmp0 += z1 + z3; tmp1 += z2 + z4; tmp2 += z2 + z3; tmp3 += z1 + z4;
++        w[0] = IDESCALE(tmp10 + tmp3, IC_BITS - IP1_BITS);
++        w[56] = IDESCALE(tmp10 - tmp3, IC_BITS - IP1_BITS);
++        w[8] = IDESCALE(tmp11 + tmp2, IC_BITS - IP1_BITS);
++        w[48] = IDESCALE(tmp11 - tmp2, IC_BITS - IP1_BITS);
++        w[16] = IDESCALE(tmp12 + tmp1, IC_BITS - IP1_BITS);
++        w[40] = IDESCALE(tmp12 - tmp1, IC_BITS - IP1_BITS);
++        w[24] = IDESCALE(tmp13 + tmp0, IC_BITS - IP1_BITS);
++        w[32] = IDESCALE(tmp13 - tmp0, IC_BITS - IP1_BITS);
++    }
++    for (r = 0; r < 8; r++) {
++        const int *w = ws + r * 8;
++        int *o = out + r * 8;
++        int tmp0, tmp1, tmp2, tmp3, tmp10, tmp11, tmp12, tmp13, z1, z2, z3, z4, z5;
++        if (!(w[1] | w[2] | w[3] | w[4] | w[5] | w[6] | w[7])) {
++            int dc = IDESCALE(w[0], IP1_BITS + 3);
++            o[0] = o[1] = o[2] = o[3] = o[4] = o[5] = o[6] = o[7] = dc;
++            continue;
++        }
++        z2 = w[2]; z3 = w[6];
++        z1 = (z2 + z3) * F0541;
++        tmp2 = z1 - z3 * F1847;
++        tmp3 = z1 + z2 * F0765;
++        tmp0 = (w[0] + w[4]) << IC_BITS;
++        tmp1 = (w[0] - w[4]) << IC_BITS;
++        tmp10 = tmp0 + tmp3; tmp13 = tmp0 - tmp3; tmp11 = tmp1 + tmp2; tmp12 = tmp1 - tmp2;
++        tmp0 = w[7]; tmp1 = w[5]; tmp2 = w[3]; tmp3 = w[1];
++        z1 = tmp0 + tmp3; z2 = tmp1 + tmp2; z3 = tmp0 + tmp2; z4 = tmp1 + tmp3;
++        z5 = (z3 + z4) * F1175;
++        tmp0 *= F0298; tmp1 *= F2053; tmp2 *= F3072; tmp3 *= F1501;
++        z1 *= -F0899; z2 *= -F2562; z3 *= -F1961; z4 *= -F0390;
++        z3 += z5; z4 += z5;
++        tmp0 += z1 + z3; tmp1 += z2 + z4; tmp2 += z2 + z3; tmp3 += z1 + z4;
++        o[0] = IDESCALE(tmp10 + tmp3, IC_BITS + IP1_BITS + 3);
++        o[7] = IDESCALE(tmp10 - tmp3, IC_BITS + IP1_BITS + 3);
++        o[1] = IDESCALE(tmp11 + tmp2, IC_BITS + IP1_BITS + 3);
++        o[6] = IDESCALE(tmp11 - tmp2, IC_BITS + IP1_BITS + 3);
++        o[2] = IDESCALE(tmp12 + tmp1, IC_BITS + IP1_BITS + 3);
++        o[5] = IDESCALE(tmp12 - tmp1, IC_BITS + IP1_BITS + 3);
++        o[3] = IDESCALE(tmp13 + tmp0, IC_BITS + IP1_BITS + 3);
++        o[4] = IDESCALE(tmp13 - tmp0, IC_BITS + IP1_BITS + 3);
++    }
++}
++
++static int decode_block_int(int *block)
++{
++    int coefficients[64], index = 0, qscale, value;
++    while (input < input_end && *input == 0xfe00) input++;
++    if (input >= input_end) return 0;
++    memset(coefficients, 0, sizeof(coefficients));
++    qscale = *input >> 10;
++    value = (int)(*input++ & 0x3ffu);
++    if (value & 0x200) value -= 0x400;
++    coefficients[0] = value * quant[0];
++    while (input < input_end) {
++        unsigned code = *input++;
++        if (code == 0xfe00) break;
++        index += (int)(code >> 10) + 1;
++        if (index > 63) break;
++        value = (int)(code & 0x3ffu);
++        if (value & 0x200) value -= 0x400;
++        value = qscale ? (value * quant[index] * qscale + 4) / 8 : value * 2;
++        coefficients[zigzag[index]] = value < -0x400 ? -0x400 : value > 0x3ff ? 0x3ff : value;
++    }
++    idct_int(coefficients, block);
++    return 1;
++}
++
++static inline int clamp8(int v) { return v < 0 ? 0 : v > 255 ? 255 : v; }
++
++static void complete_request_int(void)
++{
++    u8 *bytes = (u8 *)output;
++    size_t produced = 0, wanted = output_words * 4;
++    void (*callback)(void);
++    while (produced < wanted) {
++        int cr[64], cb[64], luma[4][64], x, y;
++        size_t macroblock = depth24 ? 16 * 16 * 3 : 16 * 16 * 2;
++        if (!decode_block_int(cr) || !decode_block_int(cb) || !decode_block_int(luma[0]) ||
++            !decode_block_int(luma[1]) || !decode_block_int(luma[2]) || !decode_block_int(luma[3]))
++            break;
++        for (y = 0; y < 16; y++) {
++            for (x = 0; x < 16; x++) {
++                int l = luma[(y >> 3) * 2 + (x >> 3)][(y & 7) * 8 + (x & 7)] + 128;
++                int r_ = cr[(y >> 1) * 8 + (x >> 1)], b_ = cb[(y >> 1) * 8 + (x >> 1)];
++                int r = clamp8(l + ((r_ * 22970 + 8192) >> 14));
++                int g = clamp8(l - ((b_ * 5631 + r_ * 11703 + 8192) >> 14));
++                int b = clamp8(l + ((b_ * 29032 + 8192) >> 14));
++                if (depth24) {
++                    size_t at = produced + ((size_t)y * 16 + (size_t)x) * 3;
++                    if (at + 3 <= wanted) { bytes[at] = (u8)r; bytes[at + 1] = (u8)g; bytes[at + 2] = (u8)b; }
++                } else {
++                    size_t at = produced + ((size_t)y * 16 + (size_t)x) * 2;
++                    u16 pixel = (u16)((r >> 3) | ((g >> 3) << 5) | ((b >> 3) << 10));
++                    if (at + 2 <= wanted) { memcpy(bytes + at, &pixel, 2); }
++                }
++            }
++        }
++        produced += macroblock;
++    }
++    output = NULL;
++    callback = out_callback;
++    if (callback) callback();
++}
++#endif
++
+ static void complete_request(void)
+ {
++#ifdef MEMORIES_PS2
++    complete_request_int();
++    return;
++#endif
+     u8 *bytes;
+     size_t produced = 0, wanted;
+     void (*callback)(void);
 diff --git a/src/types.h b/src/types.h
 index 9b1da0536..362dd2e2f 100644
 --- a/src/types.h

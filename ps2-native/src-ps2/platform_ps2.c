@@ -20,6 +20,7 @@ extern int fileXioInit(void); /* newlib then goes through fileXio (iomanX device
 #include <dmaKit.h>
 #include <debug.h>
 #include <stdarg.h>
+#include <sys/stat.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -32,6 +33,7 @@ extern int fileXioInit(void); /* newlib then goes through fileXio (iomanX device
 #include "pc/platform/loading.h"
 #include "pc/cards/cards.h"
 #include "ps2.h"
+#include "pc/saves/save_menu.h"
 #include "gs_gpu.h"
 
 extern int Memories_PcMain(int argc, char **argv);
@@ -57,10 +59,48 @@ void Ps2_Log(const char *format, ...)
 static int video_open;
 static void video_close(void);
 
+/* ---- the boot log: on screen until the game's picture takes over, and in
+ * YFM-LOG.txt beside the ELF (closed and reopened at each step, so what it
+ * says survives a hang: the card's file size is only written at a close). */
+static char log_path[300];
+static int boot_screen;
+void Ps2_LogSync(void)
+{
+    if (!log_path[0]) return;
+    fflush(stdout);
+    if (!freopen(log_path, "a", stdout)) log_path[0] = 0;
+    else setvbuf(stdout, NULL, _IOLBF, 0);
+}
+/* A boot step that may hang on some console: named in YFM-SAVE/passo.txt
+ * before it is tried, so the next boot skips it (Ps2_SkipStep). */
+static char step_path[300], failed_step[32];
+void Ps2_RiskyStep(const char *name)
+{
+    FILE *file;
+    if (!step_path[0]) return;
+    if ((file = fopen(step_path, "w"))) {
+        fputs(name, file);
+        fclose(file);
+    }
+}
+int Ps2_SkipStep(const char *name) { return failed_step[0] && !strcmp(failed_step, name); }
+void Ps2_Stage(const char *format, ...)
+{
+    char line[160];
+    va_list args;
+    va_start(args, format);
+    vsnprintf(line, sizeof(line), format, args);
+    va_end(args);
+    printf("ps2: stage: %s\n", line);
+    if (boot_screen) scr_printf("  %s\n", line);
+    Ps2_LogSync();
+}
+
 void Ps2_Fatal(const char *message)
 {
     unsigned i;
     printf("ps2: FATAL: %s\n", message);
+    Ps2_LogSync();
     video_close();
     init_scr();
     scr_printf("\n\n  Yu-Gi-Oh! Forbidden Memories - PS2\n\n  %s\n\n", message);
@@ -177,7 +217,12 @@ void Platform_Present(const uint16_t *vram, int stride, int x, int y, int w, int
     int i, j;
     static unsigned presents;
     if (GsGpu_Active()) {
-        if (++presents == 1) printf("ps2: first picture %dx%d%s (GS)\n", w, h, rgb24 ? " (24-bit)" : "");
+        if (++presents == 1) Ps2_Stage("primeira imagem %dx%d%s", w, h, rgb24 ? " (24-bit)" : "");
+        if (presents == 120) {
+            /* Booted: what was skipped stays skipped (passo.txt keeps its name). */
+            Ps2_RiskyStep(failed_step[0] ? failed_step : "ok");
+            Ps2_Stage("120 quadros ok");
+        }
         GsGpu_Present(vram, x, y, w, h, rgb24);
         return;
     }
@@ -238,8 +283,11 @@ int Platform_Open(const char *title)
     ControlsRuntime_Init();
     Menu_LoadSettingsWithoutMods();
     Menu_LoadMods();
+    Ps2_Stage("video: GS");
+    boot_screen = 0;
     if (getenv("PS2_SOFT_PICTURE")) video_start();
     else GsGpu_Init();
+    Ps2_Stage("video ligado");
     Loading_Begin(&loading_sink);
     return 0;
 }
@@ -427,6 +475,7 @@ void Platform_Frame(unsigned frame)
      * kernel mode) is put back before the game touches its memory again. */
     Ps2_EnterGuestMode();
     if (frame == 1 || frame % 600 == 0) printf("ps2: frame %u\n", frame);
+    if (frame <= 1800 && (frame <= 3 || frame % 60 == 0)) Ps2_LogSync();
     {
         extern int Ps2_ModelCalls;
         static int model_dumped, model_frames;
@@ -435,6 +484,13 @@ void Platform_Frame(unsigned frame)
             printf("ps2: the models ran (%d calls): dump\n", Ps2_ModelCalls);
             live_bits = 0xFFFF;
         }
+    }
+    if (live_bits == 0xFFFD) {
+        static unsigned char test_buffer[0x4000];
+        live_bits = 0;
+        int sound;
+        SaveMenu_Begin(SAVE_MENU_SAVE, test_buffer + 0x200, NULL, 0x2000, "BASLUS-01411YUGIOH", NULL);
+        SaveMenu_Poll(0, 0, &sound, NULL);
     }
     if (live_bits == 0xFFFE) {
         extern int GsGpu_FrameLog;
@@ -503,6 +559,10 @@ int main(int argc, char **argv)
     static char *pc_argv[2] = {"memories-ps2", NULL};
     printf("ps2: Yu-Gi-Oh! Forbidden Memories PS2 port starting (%s)\n", argc > 0 ? argv[0] : "?");
     iop_start();
+    init_scr();
+    boot_screen = 1;
+    scr_printf("\n\n  Yu-Gi-Oh! Forbidden Memories - PS2 (debug)\n\n");
+    Ps2_Stage("IOP: usb %d, controle %d, audio %d", usb_ok, pad_ok, audio_ok);
     {
         extern void Ps2_InstallFaultHandlers(void);
         Ps2_InstallFaultHandlers();
@@ -517,6 +577,7 @@ int main(int argc, char **argv)
     } else if (!strncmp(program_dir, "cdrom", 5) || !program_dir[0]) {
         snprintf(program_dir, sizeof(program_dir), "mass:/YFM");
     }
+    Ps2_Stage("pasta: %s", program_dir);
     /* The USB stick needs a moment to appear after its driver loads. */
     disc = find_disc();
     if (!disc && usb_ok) {
@@ -532,7 +593,33 @@ int main(int argc, char **argv)
                                      "  next to the ELF:\n  %s/YFM.bin", program_dir);
         Ps2_Fatal(text);
     }
-    printf("ps2: disc image %s\n", disc);
+    if (strncmp(program_dir, "host", 4)) {
+        snprintf(log_path, sizeof(log_path), "%s/YFM-LOG.txt", program_dir);
+        if (freopen(log_path, "w", stdout)) {
+            setvbuf(stdout, NULL, _IOLBF, 0);
+            stderr = stdout;
+        } else {
+            log_path[0] = 0;
+        }
+    }
+    Ps2_Stage("disco: %s", disc);
+    if (strncmp(program_dir, "host", 4)) {
+        FILE *file;
+        char dir[300];
+        snprintf(dir, sizeof(dir), "%s/YFM-SAVE", program_dir);
+        mkdir(dir, 0777);
+        snprintf(step_path, sizeof(step_path), "%s/YFM-SAVE/passo.txt", program_dir);
+        if ((file = fopen(step_path, "r"))) {
+            size_t got = fread(failed_step, 1, sizeof(failed_step) - 1, file);
+            fclose(file);
+            failed_step[got] = 0;
+            if (!strcmp(failed_step, "ok")) failed_step[0] = 0;
+            else if (!strcmp(failed_step, "espelho")) {
+                /* the low mirror hung once; then the supervisor mode is next */
+            }
+        }
+        if (failed_step[0]) Ps2_Stage("a ultima vez travou em '%s': pulando", failed_step);
+    }
     {
         struct timespec a, b;
         volatile unsigned spin;
@@ -576,4 +663,45 @@ int main(int argc, char **argv)
         Ps2_StartSampler();
     }
     return Memories_PcMain(1, pc_argv);
+}
+
+/* ---- the port's menus over the picture (gs_gpu.c draws it) ---- */
+#include "pc/platform/menu.h"
+#include "pc/saves/save_menu.h"
+#include "pc/saves/deck_menu.h"
+static uint32_t overlay_argb[320 * 240];
+static uint32_t overlay_gs[320 * 240] __attribute__((aligned(64)));
+const uint32_t *Ps2_OverlayPicture(int *changed)
+{
+    static unsigned last_signature;
+    static int was_shown;
+    int shown = SaveMenu_Active() || DeckMenu_Active() || Menu_NoticeShown();
+    unsigned signature;
+    if (!shown) {
+        was_shown = 0;
+        return NULL;
+    }
+    signature = SaveMenu_Signature() * 2654435761u ^ DeckMenu_Signature() * 40503u ^ (unsigned)Menu_NoticeShown();
+    *changed = !was_shown || signature != last_signature;
+    if (*changed) {
+        MenuCanvas canvas = {overlay_argb, 320, 320, 240, 1};
+        int x, y, w, h, i;
+        memset(overlay_argb, 0, sizeof(overlay_argb));
+        Menu_SetOverlayArea(0, 0, 0);
+        SaveMenu_Draw(&canvas, &x, &y, &w, &h);
+        if (!w || !h) DeckMenu_Draw(&canvas, &x, &y, &w, &h);
+        if (Menu_NoticeShown()) Menu_Draw(&canvas);
+        for (i = 0; i < 320 * 240; i++) {
+            uint32_t p = overlay_argb[i], a = p >> 24;
+            overlay_gs[i] = ((p >> 16) & 0xFF) | (p & 0xFF00) | ((p & 0xFF) << 16) | (((a + 1) >> 1) << 24);
+        }
+        {
+            unsigned nz = 0, op = 0;
+            for (i = 0; i < 320 * 240; i++) nz += overlay_argb[i] != 0, op += (overlay_argb[i] >> 24) != 0;
+            printf("ps2: overlay drawn %d,%d %dx%d: %u pixels, %u with alpha\n", x, y, w, h, nz, op);
+        }
+        last_signature = signature;
+        was_shown = 1;
+    }
+    return overlay_gs;
 }

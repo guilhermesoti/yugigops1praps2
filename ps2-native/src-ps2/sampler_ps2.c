@@ -152,6 +152,11 @@ static int on_fault(EE_RegFrame *frame)
         (frame->badvaddr & 0xE0000000u) >= 0x80000000u && (frame->badvaddr & 0xE0000000u) <= 0xA0000000u &&
         (frame->badvaddr & 0x1FFFFFFFu) < 0x200000u && emulate_retail_access(frame))
         return 1;
+    /* A null pointer plus a little, where the low mirror is not mapped (a
+     * console whose kernel refused it): the guest's first pages. */
+    if ((cause == 2 || cause == 3) && !(frame->cause & 0x80000000u) && frame->badvaddr < 0x00080000u &&
+        emulate_retail_access(frame))
+        return 1;
     crash_epc = frame->epc;
     crash_badvaddr = frame->badvaddr;
     crash_cause = frame->cause;

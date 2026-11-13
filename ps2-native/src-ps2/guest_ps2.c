@@ -73,6 +73,7 @@ int Memories_GuestMap(void)
     a = _SetTLBEntry(40, 0x001FE000u, WINDOW, entry_lo(physical), entry_lo(physical + 0x100000u));
     b = _SetTLBEntry(41, 0x001FE000u, WINDOW + 0x200000u, entry_lo(STACKS_PHYSICAL), entry_lo(STACKS_PHYSICAL));
     printf("ps2: guest window 0x%08x -> physical 0x%08x (TLB %d, %d)\n", WINDOW, (unsigned)physical, a, b);
+    Ps2_Stage("memoria: TLB %d %d", a, b);
     /* The console's RAM is also at its physical addresses, from 0: a null
      * pointer reads its first page, and a 24-bit packet link is a physical
      * address. The kernel maps nothing below 0x00080000 and the program's
@@ -82,8 +83,12 @@ int Memories_GuestMap(void)
         static const struct { int index; unsigned va; } low[] = {
             {47, 0x00000000u}, {13, 0x00080000u}, {14, 0x00100000u}, {15, 0x00180000u}};
         unsigned i;
+        int skip0 = Ps2_SkipStep("espelho0"), skip1 = skip0 || Ps2_SkipStep("espelho1");
+        int skip = skip0 && skip1;
         for (i = 0; i < sizeof(low) / sizeof(low[0]); i++) {
             unsigned mask, hi, lo0, lo1;
+            if (low[i].index == 47 ? skip0 : skip1) continue;
+            Ps2_RiskyStep(low[i].index == 47 ? "espelho0" : "espelho1");
             if (low[i].index != 47 && (GetTLBEntry(low[i].index, &mask, &hi, &lo0, &lo1) < 0 || hi != low[i].va ||
                                        mask != 0x0007E000u)) {
                 printf("ps2: TLB entry %d is not the expected 0x%08x map; the low mirror stays off\n", low[i].index,
@@ -92,13 +97,22 @@ int Memories_GuestMap(void)
             }
             _SetTLBEntry(low[i].index, 0x0007E000u, low[i].va, entry_lo(GUEST_PHYSICAL + low[i].va),
                          entry_lo(GUEST_PHYSICAL + low[i].va + 0x40000u));
+            Ps2_Stage("espelho: entrada %d", low[i].index);
         }
+        Ps2_Stage(skip ? "espelho baixo: pulado" : skip1 ? "espelho baixo: so a entrada 47" : "espelho baixo ok");
     }
     if (a < 0 || b < 0) {
         Ps2_Fatal("Could not map the game's memory (TLB).");
         return -1;
     }
-    Ps2_EnterGuestMode();
+    if (Ps2_SkipStep("supervisor")) {
+        Ps2_GuestMode = 0; /* kernel mode: the window without the supervisor's fault on KSEG0 */
+        Ps2_Stage("modo kernel");
+    } else {
+        Ps2_RiskyStep("supervisor");
+        Ps2_EnterGuestMode();
+        Ps2_Stage("modo supervisor ok");
+    }
     mapped = 1;
     memset((void *)(uintptr_t)WINDOW, 0, 0x200000u);
     memset((void *)(uintptr_t)(WINDOW + 0x300000u), 0, 0x100000u);
@@ -145,6 +159,7 @@ int Memories_GuestLoadExeData(const unsigned char *data, size_t length, const ch
     (void)image;
     memcpy((void *)(uintptr_t)MEMORIES_RETAIL(address), data + 0x800, size);
     relocate_image(address, size);
+    Ps2_Stage("executavel do jogo carregado");
     return 0;
 }
 
@@ -369,4 +384,31 @@ void Ps2_GuestDump(const char *why, int index)
     }
     printf("ps2: guest RAM dumped: %s\n", path);
     if (index == 99) Ps2_Fatal("GsSortUnit: a broken model");
+}
+
+#undef rename
+int Ps2_Fsync(int fd) { (void)fd; return 0; }
+int Ps2_Rename(const char *from, const char *to)
+{
+    static char buffer[0x4000];
+    FILE *in, *out;
+    size_t got;
+    int failed = 0;
+    if (rename(from, to) == 0) return 0;
+    remove(to);
+    if (rename(from, to) == 0) return 0;
+    /* Copy, then drop the source. */
+    if (!(in = fopen(from, "rb"))) return -1;
+    if (!(out = fopen(to, "wb"))) {
+        fclose(in);
+        return -1;
+    }
+    while ((got = fread(buffer, 1, sizeof(buffer), in)) > 0)
+        if (fwrite(buffer, 1, got, out) != got) failed = 1;
+    fclose(in);
+    if (fclose(out) != 0) failed = 1;
+    if (failed) return -1;
+    remove(from);
+    printf("ps2: rename %s -> %s by copying\n", from, to);
+    return 0;
 }
