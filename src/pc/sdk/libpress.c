@@ -142,6 +142,7 @@ static size_t output_words;
 static void (*out_callback)(void);
 static float cosines[8][8];
 
+void Memories_MdecService(void);
 void DecDCTin(u32 *buffer, int mode)
 {
     input = (const u16 *)(buffer + 1);
@@ -153,6 +154,22 @@ void DecDCTout(u32 *buffer, int size)
 {
     output = buffer;
     output_words = (size_t)size;
+#ifdef MEMORIES_PS2
+    {
+        /* The PS2 has only the cooperative clock: nothing would interrupt
+         * the movie player's wait for the frame (Movie_WaitFrameDecoded, a
+         * 0x800000 spin with no VSync), so it would spin to its timeout on
+         * every frame and the frame would be decoded a tick late. The whole
+         * frame is decoded now instead; the callback's own DecDCTout for the
+         * next strip only queues it (Memories_MdecService's loop takes it). */
+        static int decoding;
+        if (!decoding) {
+            decoding = 1;
+            Memories_MdecService();
+            decoding = 0;
+        }
+    }
+#endif
 }
 
 int DecDCToutCallback(void (*callback)(void))
