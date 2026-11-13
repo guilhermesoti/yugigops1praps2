@@ -1,0 +1,626 @@
+/* A small MIPS I interpreter for the overlays that have no C source: the WA
+ * duel-effect bank at 0x80146000 and the per-monster MODEL control modules
+ * swapped into 0x8013A000/0x8013B000 (slot A) and 0x8017A000/0x8017B000
+ * (slot B). The retail bytes are loaded by the game's own loader at their
+ * original addresses; the interpreter runs them there and bridges every
+ * call that leaves the overlay to the native function of that address.
+ *
+ * Scope: integer MIPS I plus COP2 through the software GTE. `break` is
+ * GCC's divide-by-zero trap, which only follows a zero divisor the `div`
+ * case already skips, so it is a no-op. A scan of the retail modules
+ * (notes/pc-build.md, "MIPS-only effects") found nothing else.
+ *
+ * Calls nest: overlay -> native -> overlay callback (through the guest-call
+ * fault handler, Memories_MipsThunk) -> native. Every level shares one
+ * guest-visible stack mapped at a negative address, because model code
+ * tells a pointer from a small number by its sign; each level starts below
+ * the innermost live frame. Failures (an instruction outside the subset, a
+ * call to an address with no native function) unwind to the bridge that
+ * started the level, which can fall back instead of stopping the game. */
+#define _GNU_SOURCE
+#include "mips.h"
+#include "image.h"
+#ifdef MEMORIES_TRANSLATED
+#include "translated_runtime.h"
+#endif
+#include "pc/compat/gte.h"
+#include "pc/rng.h"
+#include "pc/debug/log.h"
+#include "pc/debug/crash.h"
+#include <setjmp.h>
+#include <time.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "pc/compat/mman.h"
+
+#ifdef MEMORIES_PS2
+/* In the guest window (src/ps2/force.h), negative as on the console. */
+#define STACK_BASE 0xC0340000u
+#else
+#define STACK_BASE 0x9FF00000u
+#endif
+#define STACK_SIZE 0x40000u
+#define LIMIT 20000000u
+
+typedef struct { uint32_t r[32], hi, lo, pc; unsigned steps; jmp_buf *escape; } State;
+
+extern int rsin(int angle);
+extern int rcos(int angle);
+extern int Psx_csin(int angle);
+extern int Psx_ccos(int angle);
+/* src/game/func_80058938.h, whose types this file cannot include (its s32 is
+ * a store here): the colors are the words their registers hold. */
+extern void Model_QueueTintRequestForPartList(int32_t slot, int32_t part, uint32_t start, uint32_t end,
+                                              int32_t duration, const int32_t *parts);
+
+static uint32_t stack_top;   /* 0 until the stack is mapped */
+static uint8_t *stack_memory; /* its lowest byte, as the host reaches it */
+static uint32_t current_sp;  /* the innermost interpreted frame, or 0 */
+uint32_t Memories_MipsThunkTarget;
+#include "state.h"
+#include "state_io.h"
+#ifdef MEMORIES_TRANSLATED
+void Memories_MipsState(MemoriesState *state)
+{
+    MemoriesStateField fields[] = {{&stack_top, sizeof(stack_top)}, {&current_sp, sizeof(current_sp)},
+                                  {&Memories_MipsThunkTarget, sizeof(Memories_MipsThunkTarget)}};
+    Memories_StateChunk(state, "arm64-mips", fields, sizeof(fields) / sizeof(fields[0]));
+}
+#endif
+
+/* Retail code reaches the scratchpad at 0x1F800000, which the host may not
+ * let the port map; the port's view of it is 0x9F800000 (image.h). Every
+ * guest address the interpreter dereferences, or hands to native code,
+ * goes through AT(): where something else holds 0x1F800000 (an Android
+ * app's Java heap) an access there would not fault but reach the holder. */
+#define AT(a) ((uintptr_t)MEMORIES_SCRATCHPAD_VIEW(a))
+/* A word the interpreter hands to native code (an argument or a result),
+ * which may or may not be a pointer: translated only where the retail view
+ * is not mapped (an Android app). Where it is (Windows, Linux) both
+ * addresses reach the same page, and the word goes over as it is, so an
+ * integer in 0x1F800000-0x1F8003FF is never changed there. */
+#define HANDED(v) (Memories_ScratchpadRetailView ? (uintptr_t)(v) : AT(v))
+static uint32_t l32(uint32_t a) { return *(uint32_t *)AT(a); }
+static uint16_t l16(uint32_t a) { return *(uint16_t *)AT(a); }
+static uint8_t l8(uint32_t a) { return *(uint8_t *)AT(a); }
+static void s32(uint32_t a, uint32_t v) { *(uint32_t *)AT(a) = v; }
+static void s16(uint32_t a, uint16_t v) { *(uint16_t *)AT(a) = v; }
+static void s8(uint32_t a, uint8_t v) { *(uint8_t *)AT(a) = v; }
+
+/* The bank at 0x80180000 holds the natively linked main-menu overlay, but
+ * the credits (func_800507D0) load 16 SU sectors of MIPS there and call
+ * into them: interpret that region whenever no native module is resident. */
+static int native_module_resident_at(uint32_t bank)
+{
+    unsigned i;
+    for (i = 0; i < Memories_ModuleCount; i++) {
+        if (Memories_Modules[i].bank == bank && Memories_ModuleIsResident(bank, Memories_Modules[i].identifier)) {
+            return 1;
+        }
+    }
+    return 0;
+}
+
+int Memories_MipsInOverlay(uint32_t address)
+{
+    if (address >= 0x80180000u && address < 0x80188000u) {
+        return !native_module_resident_at(0x80180000u);
+    }
+    return (address >= 0x8013A000u && address < 0x80168000u) || (address >= 0x8017A000u && address < 0x80180000u);
+}
+
+static int ensure_stack(void)
+{
+    void *wanted = (void *)(uintptr_t)STACK_BASE;
+    if (stack_top) {
+        return 0;
+    }
+#ifdef MEMORIES_PS2
+    stack_memory = wanted;
+    stack_top = STACK_BASE + STACK_SIZE - 16;
+    return 0;
+#endif
+    if (Memories_MapFixed(wanted, STACK_SIZE, PROT_READ | PROT_WRITE, MAP_FIXED_NOREPLACE | MAP_PRIVATE | MAP_ANONYMOUS,
+                          -1, 0) != wanted) {
+        static uint32_t fallback[STACK_SIZE / 4] __attribute__((aligned(16)));
+        fprintf(stderr, "memories-pc: cannot map the overlay stack at 0x%08x; using host memory\n", STACK_BASE);
+        stack_memory = (uint8_t *)fallback;
+        stack_top = (uint32_t)(uintptr_t)(fallback + STACK_SIZE / 4) - 16;
+        return 0;
+    }
+    stack_memory = wanted;
+    stack_top = STACK_BASE + STACK_SIZE - 16;
+    return 0;
+}
+
+/* The interpreted code's stack, for save states (state_subsystems.c). Retail
+ * module code reads locals it never wrote (variant module 128: the fourth
+ * byte of the two colours it hands Model_QueueTintRequestForParts, the start
+ * one becoming the tint pass's draw mode, and the corners of a POLY_FT4 that
+ * only SetPolyFT4 touched): on the console those read what earlier code left
+ * on the stack, which a state holds as part of RAM. So does this one, or a
+ * battle started from a state would look different after other battles. */
+void *Memories_MipsStack(size_t *size)
+{
+    ensure_stack();
+    *size = 0;
+    /* Host memory above 4 GiB (the fallback on a 64-bit host): guest words
+     * cannot address it, so interpreted code could not run on it either. */
+    if (!stack_memory || (uint64_t)(uintptr_t)stack_memory + STACK_SIZE > (uint64_t)UINT32_MAX + 1) return NULL;
+    *size = STACK_SIZE;
+    return stack_memory;
+}
+
+#ifndef MEMORIES_TRANSLATED
+/* Its state chunk, "mips-stack" (the translated game keeps the stack with
+ * its other mappings). A state without it, or with one of another size,
+ * clears the stack, as at boot, so that loading such a state twice gives
+ * the same game too; without a stack to carry the chunk is left out. */
+void Memories_MipsStackState(MemoriesState *state)
+{
+    static const char tag[] = "mips-stack";
+    size_t size, saved = 0;
+    const uint8_t *found = NULL;
+    MemoriesStateField field;
+    field.data = Memories_MipsStack(&size);
+    field.size = size;
+    if (!field.data) return;
+    if (Memories_StateLoading(state) && (!(found = Memories_StateFindChunk(state, tag, &saved)) || saved != size)) {
+        fprintf(stderr, "memories-pc: state: %s '%s' (%lu bytes in the state, %lu in this build); the interpreter's "
+                        "stack is cleared\n", found ? "layout changed for" : "no chunk", tag, (unsigned long)saved,
+                (unsigned long)size);
+        memset(field.data, 0, size);
+        return;
+    }
+    Memories_StateChunk(state, tag, &field, 1);
+}
+#endif
+
+/* The last run's instructions, for the trace (Memories_MipsTry), failed runs too. */
+static unsigned try_steps;
+
+static void fail(State *s, uint32_t pc, const char *what, uint32_t detail)
+{
+    char text[160];
+    try_steps = s->steps;
+    fprintf(stderr, "memories-pc: MIPS overlay: %s (0x%08x at 0x%08x)\n", what, detail, pc);
+    if (s->escape) {
+        longjmp(*s->escape, 1);
+    }
+    snprintf(text, sizeof(text), "%s (0x%08x at 0x%08x)", what, detail, pc);
+    Crash_ReportFatal("MIPS overlay", text);
+    exit(71);
+}
+
+static const MemoriesGuestFunction *find_native(uint32_t address)
+{
+    unsigned lo = 0, hi = Memories_FunctionMapCount;
+    while (lo < hi) {
+        unsigned mid = (lo + hi) / 2;
+        if (Memories_FunctionMap[mid].guest < address) lo = mid + 1;
+        else hi = mid;
+    }
+    while (lo < Memories_FunctionMapCount && Memories_FunctionMap[lo].guest == address) {
+        if (Memories_ModuleIsResident(Memories_FunctionMap[lo].bank, Memories_FunctionMap[lo].identifier))
+            return &Memories_FunctionMap[lo];
+        lo++;
+    }
+    return NULL;
+}
+
+static uint32_t call_native(State *s, uint32_t address)
+{
+    const MemoriesGuestFunction *e;
+#ifndef MEMORIES_TRANSLATED
+    /* uintptr_t: a 64-bit callee reads whole registers, and a guest pointer
+     * argument must arrive zero-extended (the same types on i386). */
+    typedef uintptr_t (*Call)(uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t, uintptr_t,
+                              uintptr_t, uintptr_t, uintptr_t, uintptr_t);
+#endif
+    uint32_t sp = s->r[29], keep, result;
+
+    /* libc and libmath routines linked as SDK assembly in the original and
+     * therefore absent from the generated native function map. */
+    switch (address) {
+    case 0x8008E360u: memset((void *)AT(s->r[4]), 0, s->r[5]); return s->r[4];
+    case 0x8008E3D0u: memset((void *)AT(s->r[4]), s->r[5], s->r[6]); return s->r[4];
+    case 0x800866A0u: return (uint32_t)rsin((int)s->r[4]);
+    case 0x80086770u: return (uint32_t)rcos((int)s->r[4]);
+    case 0x80086920u: return (uint32_t)Psx_ccos((int)s->r[4]);
+    case 0x80086BB0u: return (uint32_t)Psx_csin((int)s->r[4]);
+    case 0x8008E590u: return Memories_Rand();
+    /* The string routines, on guest pointers (guest RAM is mapped at its own address). */
+#define G(reg) ((void *)AT(s->r[reg]))
+#define GS(reg) ((const char *)AT(s->r[reg]))
+    case 0x8008E320u: memmove(G(5), G(4), s->r[6]); return 0; /* bcopy(src, dst, n) */
+    case 0x8008E390u: memcpy(G(4), G(5), s->r[6]); return s->r[4];
+    case 0x8008FA80u: memmove(G(4), G(5), s->r[6]); return s->r[4];
+    case 0x8008E5D0u: strcat(G(4), GS(5)); return s->r[4];
+    case 0x8008E680u: return (uint32_t)strcmp(GS(4), GS(5));
+    case 0x8008E6F0u: strcpy(G(4), GS(5)); return s->r[4];
+    case 0x8008E740u: return (uint32_t)strlen(GS(4));
+    case 0x8008E780u: return (uint32_t)strncmp(GS(4), GS(5), s->r[6]);
+    case 0x8008E800u: strncpy(G(4), GS(5), s->r[6]); return s->r[4];
+#undef G
+#undef GS
+    case 0x8008E870u: /* printf: the modules' debug prints */
+        LOG(LOG_MIPS_PRINTF, "overlay printf: %s", (const char *)AT(s->r[4]));
+        return 0;
+    case 0x80058838u: { /* Model_QueueTintRequestForParts(slot, part, start, end, duration, part, ..., -1) */
+        /* The variant modules pass up to 18 parts (24 argument words), more
+         * than the twelve forwarded below, so the list is handed over where
+         * the module left it on the guest stack. */
+        keep = current_sp;
+        current_sp = sp;
+        Model_QueueTintRequestForPartList((int32_t)s->r[4], (int32_t)s->r[5], s->r[6], s->r[7],
+                                          (int32_t)l32(sp + 16), (const int32_t *)AT(sp + 20));
+        current_sp = keep;
+        return 0;
+    }
+    default: break;
+    }
+    e = find_native(address);
+    if (!e) {
+        fail(s, s->pc, "call to an address with no native function", address);
+    }
+    keep = current_sp;
+    current_sp = sp;
+#ifdef MEMORIES_TRANSLATED
+    {
+        uint32_t arguments[12] = {s->r[4], s->r[5], s->r[6], s->r[7]};
+        unsigned i;
+        for (i = 4; i < 12; i++) arguments[i] = l32(sp + i * 4);
+        result = GuestRuntime_InvokeNative((unsigned)(e - Memories_FunctionMap), arguments);
+    }
+#else
+    /* Where the retail view is not mapped, a retail scratchpad pointer among
+     * the arguments arrives as the port's view, as native game code writes
+     * it (SCRATCHPAD_ADDR). Which words are pointers is not known here, so
+     * an integer argument in that 1 KiB would be changed too; with the
+     * retail view mapped (the desktops) nothing is (HANDED). */
+    result = (uint32_t)((Call)e->host)(HANDED(s->r[4]), HANDED(s->r[5]), HANDED(s->r[6]), HANDED(s->r[7]),
+                                       HANDED(l32(sp + 16)), HANDED(l32(sp + 20)), HANDED(l32(sp + 24)),
+                                       HANDED(l32(sp + 28)), HANDED(l32(sp + 32)), HANDED(l32(sp + 36)),
+                                       HANDED(l32(sp + 40)), HANDED(l32(sp + 44)));
+#endif
+    current_sp = keep;
+    return result;
+}
+
+static void plain(State *s, uint32_t pc)
+{
+    uint32_t ins = l32(pc), a, word;
+    unsigned op = ins >> 26, rs = ins >> 21 & 31, rt = ins >> 16 & 31, rd = ins >> 11 & 31, sa = ins >> 6 & 31,
+             fn = ins & 63;
+    int32_t im = (int16_t)ins;
+    uint64_t up;
+    int64_t sp;
+    if (!ins) return;
+    switch (op) {
+    case 0:
+        switch (fn) {
+        case 0: s->r[rd] = s->r[rt] << sa; break;
+        case 2: s->r[rd] = s->r[rt] >> sa; break;
+        case 3: s->r[rd] = (uint32_t)((int32_t)s->r[rt] >> sa); break;
+        case 4: s->r[rd] = s->r[rt] << (s->r[rs] & 31); break;
+        case 6: s->r[rd] = s->r[rt] >> (s->r[rs] & 31); break;
+        case 7: s->r[rd] = (uint32_t)((int32_t)s->r[rt] >> (s->r[rs] & 31)); break;
+        case 0x0c: fail(s, pc, "syscall", ins); break;
+        case 0x0d: break; /* break: GCC's divide-by-zero trap, never reached */
+        case 0x10: s->r[rd] = s->hi; break;
+        case 0x11: s->hi = s->r[rs]; break;
+        case 0x12: s->r[rd] = s->lo; break;
+        case 0x13: s->lo = s->r[rs]; break;
+        case 0x18: sp = (int64_t)(int32_t)s->r[rs] * (int32_t)s->r[rt]; s->lo = (uint32_t)sp; s->hi = (uint32_t)(sp >> 32); break;
+        case 0x19: up = (uint64_t)s->r[rs] * s->r[rt]; s->lo = (uint32_t)up; s->hi = (uint32_t)(up >> 32); break;
+        case 0x1a:
+            if (s->r[rt]) {
+                if (s->r[rt] == 0xffffffffu) { s->lo = (uint32_t)-(int32_t)s->r[rs]; s->hi = 0; }
+                else { s->lo = (uint32_t)((int32_t)s->r[rs] / (int32_t)s->r[rt]); s->hi = (uint32_t)((int32_t)s->r[rs] % (int32_t)s->r[rt]); }
+            } else { s->lo = (int32_t)s->r[rs] < 0 ? 1u : 0xffffffffu; s->hi = s->r[rs]; }
+            break;
+        case 0x1b:
+            if (s->r[rt]) { s->lo = s->r[rs] / s->r[rt]; s->hi = s->r[rs] % s->r[rt]; }
+            else { s->lo = 0xffffffffu; s->hi = s->r[rs]; }
+            break;
+        case 0x20: case 0x21: s->r[rd] = s->r[rs] + s->r[rt]; break;
+        case 0x22: case 0x23: s->r[rd] = s->r[rs] - s->r[rt]; break;
+        case 0x24: s->r[rd] = s->r[rs] & s->r[rt]; break;
+        case 0x25: s->r[rd] = s->r[rs] | s->r[rt]; break;
+        case 0x26: s->r[rd] = s->r[rs] ^ s->r[rt]; break;
+        case 0x27: s->r[rd] = ~(s->r[rs] | s->r[rt]); break;
+        case 0x2a: s->r[rd] = (int32_t)s->r[rs] < (int32_t)s->r[rt]; break;
+        case 0x2b: s->r[rd] = s->r[rs] < s->r[rt]; break;
+        default: fail(s, pc, "unsupported instruction", ins);
+        }
+        break;
+    case 8: case 9: s->r[rt] = s->r[rs] + (uint32_t)im; break;
+    case 0xa: s->r[rt] = (int32_t)s->r[rs] < im; break;
+    case 0xb: s->r[rt] = s->r[rs] < (uint32_t)im; break;
+    case 0xc: s->r[rt] = s->r[rs] & (ins & 0xffff); break;
+    case 0xd: s->r[rt] = s->r[rs] | (ins & 0xffff); break;
+    case 0xe: s->r[rt] = s->r[rs] ^ (ins & 0xffff); break;
+#ifdef MEMORIES_PS2
+    case 0xf: /* lui: a retail RAM address (KSEG0/KSEG1) becomes the window's (force.h) */
+        word = ins & 0xffff;
+        if ((word >= 0x8001u && word <= 0x8020u)) s->r[rt] = (ins << 16) + 0x40000000u;
+        else if (word >= 0xA001u && word <= 0xA020u) s->r[rt] = (ins << 16) + 0x20000000u;
+        else s->r[rt] = ins << 16;
+        break;
+#else
+    case 0xf: s->r[rt] = ins << 16; break;
+#endif
+    case 0x12: /* COP2 */
+        if (ins & (1u << 25)) { Memories_GteCommand(ins); break; }
+        switch (rs) {
+        case 0: s->r[rt] = Memories_GteReadData(rd); break;
+        case 2: s->r[rt] = Memories_GteReadControl(rd); break;
+        case 4: Memories_GteWriteData(rd, s->r[rt]); break;
+        case 6: Memories_GteWriteControl(rd, s->r[rt]); break;
+        default: fail(s, pc, "unsupported COP2 form", ins);
+        }
+        break;
+    case 0x20: s->r[rt] = (uint32_t)(int32_t)(int8_t)l8(s->r[rs] + (uint32_t)im); break;
+    case 0x21: s->r[rt] = (uint32_t)(int32_t)(int16_t)l16(s->r[rs] + (uint32_t)im); break;
+    case 0x22: a = s->r[rs] + (uint32_t)im; s->r[rt] = (s->r[rt] & (0x00ffffffu >> ((a & 3) * 8))) | (l32(a & ~3u) << ((3 - (a & 3)) * 8)); break;
+    case 0x23: s->r[rt] = l32(s->r[rs] + (uint32_t)im); break;
+    case 0x24: s->r[rt] = l8(s->r[rs] + (uint32_t)im); break;
+    case 0x25: s->r[rt] = l16(s->r[rs] + (uint32_t)im); break;
+    case 0x26: a = s->r[rs] + (uint32_t)im; s->r[rt] = (s->r[rt] & (0xffffff00u << ((3 - (a & 3)) * 8))) | (l32(a & ~3u) >> ((a & 3) * 8)); break;
+    case 0x28: s8(s->r[rs] + (uint32_t)im, (uint8_t)s->r[rt]); break;
+    case 0x29: s16(s->r[rs] + (uint32_t)im, (uint16_t)s->r[rt]); break;
+    case 0x2a: a = s->r[rs] + (uint32_t)im; word = l32(a & ~3u); s32(a & ~3u, (word & (0xffffff00u << ((a & 3) * 8))) | (s->r[rt] >> ((3 - (a & 3)) * 8))); break;
+#ifdef MEMORIES_PS2
+    case 0x2b: s32(s->r[rs] + (uint32_t)im, Memories_Ps2Canonical(s->r[rt])); break;
+#else
+    case 0x2b: s32(s->r[rs] + (uint32_t)im, s->r[rt]); break;
+#endif
+    case 0x2e: a = s->r[rs] + (uint32_t)im; word = l32(a & ~3u); s32(a & ~3u, (word & (0x00ffffffu >> ((3 - (a & 3)) * 8))) | (s->r[rt] << ((a & 3) * 8))); break;
+    case 0x32: Memories_GteLoad(rt, (void *)AT(s->r[rs] + (uint32_t)im)); break;
+    case 0x3a: Memories_GteStore(rt, (void *)AT(s->r[rs] + (uint32_t)im)); break;
+    default: fail(s, pc, "unsupported instruction", ins);
+    }
+    s->r[0] = 0;
+}
+
+static void delay(State *s, uint32_t pc)
+{
+    uint32_t i = l32(pc);
+    unsigned op = i >> 26, fn = i & 63;
+    if ((op == 0 && (fn == 8 || fn == 9)) || (op >= 1 && op <= 7) || op == 2 || op == 3 || (op >= 0x14 && op <= 0x17)) {
+        fail(s, pc, "branch in a delay slot", i);
+    }
+    plain(s, pc);
+}
+
+/* MEMORIES_TRACE=frames: what the interpreter costs (Memories_MipsFrame).
+ * Only the outermost run counts: one a native routine it called starts is
+ * inside it. `regions`: the slots' control modules (A, B), the rest of the
+ * battle's overlay range, the credits. `modules`: the modules that took the
+ * most instructions, by the identifier Memories_MipsAttribute named. */
+#define TRACE_MODULES 6
+static struct {
+    unsigned calls, instructions, us;
+} frame_cost, window_cost;
+static unsigned worst_instructions, worst_us, region_instructions[4], depth, nested_steps;
+static struct {
+    uint32_t identifier;
+    unsigned instructions, calls;
+} modules[TRACE_MODULES];
+static uint32_t attributed;
+
+void Memories_MipsAttribute(uint32_t identifier) { attributed = identifier; }
+
+static int region_of(uint32_t address)
+{
+    if (address >= 0x8013A000u && address < 0x8013C000u) return 0;
+    if (address >= 0x8017A000u && address < 0x8017C000u) return 1;
+    if (address >= 0x80180000u && address < 0x80188000u) return 3;
+    return 2;
+}
+
+static void count_module(uint32_t identifier, unsigned instructions)
+{
+    int i, least = 0;
+    for (i = 0; i < TRACE_MODULES; i++) {
+        if (modules[i].calls && modules[i].identifier == identifier) break;
+        if (modules[i].instructions < modules[least].instructions) least = i;
+    }
+    if (i == TRACE_MODULES) {   /* replace the least: a rough top list over the window */
+        i = least;
+        modules[i].identifier = identifier;
+        modules[i].instructions = modules[i].calls = 0;
+    }
+    modules[i].instructions += instructions;
+    modules[i].calls++;
+}
+
+void Memories_MipsFrame(unsigned frames)
+{
+    window_cost.calls += frame_cost.calls;
+    window_cost.instructions += frame_cost.instructions;
+    window_cost.us += frame_cost.us;
+    if (frame_cost.instructions > worst_instructions) worst_instructions = frame_cost.instructions;
+    if (frame_cost.us > worst_us) worst_us = frame_cost.us;
+    memset(&frame_cost, 0, sizeof(frame_cost));
+    if (frames && window_cost.calls) {
+        char top[256] = "";
+        size_t used = 0;
+        int i;
+        for (i = 0; i < TRACE_MODULES && used < sizeof(top); i++)
+            if (modules[i].calls)
+                used += (size_t)snprintf(top + used, sizeof(top) - used, "%s%08x %u/%u", used ? ", " : "",
+                                         (unsigned)modules[i].identifier, modules[i].instructions, modules[i].calls);
+        LOG(LOG_FRAMES, "interpreter: %u calls in %u frames; %u instructions, %u us per frame (worst frame %u instructions, %u us); "
+                        "instructions in slot A's modules %u, slot B's %u, other overlay code %u, credits %u; modules "
+                        "(identifier instructions/calls): %s",
+            window_cost.calls, frames, window_cost.instructions / frames, window_cost.us / frames, worst_instructions,
+            worst_us, region_instructions[0], region_instructions[1], region_instructions[2], region_instructions[3],
+            top);
+    }
+    if (frames) {
+        memset(&window_cost, 0, sizeof(window_cost));
+        memset(region_instructions, 0, sizeof(region_instructions));
+        memset(modules, 0, sizeof(modules));
+        worst_instructions = worst_us = 0;
+    }
+}
+
+static int interpret(uint32_t address, const uint32_t *args, unsigned count, uint32_t *result);
+
+int Memories_MipsTry(uint32_t address, const uint32_t *args, unsigned count, uint32_t *result)
+{
+    struct timespec t0, t1;
+    uint32_t identifier = attributed;
+    unsigned steps;
+    int done;
+    attributed = 0;
+    if (depth) {   /* inside a traced run: its instructions are the outermost's, as its time is */
+        try_steps = 0;
+        done = interpret(address, args, count, result);
+        nested_steps += try_steps;
+        return done;
+    }
+    if (!Log_Enabled(LOG_FRAMES)) return interpret(address, args, count, result);
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    depth++;
+    try_steps = nested_steps = 0;
+    done = interpret(address, args, count, result);
+    depth--;
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    steps = try_steps + nested_steps;
+    frame_cost.calls++;
+    frame_cost.instructions += steps;
+    frame_cost.us += (unsigned)((t1.tv_sec - t0.tv_sec) * 1000000 + (t1.tv_nsec - t0.tv_nsec) / 1000);
+    region_instructions[region_of(address)] += steps;
+    if (identifier) count_module(identifier, steps);
+    return done;
+}
+
+static int interpret(uint32_t address, const uint32_t *args, unsigned count, uint32_t *result)
+{
+    State s;
+    jmp_buf escape;
+    uint32_t sp, saved_sp = current_sp;
+    unsigned i;
+    if (ensure_stack()) {
+        return -1;
+    }
+    memset(&s, 0, sizeof(s));
+    /* Below the innermost live frame, or the stack's top, with room for the
+     * twelve argument slots and the callee's home slots for a0-a3: the
+     * credits module stores its arguments at sp+0 on entry. */
+    sp = ((current_sp ? current_sp : stack_top) - 64) & ~0xFu;
+#ifdef MEMORIES_PS2
+    address = Memories_Ps2Canonical(address);
+#endif
+    s.pc = address;
+    s.escape = &escape;
+    s.r[29] = sp;
+    for (i = 0; i < count && i < 4; i++) {
+        s.r[4 + i] = args[i];
+    }
+    for (i = 4; i < count; i++) {
+        s32(sp + i * 4, args[i]);
+    }
+    if (setjmp(escape)) {
+        current_sp = saved_sp;
+        return -1;
+    }
+    while (s.pc) {
+        uint32_t i, target, next;
+        unsigned op, rs, rt, fn;
+        int take = 0, likely = 0;
+        int32_t im;
+        if (++s.steps > LIMIT) {
+            fail(&s, s.pc, "instruction limit", s.steps);
+        }
+        i = l32(s.pc);
+        op = i >> 26;
+        rs = i >> 21 & 31;
+        rt = i >> 16 & 31;
+        fn = i & 63;
+        im = (int16_t)i;
+        next = s.pc + 8;
+        if (op == 0 && (fn == 8 || fn == 9)) { /* jr, jalr */
+            target = s.r[rs];
+#ifdef MEMORIES_PS2
+            target = Memories_Ps2Canonical(target);
+#endif
+            if (fn == 9) s.r[i >> 11 & 31] = next;
+            delay(&s, s.pc + 4);
+            if (!target) { s.pc = 0; continue; }
+            if (!Memories_MipsInOverlay(target)) { s.r[2] = call_native(&s, target); s.pc = next; }
+            else s.pc = target;
+            continue;
+        }
+        if (op == 2 || op == 3) { /* j, jal */
+            target = (s.pc & 0xf0000000u) | ((i & 0x3ffffff) << 2);
+            if (op == 3) s.r[31] = next;
+            delay(&s, s.pc + 4);
+            if (op == 3 && !Memories_MipsInOverlay(target)) { s.r[2] = call_native(&s, target); s.pc = next; }
+            else s.pc = target;
+            continue;
+        }
+        if (op == 1) { /* bltz, bgez, bltzl, bgezl, bltzal, bgezal */
+            unsigned kind = rt & 0x0f;
+            if (kind == 0 || kind == 2) take = (int32_t)s.r[rs] < 0;
+            else if (kind == 1 || kind == 3) take = (int32_t)s.r[rs] >= 0;
+            else fail(&s, s.pc, "unsupported instruction", i);
+            likely = kind == 2 || kind == 3;
+            if (rt & 0x10) s.r[31] = next;
+        } else if (op >= 4 && op <= 7) {
+            if (op == 4) take = s.r[rs] == s.r[rt];
+            if (op == 5) take = s.r[rs] != s.r[rt];
+            if (op == 6) take = (int32_t)s.r[rs] <= 0;
+            if (op == 7) take = (int32_t)s.r[rs] > 0;
+        } else if (op >= 0x14 && op <= 0x17) {
+            likely = 1;
+            if (op == 0x14) take = s.r[rs] == s.r[rt];
+            if (op == 0x15) take = s.r[rs] != s.r[rt];
+            if (op == 0x16) take = (int32_t)s.r[rs] <= 0;
+            if (op == 0x17) take = (int32_t)s.r[rs] > 0;
+        } else {
+            plain(&s, s.pc);
+            s.pc += 4;
+            continue;
+        }
+        if (!likely || take) delay(&s, s.pc + 4);
+        s.pc = take ? s.pc + 4 + ((uint32_t)im << 2) : next;
+    }
+    current_sp = saved_sp;
+    try_steps = s.steps;
+    *result = (uint32_t)HANDED(s.r[2]); /* to native code: as the arguments above */
+    return 0;
+}
+
+uint32_t Memories_MipsCall(uint32_t address, uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3)
+{
+    uint32_t args[4] = {a0, a1, a2, a3}, result;
+    if (Memories_MipsTry(address, args, 4, &result)) {
+        char text[96];
+        snprintf(text, sizeof(text), "overlay routine 0x%08x failed with no fallback", address);
+        Crash_ReportFatal("MIPS overlay", text);
+        exit(71);
+    }
+    return result;
+}
+
+/* A native routine called a function pointer that holds an overlay address
+ * (a display-object callback an effect installed, for instance). The fault
+ * handler parks the address and resumes here; the cdecl arguments are where
+ * the caller left them, so this reads as many as any MIPS routine could. */
+uint32_t Memories_MipsThunk(uint32_t a0, uint32_t a1, uint32_t a2, uint32_t a3, uint32_t a4, uint32_t a5,
+                            uint32_t a6, uint32_t a7, uint32_t a8, uint32_t a9, uint32_t a10, uint32_t a11)
+{
+    uint32_t target = Memories_MipsThunkTarget, result;
+    uint32_t args[12] = {a0, a1, a2, a3, a4, a5, a6, a7, a8, a9, a10, a11};
+    if (Memories_MipsTry(target, args, 12, &result)) {
+        char text[96];
+        snprintf(text, sizeof(text), "guest callback 0x%08x failed with no fallback", target);
+        Crash_ReportFatal("MIPS overlay", text);
+        exit(71);
+    }
+    return result;
+}

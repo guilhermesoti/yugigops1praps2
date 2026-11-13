@@ -1,10 +1,12 @@
-build/
+# saída do build
+tmp/
 __pycache__/
 *.pyc
-*.ELF
-*.elf
+# imagens do jogo (nunca vão para o repositório)
 *.bin
 *.cue
 *.iso
-*.zip
-assets/frontend/
+*.img
+# saves e logs gerados pelo jogo
+YFM-SAVE/
+YFM-LOG.txt

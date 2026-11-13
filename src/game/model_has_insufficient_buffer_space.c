@@ -1,0 +1,47 @@
+#define GPU_PACKET_CURSOR_AS_ADDRESS
+#include "../types.h"
+#include "model.h"
+#include "graphics_frame.h"
+#include "gpu_packets.h"
+#include "model_graphics_state.h"
+#include "model_slot_properties.h"
+#include "model_has_insufficient_buffer_space.h"
+#ifdef MEMORIES_PC
+#include "pc/cards/battle_models.h"
+#endif
+
+#define MODEL_SLOT_AT_OFFSET(slots, offset) \
+    ((ModelSlot *)((u8 *)(slots) + (offset)))
+
+s32 Model_HasInsufficientBufferSpace(s32 index, s32 type) {
+    s32 used;
+    s32 room;
+    ModelSlot *record;
+    s32 size;
+
+    used = D_800FE240 - (s32)D_800A5768;
+    used -= D_8009AFA2 * GRAPHICS_PACKET_BUFFER_SIZE;
+    room = GRAPHICS_PACKET_BUFFER_SIZE - used;
+    /* Typed indexing changes the accepted address construction. */
+    record = MODEL_SLOT_AT_OFFSET(D_800F2C40, index * MODEL_SLOT_SIZE);
+    if (type < 0) {
+        type = func_80059520(index)[3];
+    }
+#ifdef MEMORIES_PC
+    {
+        /* A battle slot that draws into its own RAM: room there
+           (src/pc/cards/battle_models.h). */
+        s32 own = BattleModels_Insufficient(index, type);
+        if (own >= 0) {
+            return own;
+        }
+    }
+#endif
+    size = record->field_E00;
+    if (type == 5) {
+        room -= size * 2;
+    } else {
+        room -= size;
+    }
+    return room < MODEL_DATA_MIN_FREE_BYTES;
+}
