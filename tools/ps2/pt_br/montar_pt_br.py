@@ -43,6 +43,19 @@ for f in sorted(glob.glob(os.path.join(ROOT,'tools/ps2/pt_br/')+'lines_*.tsv')):
         if not raw or '\t' not in raw: continue
         k,v=raw.split('\t',1); n=int(k)
         a=CODE.findall(ES[n]); b=CODE.findall(v)
+        # centralizacao: {f8 02 XX} antes de um texto e a margem em unidades de
+        # meia letra (4 por letra, medido nos menus do PAL); recalcula para o
+        # tamanho do texto em portugues
+        def recenter(es_line, pt_line):
+            m1=re.search(r'\{f8 02 ([0-9A-F]{2})\}([^{]*)', es_line)
+            m2=re.search(r'\{f8 02 ([0-9A-F]{2})\}([^{]*)', pt_line)
+            if not m1 or not m2 or not m2.group(2).strip(): return pt_line
+            off=int(m1.group(1),16)+(len(m1.group(2).rstrip())-len(m2.group(2).rstrip()))*4
+            off=max(0,min(0xFC,off))
+            return pt_line[:m2.start(1)]+'%02X'%off+pt_line[m2.end(1):]
+        if n < ES.index('@bank descriptions') and a==b: v=recenter(ES[n],v)
+        extra=[c for c in b if c not in a]
+        if a!=b and all(c.startswith('{f8 02 ') for c in extra) and [c for c in b if not c.startswith('{f8 02 ')]==[c for c in a if not c.startswith('{f8 02 ')]: a=b
         if a!=b: problems.append(f'{f}:{n}: codigos diferentes\n  ES {ES[n]}\n  PT {v}')
         out[n]=v
 out[0]='# Yu-Gi-Oh! Forbidden Memories em portugues (BR), port de PS2 (Retrogames).'
