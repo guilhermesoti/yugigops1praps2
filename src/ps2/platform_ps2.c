@@ -22,6 +22,7 @@ extern int fileXioInit(void); /* newlib then goes through fileXio (iomanX device
 #include <stdarg.h>
 #include <malloc.h>
 #include <sys/stat.h>
+#include <errno.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -125,7 +126,7 @@ void Ps2_Fatal(const char *message)
 /* ---- IOP modules ---- */
 #define IRX(name) extern unsigned char irx_##name[], irx_##name##_end[]
 IRX(iomanx); IRX(filexio); IRX(usbd); IRX(bdm); IRX(bdmfs); IRX(usbmass); IRX(libsd); IRX(audsrv); IRX(sio2man);
-IRX(padman);
+IRX(padman); IRX(cdfs); IRX(mcman); IRX(mcserv);
 
 static int load_buffer(const char *name, unsigned char *start, unsigned char *end)
 {
@@ -137,7 +138,11 @@ static int load_buffer(const char *name, unsigned char *start, unsigned char *en
     return 0;
 }
 
-static int pad_ok, audio_ok, usb_ok;
+static int pad_ok, audio_ok, usb_ok, mc_ok, cd_ok;
+/* Booted from a disc (an ISO in OPL, or a burned disc): the PS1 image is on
+ * the disc (cdfs:/YFM.BIN), the saves go to the memory card, and the USB
+ * drivers are left alone (in OPL the stick belongs to OPL's own driver). */
+static int disc_mode;
 static unsigned char pad_buffer[256] __attribute__((aligned(64)));
 
 static void iop_start(void)
@@ -153,8 +158,12 @@ static void iop_start(void)
     sbv_patch_fileio();
     if (!load_buffer("iomanX", irx_iomanx, irx_iomanx_end) && !load_buffer("fileXio", irx_filexio, irx_filexio_end))
         fileXioInit();
-    usb_ok = !load_buffer("usbd", irx_usbd, irx_usbd_end) && !load_buffer("bdm", irx_bdm, irx_bdm_end) &&
-             !load_buffer("bdmfs", irx_bdmfs, irx_bdmfs_end) && !load_buffer("usbmass", irx_usbmass, irx_usbmass_end);
+    if (disc_mode) {
+        cd_ok = !load_buffer("cdfs", irx_cdfs, irx_cdfs_end);
+    } else {
+        usb_ok = !load_buffer("usbd", irx_usbd, irx_usbd_end) && !load_buffer("bdm", irx_bdm, irx_bdm_end) &&
+                 !load_buffer("bdmfs", irx_bdmfs, irx_bdmfs_end) && !load_buffer("usbmass", irx_usbmass, irx_usbmass_end);
+    }
     /* The pad driver the SDK's libpad speaks to: its own, as the SDK built
      * it; the console's newer ROM one if that cannot load; the old ROM one
      * last (the 0.1 prototype found consoles where one or the other worked). */
@@ -165,9 +174,10 @@ static void iop_start(void)
     else if (SifLoadModule("rom0:SIO2MAN", 0, NULL) >= 0 && SifLoadModule("rom0:PADMAN", 0, NULL) >= 0)
         pad_ok = 3;
     if (pad_ok && (padInit(0) < 0 || padPortOpen(0, 0, pad_buffer) <= 0)) pad_ok = 0;
+    mc_ok = !load_buffer("mcman", irx_mcman, irx_mcman_end) && !load_buffer("mcserv", irx_mcserv, irx_mcserv_end);
     audio_ok = !load_buffer("libsd", irx_libsd, irx_libsd_end) && !load_buffer("audsrv", irx_audsrv, irx_audsrv_end) &&
                audsrv_init() == 0;
-    printf("ps2: IOP ready (usb %d, pad %d, audio %d)\n", usb_ok, pad_ok, audio_ok);
+    printf("ps2: IOP ready (usb %d, pad %d, audio %d, cd %d, mc %d)\n", usb_ok, pad_ok, audio_ok, cd_ok, mc_ok);
 }
 
 /* ---- video ---- */
@@ -659,6 +669,10 @@ static const char *find_disc(void)
         snprintf(path, sizeof(path), "%s/%s", program_dir, *name);
         if (exists(path)) return path;
     }
+    if (disc_mode) {
+        snprintf(path, sizeof(path), "cdfs:/YFM.BIN");
+        return exists(path) ? path : NULL;
+    }
     for (name = names; *name; name++) {
         snprintf(path, sizeof(path), "host:%s", *name);
         if (exists(path)) return path;
@@ -673,6 +687,7 @@ int main(int argc, char **argv)
     char user[300];
     static char *pc_argv[2] = {"memories-ps2", NULL};
     printf("ps2: Yu-Gi-Oh! Forbidden Memories PS2 port starting (%s)\n", argc > 0 ? argv[0] : "?");
+    disc_mode = argc > 0 && argv[0] && !strncmp(argv[0], "cdrom", 5);
     iop_start();
     /* Sem a tela de texto de debug: as etapas vao so para o YFM-LOG.txt; a
      * tela mostra a abertura (intro_ps2.c) e, se algo falhar, Ps2_Fatal. */
@@ -689,13 +704,15 @@ int main(int argc, char **argv)
     else if ((slash = strchr(program_dir, ':'))) slash[1] = '\0';
     if (!strncmp(program_dir, "mass:", 5) || !strncmp(program_dir, "host", 4)) {
         /* fine as it is */
-    } else if (!strncmp(program_dir, "cdrom", 5) || !program_dir[0]) {
+    } else if (disc_mode) {
+        snprintf(program_dir, sizeof(program_dir), "cdfs:");
+    } else if (!program_dir[0]) {
         snprintf(program_dir, sizeof(program_dir), "mass:/YFM");
     }
     Ps2_Stage("pasta: %s", program_dir);
     /* The USB stick needs a moment to appear after its driver loads. */
     disc = find_disc();
-    if (!disc && usb_ok) {
+    if (!disc && (usb_ok || disc_mode)) {
         int tries;
         for (tries = 0; tries < 20 && !(disc = find_disc()); tries++) {
             struct timespec wait = {0, 250000000};
@@ -708,7 +725,7 @@ int main(int argc, char **argv)
                                      "  next to the ELF:\n  %s/YFM.bin", program_dir);
         Ps2_Fatal(text);
     }
-    if (strncmp(program_dir, "host", 4)) {
+    if (strncmp(program_dir, "host", 4) && !disc_mode) {
         snprintf(log_path, sizeof(log_path), "%s/YFM-LOG.txt", program_dir);
         if (freopen(log_path, "w", stdout)) {
             setvbuf(stdout, NULL, _IOLBF, 0);
@@ -741,6 +758,38 @@ int main(int argc, char **argv)
     setenv("MEMORIES_PROGRAM_DIR", program_dir, 1);
     if (!strcmp(program_dir, "host:")) snprintf(program_dir, sizeof(program_dir), "host:.");
     snprintf(user, sizeof(user), "%s/YFM-SAVE", program_dir);
+    {
+        /* Emulator test of the memory card path (host: with mctest.txt). */
+        FILE *want = strncmp(program_dir, "host", 4) ? NULL : fopen("host:mctest.txt", "rb");
+        if (want) fclose(want), disc_mode = 2;
+    }
+    if (disc_mode) {
+        /* The memory card in slot 1 (or 2): mc0:/YFMPS2. */
+        int slot, made = -1;
+        for (slot = 0; slot < 2; slot++) {
+            char dir[32], probe_path[48];
+            FILE *probe;
+            int r;
+            snprintf(dir, sizeof(dir), "mc%d:/YFMPS2", slot);
+            r = mkdir(dir, 0777);
+            snprintf(probe_path, sizeof(probe_path), "%s/PROBE.TXT", dir);
+            probe = fopen(probe_path, "wb");
+            printf("ps2: memory card %d: %s (errno %d)\n", slot, probe ? "ok" : "sem acesso", probe ? 0 : errno);
+            if (probe) {
+                fclose(probe);
+                remove(probe_path);
+                made = slot;
+                break;
+            }
+        }
+        slot = made < 0 ? 0 : made;
+        snprintf(user, sizeof(user), "mc%d:/YFMPS2", slot);
+        if (disc_mode == 1) {
+            setenv("MEMORIES_LANGUAGE_FILE", "cdfs:/LANG/PTBR.TXT", 1);
+            setenv("MEMORIES_TRACE", "mods", 1); /* o idioma no console do emulador */
+        }
+        Ps2_Stage("disco: saves em %s", user);
+    }
     setenv("MEMORIES_USER_DIR", user, 1);
     setenv("MEMORIES_NO_MONITOR", "1", 1);
     if (!strncmp(program_dir, "host:", 5)) {

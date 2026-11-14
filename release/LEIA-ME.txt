@@ -12,6 +12,20 @@ COMO JOGAR
    ficar junto do ELF. Para jogar em ingles, crie YFM-SAVE/settings.txt com a
    linha language=0 (ou apague a pasta languages).
 
+CAPAS DO OPL
+Copie a pasta ART deste pacote para a raiz do pendrive (junto das pastas CD/DVD
+do OPL). As capas usam o ID RGPM_001.01, o da ISO abaixo.
+
+JOGAR COMO ISO (aparece na lista de jogos do OPL, com capa)
+1. Coloque na pasta YFM a imagem .bin do SEU disco (Yu-Gi-Oh! Forbidden
+   Memories USA).
+2. De dois cliques no montar_iso.exe. Ele cria
+   "RGPM_001.01.Yu-Gi-Oh FM PS2.iso" (uns 500 MB) com o ELF, o portugues e o
+   seu jogo dentro.
+3. Copie a ISO para a pasta CD do pendrive e abra pelo OPL.
+Rodando pela ISO, os saves vao para o MEMORY CARD (pasta YFMPS2), e nao para
+o pendrive. A ISO tem o seu jogo dentro: nao compartilhe.
+
 Problemas? Abra uma issue no GitHub com o arquivo YFM-LOG.txt (criado ao lado do ELF)
 e uma foto da tela.
 

@@ -108,7 +108,16 @@ static long read_file(int slot, unsigned char image[SAVE_SLOT_FILE_SIZE], long l
     if (!file) {
         if (errno == ENOENT) return -1;
 #ifdef MEMORIES_PS2
-        /* fileXio's errors are not errno's: a file that is not there is missing. */
+        /* fileXio's errors are not errno's: a file that is not there is
+         * missing. Its own open says why (the memory card's stat answers
+         * even for a file that is not there). */
+        {
+            extern int fileXioOpen(const char *, int, ...);
+            extern int fileXioClose(int);
+            int fd = fileXioOpen(path, 1 /* O_RDONLY */);
+            if (fd >= 0) fileXioClose(fd);
+            else if (fd == -2 /* ENOENT */ || fd == -19 /* ENODEV */) return -1;
+        }
         if (stat(path, &info) != 0) return -1;
         printf("ps2: save slot %s: fopen failed (errno %d) but stat finds it\n", path, errno);
 #endif

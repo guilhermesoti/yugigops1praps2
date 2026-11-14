@@ -278,6 +278,16 @@ static const char *const pack_names[LANGUAGE_COUNT] = {NULL, "en-eu", "fr", "de"
 
 static FILE *open_pack(int language, char *path, size_t size)
 {
+#ifdef MEMORIES_PS2
+    {
+        /* The PS2 port run from a disc: the pack under an ISO-9660 name. */
+        const char *file = getenv("MEMORIES_LANGUAGE_FILE");
+        if (file && *file && language == LANGUAGE_PT_BR) {
+            snprintf(path, size, "%s", file);
+            return fopen(path, "rb");
+        }
+    }
+#endif
     const char *named = getenv("MEMORIES_LANGUAGES_DIR");
     char relative[64];
     FILE *file;

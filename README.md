@@ -26,6 +26,12 @@ processador do PS2 (Emotion Engine, MIPS R5900) e a imagem é desenhada pelo chi
 
 No PCSX2: *Sistema → Iniciar ELF*, com o `YFM.bin` na mesma pasta do ELF.
 
+**Como ISO (lista de jogos do OPL, com capa):** o pacote da release traz o `montar_iso.exe`. Com ele na
+pasta do port e a imagem `.bin` do seu disco ao lado, dois cliques criam
+`RGPM_001.01.Yu-Gi-Oh FM PS2.iso`. Ponha a ISO na pasta `CD` do OPL e a pasta `ART` do pacote na raiz do
+pendrive (capas com o ID `RGPM_001.01`). Pela ISO os saves vão para o memory card (`YFMPS2`). A ISO tem o
+seu jogo dentro: não compartilhe. No Linux: `cc -O2 -o montar_iso tools/ps2/iso/montar_iso.c`.
+
 Para jogar em inglês, crie `YFM-SAVE/settings.txt` com a linha `language=0`.
 
 Controle: igual ao do PS1. Ao escolher o alvo de um ataque, **Quadrado** mostra a batalha 3D dos
