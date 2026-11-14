@@ -119,7 +119,7 @@ Mapa da memória do GS (páginas de 8 KB): 0–127 VRAM do PS1, 128–167 vídeo
 ## 8. Disco, módulos e o bug das batalhas 3D
 
 - `src/pc/sdk/libds.c` emula o drive de CD lendo setores de 2352 bytes do `YFM.bin`. No PS2 cada
-  leitura passa pelo IOP e pelo USB, então `pread` (`guest_ps2.c`) lê 32 KB de uma vez (≈40 ms no USB 1.1, menos que um quadro de vídeo).
+  leitura passa pelo IOP e pelo USB, então `pread` (`guest_ps2.c`) usa uma **thread leitora**: ela mantém os 8 blocos de 16 setores (~300 KB) seguintes ao que o jogo está lendo, e enquanto espera o IOP o jogo continua rodando (o console real lia só ~260 KB/s e o vídeo passava 70% do tempo esperando o pendrive).
 - Módulos carregados do disco em "bancos" fixos (`0x8013A000`, `0x80146000`, `0x80168000`,
   `0x8017A000`, `0x80180000`) contêm ponteiros do PS1. Eles são reescritos para a janela quando
   chegam (`Ps2_RelocateDelivery`).

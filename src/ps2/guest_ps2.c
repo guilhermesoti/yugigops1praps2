@@ -14,6 +14,7 @@
  * 0xC0000000 in supervisor or kernel mode only; the game runs in supervisor
  * mode, where a stray retail address (KSEG0) still faults. */
 #include <kernel.h>
+extern void *_gp;
 #include <ee_debug.h>
 #include <errno.h>
 #include <fcntl.h>
@@ -291,41 +292,172 @@ size_t Ps2_Fwrite(const void *buffer, size_t size, size_t count, FILE *file)
     return size ? done / size : 0;
 }
 
-/* The disc image is read a sector (2352 bytes) at a time, and each read is
- * two calls to the IOP and a trip to the USB stick: a 32 KiB read-ahead
- * turns a movie's 150 reads a second into ten; 32 KiB, a stop of about
- * 40 ms on the console's USB 1.1, so no read stalls a movie's frame long. */
-static uint8_t ahead[16 * 2352] __attribute__((aligned(64))); /* 16 whole sectors */
-static int ahead_fd = -1;
-static off_t ahead_start;
-static size_t ahead_length;
+/* The disc image: libds.c reads it a sector (2352 bytes) at a time. On the
+ * console each read is a trip to the IOP and the USB stick (USB 1.1), and a
+ * movie spent most of its time waiting there. A reader thread keeps the
+ * chunks after the one being read filled (DISC_RING chunks of 16 whole sectors,
+ * about 300 KB ahead): while it waits for the IOP it sleeps, and the game
+ * decodes the movie meanwhile. A read outside the ring (a seek) moves it. */
+#define DISC_CHUNK (16 * 2352)
+#define DISC_RING 8
+enum { SLOT_EMPTY, SLOT_FILLING, SLOT_READY };
+static uint8_t ring[DISC_RING][DISC_CHUNK] __attribute__((aligned(64)));
+static struct { long long chunk; int length; volatile int state; } slots_disc[DISC_RING];
+static int ring_fd = -1, ring_lock = -1, ring_wake = -1, ring_done = -1;
+static volatile long long ring_head = -1; /* the chunk being read now: the ring holds it and the next DISC_RING-1 */
+static long long file_position = -1;      /* where the reader left the file (no lseek when it follows on) */
+static unsigned char reader_stack[16384] __attribute__((aligned(16)));
+
+static int read_chunk(int fd, long long chunk, uint8_t *into)
+{
+    ssize_t got;
+    off_t at = (off_t)(chunk * DISC_CHUNK);
+    if (file_position != (long long)at && lseek(fd, at, SEEK_SET) < 0) {
+        file_position = -1;
+        return -1;
+    }
+    got = read(fd, into, DISC_CHUNK);
+    file_position = got > 0 ? (long long)at + got : -1;
+    return (int)got;
+}
+
+static void reader(void *argument)
+{
+    (void)argument;
+    for (;;) {
+        int i, slot = -1;
+        long long want = -1, head;
+        WaitSema(ring_wake);
+        for (;;) {
+            WaitSema(ring_lock);
+            head = ring_head;
+            slot = -1, want = -1;
+            if (head >= 0) {
+                long long c;
+                for (c = head; c < head + DISC_RING && want < 0; c++) {
+                    int present = 0;
+                    for (i = 0; i < DISC_RING; i++)
+                        if (slots_disc[i].state != SLOT_EMPTY && slots_disc[i].chunk == c) present = 1;
+                    if (!present) want = c;
+                }
+                if (want >= 0)
+                    for (i = 0; i < DISC_RING && slot < 0; i++)
+                        if (slots_disc[i].state == SLOT_EMPTY ||
+                            (slots_disc[i].state == SLOT_READY &&
+                             (slots_disc[i].chunk < head || slots_disc[i].chunk >= head + DISC_RING)))
+                            slot = i;
+            }
+            if (slot >= 0) {
+                slots_disc[slot].state = SLOT_FILLING;
+                slots_disc[slot].chunk = want;
+            }
+            SignalSema(ring_lock);
+            if (slot < 0) break;
+            {
+                int got = read_chunk(ring_fd, want, ring[slot]);
+                WaitSema(ring_lock);
+                slots_disc[slot].length = got > 0 ? got : 0;
+                slots_disc[slot].state = got > 0 ? SLOT_READY : SLOT_EMPTY;
+                if (got <= 0) ring_head = -1; /* past the end, or an error: the game's own read reports it */
+                SignalSema(ring_lock);
+                SignalSema(ring_done);
+                if (got <= 0) break;
+            }
+        }
+    }
+}
+
+static int start_reader(int fd)
+{
+    ee_sema_t sema;
+    ee_thread_t thread;
+    ee_thread_status_t me;
+    int id;
+    sema.init_count = 1, sema.max_count = 1, sema.option = 0;
+    ring_lock = CreateSema(&sema);
+    sema.init_count = 0, sema.max_count = 1;
+    ring_wake = CreateSema(&sema);
+    sema.init_count = 0, sema.max_count = 1024;
+    ring_done = CreateSema(&sema);
+    if (ring_lock < 0 || ring_wake < 0 || ring_done < 0) return -1;
+    ReferThreadStatus(GetThreadId(), &me);
+    memset(&thread, 0, sizeof(thread));
+    thread.func = (void *)reader;
+    thread.stack = reader_stack;
+    thread.stack_size = sizeof(reader_stack);
+    thread.gp_reg = &_gp;
+    thread.initial_priority = me.current_priority > 1 ? me.current_priority - 1 : 1; /* runs whenever it can */
+    id = CreateThread(&thread);
+    if (id < 0 || StartThread(id, NULL) < 0) return -1;
+    ring_fd = fd;
+    printf("ps2: disc reader thread on (priority %d)\n", thread.initial_priority);
+    return 0;
+}
 
 ssize_t pread(int fd, void *buffer, size_t count, off_t offset)
 {
     ssize_t got;
-    if (count <= 4096) {
-        if (fd != ahead_fd || offset < ahead_start || offset + (off_t)count > ahead_start + (off_t)ahead_length) {
-            ssize_t filled;
-            struct timespec t0, t1;
-            ahead_fd = -1;
-            clock_gettime(CLOCK_MONOTONIC, &t0);
-            if (lseek(fd, offset, SEEK_SET) < 0) return -1;
-            filled = read(fd, ahead, sizeof(ahead));
-            clock_gettime(CLOCK_MONOTONIC, &t1);
-            Ps2_ReadUs += (unsigned long long)((t1.tv_sec - t0.tv_sec) * 1000000 + (t1.tv_nsec - t0.tv_nsec) / 1000);
-            if (filled <= 0) return filled;
-            ahead_fd = fd;
-            ahead_start = offset;
-            ahead_length = (size_t)filled;
-        }
-        {
-            size_t at = (size_t)(offset - ahead_start), have = ahead_length - at;
-            if (count > have) count = have;
-            memcpy(buffer, ahead + at, count);
-            return (ssize_t)count;
+    static int reader_failed;
+    if (count <= 4096 && !reader_failed && (ring_fd == fd || (ring_fd < 0 && !(reader_failed = start_reader(fd) < 0)))) {
+        long long chunk = (long long)(offset / DISC_CHUNK);
+        size_t at = (size_t)(offset - (off_t)(chunk * DISC_CHUNK));
+        struct timespec t0, t1;
+        int waited = 0;
+        if (at + count > DISC_CHUNK) count = DISC_CHUNK - at; /* never: sectors do not straddle chunks */
+        for (;;) {
+            int i, found = -1, filling = 0;
+            WaitSema(ring_lock);
+            for (i = 0; i < DISC_RING; i++) {
+                if (slots_disc[i].chunk != chunk) continue;
+                if (slots_disc[i].state == SLOT_READY) found = i;
+                else if (slots_disc[i].state == SLOT_FILLING) filling = 1;
+            }
+            if (found >= 0) {
+                size_t have = slots_disc[found].length > (int)at ? (size_t)slots_disc[found].length - at : 0;
+                if (count > have) count = have;
+                memcpy(buffer, ring[found] + at, count);
+            }
+            if (ring_head != chunk || (found < 0 && !filling)) {
+                /* The reader follows: from this chunk on. A chunk it is not
+                 * reading and that is not there (a seek, or past an error)
+                 * is asked for here. */
+                if (found < 0 && !filling) {
+                    for (i = 0; i < DISC_RING; i++)
+                        if (slots_disc[i].state == SLOT_READY && (slots_disc[i].chunk < chunk || slots_disc[i].chunk >= chunk + DISC_RING))
+                            slots_disc[i].state = SLOT_EMPTY;
+                }
+                ring_head = chunk;
+                SignalSema(ring_lock);
+                SignalSema(ring_wake);
+            } else {
+                SignalSema(ring_lock);
+            }
+            if (found >= 0) {
+                if (waited) {
+                    clock_gettime(CLOCK_MONOTONIC, &t1);
+                    Ps2_ReadUs += (unsigned long long)((t1.tv_sec - t0.tv_sec) * 1000000 + (t1.tv_nsec - t0.tv_nsec) / 1000);
+                }
+                return found >= 0 && count ? (ssize_t)count : 0;
+            }
+            if (!waited) clock_gettime(CLOCK_MONOTONIC, &t0);
+            waited = 1;
+            WaitSema(ring_done); /* a chunk was read: look again */
+            {
+                /* Past the end of the file the reader gives up (ring_head -1). */
+                int gone;
+                WaitSema(ring_lock);
+                gone = ring_head < 0;
+                SignalSema(ring_lock);
+                if (gone) {
+                    clock_gettime(CLOCK_MONOTONIC, &t1);
+                    Ps2_ReadUs += (unsigned long long)((t1.tv_sec - t0.tv_sec) * 1000000 + (t1.tv_nsec - t0.tv_nsec) / 1000);
+                    return 0;
+                }
+            }
         }
     }
     if (lseek(fd, offset, SEEK_SET) < 0) return -1;
+    if (fd == ring_fd) file_position = -1;
     if (!in_window(buffer)) return read(fd, buffer, count);
     if (count > sizeof(bounce)) count = sizeof(bounce);
     got = read(fd, bounce, count);
@@ -384,12 +516,12 @@ void Ps2_GuestDump(const char *why, int index)
     if (!prefix || count >= 24) return;
     snprintf(path, sizeof(path), "%s-%02d-%s-%d.bin", prefix, count++, why, index);
     if ((out = fopen(path, "wb"))) {
-        enum { CHUNK = 0x10000 };
-        uint8_t *chunk = memalign(64, CHUNK);
+        enum { DUMP_CHUNK = 0x10000 };
+        uint8_t *chunk = memalign(64, DUMP_CHUNK);
         uint32_t at;
-        for (at = 0; chunk && at < 0x200000u; at += CHUNK) {
-            memcpy(chunk, (const void *)(uintptr_t)(0xC0000000u + at), CHUNK);
-            fwrite(chunk, 1, CHUNK, out);
+        for (at = 0; chunk && at < 0x200000u; at += DUMP_CHUNK) {
+            memcpy(chunk, (const void *)(uintptr_t)(0xC0000000u + at), DUMP_CHUNK);
+            fwrite(chunk, 1, DUMP_CHUNK, out);
         }
         free(chunk);
         fclose(out);
