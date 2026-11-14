@@ -67,6 +67,8 @@ int SaveMenu_Poll(unsigned pressed, int channel, int *sound, SaveSlotCheck valid
 
 /* The overlay: draw over `canvas` and report the rectangle drawn. */
 void SaveMenu_Draw(MenuCanvas *canvas, int *x, int *y, int *w, int *h);
+/* The PS2's own small window (save_menu.c), on a 640 x 480 canvas. */
+void SaveMenu_DrawPs2(MenuCanvas *canvas, int *x, int *y, int *w, int *h);
 /* Changes whenever what SaveMenu_Draw would draw changes. */
 unsigned SaveMenu_Signature(void);
 /* The mouse (window pixels, overlay_pointer.h): moves the cursor or the

@@ -358,6 +358,7 @@ static void poll_pad(void)
         pad_bits = (uint16_t)(0xFFFFu ^ status.btns);
 }
 
+static int test_slot_ok(unsigned char *state) { (void)state; return 1; }
 static unsigned current_frame;
 /* Emulator runs (host:): a command file the developer writes while the game
  * runs, "<id>\n<frames>:<bits hex>,..." -- each step holds the pad bits for
@@ -557,12 +558,27 @@ void Platform_Frame(unsigned frame)
             live_bits = 0xFFFF;
         }
     }
-    if (live_bits == 0xFFFD) {
+    {
+        /* Host debugging: the save menu on its own, driven by the pad. */
         static unsigned char test_buffer[0x4000];
-        live_bits = 0;
+        static int testing;
+        static uint16_t was;
         int sound;
-        SaveMenu_Begin(SAVE_MENU_SAVE, test_buffer + 0x200, NULL, 0x2000, "BASLUS-01411YUGIOH", NULL);
-        SaveMenu_Poll(0, 0, &sound, NULL);
+        if (live_input && live_bits == 0xFFFD) {
+            live_bits = 0;
+            testing = 1;
+            memset(test_buffer, 0, sizeof(test_buffer));
+            SaveMenu_Begin(SAVE_MENU_SAVE, test_buffer + 0x200, NULL, 0x2000, "BASLUS-01411YUGIOH", test_slot_ok);
+            SaveMenu_Poll(0, 0, &sound, test_slot_ok);
+        } else if (testing && SaveMenu_Active()) {
+            uint16_t now = live_bits, edge = now & ~was;
+            unsigned pressed = (edge & 0x4000 ? 0x40u : 0) | (edge & 0x2000 ? 0x20u : 0) | (edge & 0x0040 ? 0x4000u : 0) |
+                               (edge & 0x0010 ? 0x1000u : 0) | (edge & 0x0020 ? 0x2000u : 0) | (edge & 0x0080 ? 0x8000u : 0);
+            was = now;
+            SaveMenu_Poll(pressed, 0, &sound, test_slot_ok);
+        } else {
+            testing = 0;
+        }
     }
     if (live_bits == 0xFFFE) {
         extern int GsGpu_FrameLog;
@@ -743,7 +759,8 @@ int main(int argc, char **argv)
 #include "pc/platform/menu.h"
 #include "pc/saves/save_menu.h"
 #include "pc/saves/deck_menu.h"
-static uint32_t overlay_argb[640 * 480]; /* drawn at twice the screen, then halved */
+#define OV 3 /* the menus are drawn at three times the screen and reduced */
+static uint32_t overlay_argb[320 * OV * 240 * OV];
 /* The port's menus on the PS2: drawn on the CPU into an opaque box and
  * written into the shown picture's copy as plain pixels (gs_gpu.c), with no
  * texture and no blending on the GS. The box is the menu's own rectangle;
@@ -765,33 +782,37 @@ const uint16_t *Ps2_OverlayBox(int *changed, int *bx, int *by, int *bw, int *bh)
         /* Drawn at twice the screen's size and halved: the menu's text at
          * its smallest is 16 pixels, too big for a 320 x 240 picture. The
          * window takes the middle, at most 200 x 130 of the screen. */
-        MenuCanvas canvas = {overlay_argb + 110 * 640, 640, 640, 260, 0};
-        int x = 0, y = 0, w = 0, h = 0, row, i;
-        for (i = 0; i < 640 * 480; i++) overlay_argb[i] = 0x101c58u;
-        Menu_SetOverlayArea(120, 520, 0);
-        SaveMenu_Draw(&canvas, &x, &y, &w, &h);
-        if (!w || !h) DeckMenu_Draw(&canvas, &x, &y, &w, &h);
-        y += 110;
-        if (Menu_NoticeShown()) {
-            MenuCanvas whole = {overlay_argb, 640, 640, 480, 0};
-            Menu_Draw(&whole);
-            x = 0, y = 0, w = 640, h = 480;
+        MenuCanvas canvas = {overlay_argb + 75 * OV * 320 * OV, 320 * OV, 320 * OV, 90 * OV, 0};
+        MenuCanvas whole_screen = {overlay_argb, 320 * OV, 320 * OV, 240 * OV, 0};
+        int x = 0, y = 0, w = 0, h = 0, row, i, j, n = 320 * OV * 240 * OV;
+        for (i = 0; i < n; i++) overlay_argb[i] = 0x141a4au;
+        Menu_SetOverlayArea(60 * OV, 260 * OV, 0);
+        /* Save and load: their own window (save_menu.c), on the whole screen. */
+        SaveMenu_DrawPs2(&whole_screen, &x, &y, &w, &h);
+        if (!w || !h) {
+            DeckMenu_Draw(&canvas, &x, &y, &w, &h);
+            y += 75 * OV;
         }
-        /* To screen pixels; whole qwords per row for the GS transfer: x and w
-         * by 8 pixels. */
+        if (Menu_NoticeShown()) {
+            Menu_Draw(&whole_screen);
+            x = 0, y = 0, w = 320 * OV, h = 240 * OV;
+        }
+        /* To screen pixels (each the mean of OV x OV); whole qwords per row
+         * for the GS transfer: x and w by 8 pixels. */
         if (x < 0) w += x, x = 0;
         if (y < 0) h += y, y = 0;
-        w = (x + w + 1) / 2 - x / 2, h = (y + h + 1) / 2 - y / 2, x /= 2, y /= 2;
+        w = (x + w + OV - 1) / OV - x / OV, h = (y + h + OV - 1) / OV - y / OV, x /= OV, y /= OV;
         w += x & 7, x &= ~7, w = (w + 7) & ~7;
         if (x + w > 320) w = 320 - x;
         if (y + h > 240) h = 240 - y;
         for (row = 0; row < h; row++)
             for (i = 0; i < w; i++) {
-                const uint32_t *q = overlay_argb + (size_t)(y + row) * 2 * 640 + (size_t)(x + i) * 2;
-                uint32_t a = q[0], b = q[1], c = q[640], d = q[641];
-                unsigned r = (((a >> 16) & 255) + ((b >> 16) & 255) + ((c >> 16) & 255) + ((d >> 16) & 255) + 2) >> 2;
-                unsigned g = (((a >> 8) & 255) + ((b >> 8) & 255) + ((c >> 8) & 255) + ((d >> 8) & 255) + 2) >> 2;
-                unsigned bl = ((a & 255) + (b & 255) + (c & 255) + (d & 255) + 2) >> 2;
+                unsigned r = 0, g = 0, bl = 0;
+                for (j = 0; j < OV * OV; j++) {
+                    uint32_t p = overlay_argb[(size_t)((y + row) * OV + j / OV) * 320 * OV + (size_t)(x + i) * OV + j % OV];
+                    r += (p >> 16) & 255, g += (p >> 8) & 255, bl += p & 255;
+                }
+                r /= OV * OV, g /= OV * OV, bl /= OV * OV;
                 overlay_box[row * w + i] = (uint16_t)((r >> 3) | ((g >> 3) << 5) | ((bl >> 3) << 10));
             }
         x0 = x, y0 = y, w0 = w, h0 = h;

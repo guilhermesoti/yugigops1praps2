@@ -11,6 +11,11 @@
 enum { VIEW_CLOSED, VIEW_LIST, VIEW_CONFIRM, VIEW_MESSAGE };
 enum { CHOICE_OVERWRITE, CHOICE_KEEP };
 #define BACK_TO_LIST -1
+#ifdef MEMORIES_PS2
+#define PT(en, pt) pt /* the PS2 build's menu speaks Portuguese */
+#else
+#define PT(en, pt) en
+#endif
 #define MESSAGE_FRAMES 75 /* how long a success message stays without a button */
 
 /* Everything a save state needs to carry an open menu across. The buffers
@@ -170,10 +175,10 @@ static void start(int channel)
     } else if (!any && *SaveSlots_ReadError()) {
         /* Not "no saved games" when they could not be read: they may all be
          * there, behind a folder the system refuses. */
-        show_message(2, 1, "Could not read your saved games.", 0);
+        show_message(2, 1, PT("Could not read your saved games.", "Nao deu para ler os saves."), 0);
         snprintf(detail, sizeof(detail), "%s", SaveSlots_ReadError());
     } else if (!any) {
-        show_message(2, 1, "There are no saved games to load.", 0);
+        show_message(2, 1, PT("There are no saved games to load.", "Nenhum jogo salvo."), 0);
     }
 }
 
@@ -185,7 +190,7 @@ unsigned SaveMenu_LoadCount(void) { return loads_done; }
 static int load(int slot)
 {
     if (menu.size != SAVE_SLOT_STATE_SIZE || SaveSlots_ReadState(slot, menu.buffer, check)) {
-        show_message(BACK_TO_LIST, 1, "Slot %d could not be read.", slot);
+        show_message(BACK_TO_LIST, 1, PT("Slot %d could not be read.", "Slot %02d ilegivel."), slot);
         return 0;
     }
     if (menu.step == SAVE_MENU_LOAD_PAIR) {
@@ -205,7 +210,7 @@ static void save(int slot)
         /* Where and why under it: another slot does not help when the
          * folder refuses every file. */
         const char *why = SaveSlots_LastError();
-        show_message(BACK_TO_LIST, 1, *why ? "Could not save to slot %d." : "Could not save to slot %d. Try another slot.",
+        show_message(BACK_TO_LIST, 1, *why ? PT("Could not save to slot %d.", "Erro ao salvar no slot %02d.") : PT("Could not save to slot %d. Try another slot.", "Erro ao salvar no slot %02d."),
                      slot);
         snprintf(detail, sizeof(detail), "%s", why);
         return;
@@ -213,7 +218,7 @@ static void save(int slot)
     menu.current_slot = slot;
     saves_done++;
     SaveSlots_Scan(menu.slots, check);
-    show_message(1, 0, "Saved to slot %d.", slot);
+    show_message(1, 0, PT("Saved to slot %d.", "Salvo no slot %02d."), slot);
 }
 
 int SaveMenu_Begin(int step, unsigned char *buffer, unsigned char *second, int size, const char *name,
@@ -742,3 +747,196 @@ void SaveMenu_State(MemoriesState *state)
         changed();
     }
 }
+
+#ifdef MEMORIES_PS2
+/* The PS2's save and load window (docs/relatorio-menu-save-load.md): drawn
+ * on a 640 x 480 canvas that platform_ps2.c halves to the 320 x 240 screen.
+ * In screen pixels: 184 x 110 at (68, 65), a gold rim with stepped corners
+ * round an indigo panel, an eye before the title, three slot rows with a
+ * triangle on the chosen one, scroll marks, and the buttons' legend. */
+#define PS_GOLD 0xd8a838u
+#define PS_GOLD_DARK 0x6a4a10u
+#define PS_PANEL 0x141a4au
+#define PS_ROW 0x2a2c5au
+#define PS_PICK 0x1830c8u
+#define PS_IVORY 0xf4ecd8u
+#define PS_DIM 0xb8b0a0u
+#define PS_WARN 0xf0a070u
+
+static void ps_triangle(MenuCanvas *c, int x, int y, int size, int down, uint32_t color)
+{
+    int i;
+    for (i = 0; i < size; i++) {
+        if (down > 0) fill(c, x - (size - i), y + i, 2 * (size - i), 1, color, 255);      /* pointing down */
+        else if (down < 0) fill(c, x - i, y + i, 2 * i + 1, 1, color, 255);               /* pointing up */
+        else fill(c, x + i, y - (size - i), 1, 2 * (size - i), color, 255);               /* pointing right */
+    }
+}
+
+static void ps_disc(MenuCanvas *c, int cx, int cy, int r, int hole, uint32_t color)
+{
+    int i;
+    for (i = -r; i <= r; i++) {
+        int w = 0, wi = -1, out = r * r - i * i, in = hole * hole - i * i;
+        while ((w + 1) * (w + 1) <= out) w++;
+        if (hole && in >= 0) { wi = 0; while ((wi + 1) * (wi + 1) <= in) wi++; }
+        if (wi < 0) fill(c, cx - w, cy + i, 2 * w + 1, 1, color, 255);
+        else {
+            fill(c, cx - w, cy + i, w - wi, 1, color, 255);
+            fill(c, cx + wi + 1, cy + i, w - wi, 1, color, 255);
+        }
+    }
+}
+
+/* The pad's button: a dark disc with a blue cross or a red circle. */
+static void ps_button(MenuCanvas *c, int cx, int cy, int k, int cross)
+{
+    int i, r = 6 * k;
+    ps_disc(c, cx, cy, r, 0, 0x2a2a36u);
+    if (cross) {
+        for (i = -r / 2; i <= r / 2; i++) {
+            fill(c, cx + i - k / 2, cy + i, k + 1, 1, 0x9ab4ffu, 255);
+            fill(c, cx - i - k / 2, cy + i, k + 1, 1, 0x9ab4ffu, 255);
+        }
+    } else {
+        ps_disc(c, cx, cy, r * 2 / 3, r * 2 / 3 - k - 1, 0xf04858u);
+    }
+}
+
+/* An eye of Horus, 10 x 9 screen pixels: brow, almond, pupil, tail. */
+static void ps_eye(MenuCanvas *c, int x, int y, int k)
+{
+    fill(c, x, y, 10 * k, k, PS_GOLD, 255);
+    fill(c, x + k, y + 2 * k, 8 * k, k, PS_GOLD, 255);
+    fill(c, x, y + 3 * k, k, k, PS_GOLD, 255);
+    fill(c, x + 9 * k, y + 3 * k, k, k, PS_GOLD, 255);
+    fill(c, x + k, y + 4 * k, 8 * k, k, PS_GOLD, 255);
+    fill(c, x + 4 * k, y + 2 * k, 2 * k, 3 * k, PS_GOLD, 255);
+    fill(c, x + 3 * k, y + 5 * k, k, 3 * k, PS_GOLD, 255);
+    fill(c, x + 4 * k, y + 8 * k, 3 * k, k, PS_GOLD, 255);
+}
+
+/* Gold rim, a dark line inside it, a thin gold line, stepped corners. */
+static void ps_frame(MenuCanvas *c, int x, int y, int w, int h, int k)
+{
+    int n;
+    fill(c, x, y, w, h, PS_PANEL, 255);
+    fill(c, x, y, w, k, PS_GOLD, 255);
+    fill(c, x, y + h - k, w, k, PS_GOLD, 255);
+    fill(c, x, y, k, h, PS_GOLD, 255);
+    fill(c, x + w - k, y, k, h, PS_GOLD, 255);
+    fill(c, x + k, y + k, w - 2 * k, k, PS_GOLD_DARK, 255);
+    fill(c, x + k, y + k, k, h - 2 * k, PS_GOLD_DARK, 255);
+    fill(c, x + 2 * k, y + 2 * k, w - 4 * k, 1, PS_GOLD, 255);
+    fill(c, x + 2 * k, y + h - 2 * k - 1, w - 4 * k, 1, PS_GOLD, 255);
+    fill(c, x + 2 * k, y + 2 * k, 1, h - 4 * k, PS_GOLD, 255);
+    fill(c, x + w - 2 * k - 1, y + 2 * k, 1, h - 4 * k, PS_GOLD, 255);
+    for (n = 0; n < 4; n++) {
+        int right = n & 1, bottom = n & 2;
+        int cx = right ? x + w - 7 * k : x + 3 * k, cy = bottom ? y + h - 7 * k : y + 3 * k;
+        fill(c, cx, bottom ? cy + 3 * k : cy, 4 * k, k, PS_GOLD, 255);
+        fill(c, right ? cx + 3 * k : cx, cy, k, 4 * k, PS_GOLD, 255);
+        fill(c, right ? cx + k : cx + 2 * k, bottom ? cy + k : cy + 2 * k, k, k, PS_GOLD, 255);
+    }
+}
+
+/* A name cut to `w` pixels at the current scale, ending ".." when cut. */
+static void ps_fit(char *text, int w)
+{
+    size_t n = strlen(text);
+    char work[80];
+    if (text_width(text) <= w) return;
+    while (n > 1) {
+        n--;
+        snprintf(work, sizeof(work), "%.*s..", (int)n, text);
+        if (text_width(work) <= w) {
+            strcpy(text, work);
+            return;
+        }
+    }
+}
+
+void SaveMenu_DrawPs2(MenuCanvas *canvas, int *x, int *y, int *w, int *h)
+{
+    /* In screen pixels (k canvas pixels each): the window 192 x 110 at
+     * (64, 65), whole GS qwords across; title 22, three 16-pixel rows, the
+     * scroll mark 10, the legend 22. */
+    const int k = canvas && canvas->width >= 320 ? canvas->width / 320 : 1;
+    const int px = 64 * k, py = 65 * k, pw = 192 * k, ph = 110 * k, rows = 3, row_h = 16 * k;
+    const int list_y = py + 26 * k;
+    int i, swap = Settings_Get(SET_JP_BUTTONS);
+    const char *heading = menu.step == SAVE_MENU_SAVE ? "SALVAR JOGO"
+                          : menu.step == SAVE_MENU_LOAD_PAIR ? (menu.side ? "JOGADOR 2" : "JOGADOR 1")
+                                                             : "CARREGAR JOGO";
+    *x = *y = *w = *h = 0;
+    if (menu.view == VIEW_CLOSED || !menu.started || !canvas || !canvas->pixels) return;
+    if (shown_rows != rows) {
+        shown_rows = rows;
+        keep_cursor_shown();
+    }
+    ps_frame(canvas, px, py, pw, ph, k);
+    ui_scale = k >= 3 ? 2 : 1; /* the text about 11 screen pixels */
+    {
+        int tw = text_width(heading), tx = px + (pw - tw + 14 * k) / 2;
+        ps_eye(canvas, tx - 14 * k, py + 8 * k, k);
+        draw_text(canvas, tx, py + 13 * k, heading, PS_IVORY);
+    }
+    if (menu.view == VIEW_LIST) {
+        int nx = px + 22 * k, mx = nx + text_width("00") + 8 * k;
+        for (i = 0; i < rows && menu.top + i < SAVE_SLOT_COUNT; i++) {
+            int slot = menu.top + i, ry = list_y + i * row_h, cy = ry + row_h / 2, picked = slot == menu.cursor;
+            const SaveSlotInfo *info = &menu.slots[slot];
+            char number[8], name[64];
+            uint32_t color = picked ? PS_IVORY : selectable(slot) ? PS_DIM : 0x7a7480u;
+            fill(canvas, px + 10 * k, ry + k, pw - 20 * k, row_h - 2 * k, picked ? PS_PICK : PS_ROW, 255);
+            if (picked) ps_triangle(canvas, px + 12 * k, cy, 4 * k, 0, PS_GOLD);
+            snprintf(number, sizeof(number), "%02d", slot + 1);
+            if (info->status == SAVE_SLOT_USED)
+                snprintf(name, sizeof(name), "%s", info->name[0] ? info->name : "?");
+            else
+                snprintf(name, sizeof(name), "%s", info->status == SAVE_SLOT_EMPTY ? "Vazio"
+                                                   : info->status == SAVE_SLOT_UNREADABLE ? "Ilegivel" : "Danificado");
+            ps_fit(name, px + pw - 12 * k - mx);
+            draw_text(canvas, nx, cy, number, color);
+            draw_text(canvas, mx, cy, name,
+                      info->status == SAVE_SLOT_DAMAGED || info->status == SAVE_SLOT_UNREADABLE ? PS_WARN : color);
+        }
+        if (menu.top > 0) ps_triangle(canvas, px + pw / 2, list_y - 5 * k, 4 * k, -1, PS_GOLD);
+        if (menu.top + rows < SAVE_SLOT_COUNT) ps_triangle(canvas, px + pw / 2, list_y + rows * row_h + 2 * k, 4 * k, 1, PS_GOLD);
+    } else if (menu.view == VIEW_CONFIRM) {
+        const SaveSlotInfo *info = &menu.slots[menu.cursor];
+        char line[80];
+        int n;
+        snprintf(line, sizeof(line), "%02d %s", menu.cursor + 1,
+                 info->status == SAVE_SLOT_USED ? (info->name[0] ? info->name : "?") : "Danificado");
+        ps_fit(line, pw - 24 * k);
+        centred(canvas, px, pw, list_y + 7 * k, line, PS_DIM);
+        centred(canvas, px, pw, list_y + 21 * k, "Sobrescrever?", PS_IVORY);
+        for (n = 0; n < 2; n++) {
+            int bw = 64 * k, bx = px + pw / 2 + (n ? 6 * k : -6 * k - bw), chosen = (n == 0) == (menu.choice == CHOICE_OVERWRITE);
+            fill(canvas, bx, list_y + 30 * k, bw, 14 * k, chosen ? PS_PICK : PS_ROW, 255);
+            if (chosen) ps_triangle(canvas, bx + 3 * k, list_y + 37 * k, 3 * k, 0, PS_GOLD);
+            centred(canvas, bx, bw, list_y + 37 * k, n == 0 ? "Sim" : "Nao", chosen ? PS_IVORY : PS_DIM);
+        }
+    } else { /* VIEW_MESSAGE */
+        wrapped(canvas, px + 10 * k, pw - 20 * k, list_y + 14 * k, 14 * k, menu.message[0] ? menu.message : "...",
+                PS_IVORY);
+    }
+    {
+        /* The legend, by the pad's mapping (View > Japanese buttons swaps them). */
+        int ly = py + ph - 12 * k, half = pw / 2;
+        const char *act = menu.view == VIEW_CONFIRM ? "OK" : menu.view == VIEW_MESSAGE ? "OK"
+                          : menu.step == SAVE_MENU_SAVE ? "Salvar" : "Carregar";
+        int a = 16 * k + text_width(act), b = 16 * k + text_width("Voltar");
+        int ax = menu.view == VIEW_MESSAGE ? px + (pw - a) / 2 : px + (half - a) / 2 + 4 * k;
+        int bx = px + half + (half - b) / 2 - 4 * k;
+        ps_button(canvas, ax + 6 * k, ly, k, !swap);
+        draw_text(canvas, ax + 16 * k, ly, act, PS_IVORY);
+        if (menu.view != VIEW_MESSAGE) {
+            ps_button(canvas, bx + 6 * k, ly, k, swap);
+            draw_text(canvas, bx + 16 * k, ly, "Voltar", PS_IVORY);
+        }
+    }
+    *x = px, *y = py, *w = pw, *h = ph;
+}
+#endif
