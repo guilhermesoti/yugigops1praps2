@@ -56,7 +56,35 @@ export PS2DEV=/usr/local/ps2dev     # onde o ps2dev está instalado
 
 O build não precisa da imagem do jogo.
 
+## Créditos
+
+Projeto **gratuito**, feito por fãs. Ele existe graças a:
+
+- **[Yu-Gi-Oh! Forbidden Memories Recompiled](https://github.com/Unchiga/Yu-Gi-Oh-Forbidden-Memories-Recompiled)**
+  (Unchiga e contribuidores) e **[memories-decomp](https://github.com/krystalgamer/memories-decomp)**
+  (krystalgamer e colaboradores): o jogo decompilado em C, a base de todo o port.
+- **[ps2dev](https://github.com/ps2dev/ps2dev)**, **[PS2SDK](https://github.com/ps2dev/ps2sdk)**,
+  **[gsKit](https://github.com/ps2dev/gsKit)** e **[ps2sdk-ports](https://github.com/ps2dev/ps2sdk-ports)**:
+  as ferramentas e bibliotecas do PS2.
+- **[PCSX2](https://github.com/PCSX2/pcsx2)**, **[OPL](https://github.com/ps2homebrew/Open-PS2-Loader)** e
+  **[wLaunchELF](https://github.com/ps2homebrew/wLaunchELF)**: para testar e rodar.
+
+Feito por **Guilherme Soti** ([Retrogames Patos de Minas](https://github.com/guilhermesoti)), que
+dirigiu o projeto e testou tudo num PS2 de verdade, com a ajuda de inteligências artificiais:
+**Claude** (Anthropic) no desenvolvimento, **Gemini** (Google) e **ChatGPT** (OpenAI) nas revisões
+técnicas e no conceito do menu de save. O que cada um fez está em **[CREDITOS.md](CREDITOS.md)**.
+
+## Apoie o projeto
+
+O port é e vai continuar gratuito. Se ele te ajudou e você quiser apoiar os próximos (como um port do
+Tekken 3), pode doar qualquer valor:
+
+<!-- DOACAO: link e QR code do Pix entram aqui -->
+
 ## Licença
 
-Código sob licença MIT (veja [LICENSE](LICENSE)). A decompilação pertence aos seus autores.
-Yu-Gi-Oh! e Forbidden Memories são marcas da Konami; você precisa da sua própria cópia do jogo.
+O código do port de PC e a camada PS2 (`src/ps2/`, `ps2/`, `build.sh`) estão sob a licença MIT (veja
+[LICENSE](LICENSE)): mantenha o aviso de copyright e o link para os projetos de origem. O código
+decompilado do jogo pertence aos autores do [memories-decomp](https://github.com/krystalgamer/memories-decomp).
+*Yu-Gi-Oh!* e *Forbidden Memories* são da Konami; este repositório não tem o jogo nem seus dados, e
+você precisa da sua própria cópia. Projeto sem ligação com a Konami.

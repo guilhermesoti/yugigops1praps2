@@ -26,3 +26,13 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+----------------------------------------------------------------------------
+
+PlayStation 2 port
+
+Copyright (c) 2026 Guilherme Soti (Retrogames Patos de Minas)
+
+The PlayStation 2 port's own files (src/ps2/, ps2/, build.sh and the
+MEMORIES_PS2 changes in the files above) are released under the same MIT
+terms as above. The notice and permission text above apply to them too.
