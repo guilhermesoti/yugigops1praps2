@@ -92,6 +92,10 @@ Tekken 3), pode doar qualquer valor:
 ```
 </details>
 
+De fora do Brasil? / Outside Brazil? **[ko-fi.com/guilhermesoti](https://ko-fi.com/guilhermesoti)**
+
+<a href="https://ko-fi.com/guilhermesoti"><img src="https://ko-fi.com/img/githubbutton_sm.svg" alt="Support me on Ko-fi"></a>
+
 Toda doação é voluntária e não dá acesso a nada extra: o código e as builds continuam livres para
 todo mundo. Obrigado por apoiar a cena retro!
 
