@@ -596,22 +596,31 @@ void Platform_Frame(unsigned frame)
     }
     if ((getenv("PS2_DUMP_FRAME") && frame == (unsigned)atoi(getenv("PS2_DUMP_FRAME"))) || live_bits == 0xFFFF) {
         live_bits = 0;
-        /* Host debugging only: the buffer is taken for the dump and given back. */
-        uint16_t *dump = memalign(64, 1024 * 512 * 2);
+        /* In strips of 32 rows (64 KB): with the translation's text on the
+         * heap there is no room for the whole megabyte at once. */
+        extern void GsGpu_ReadVramRows(int y, int rows, uint16_t *out);
+        extern const uint16_t *SoftGpu_Vram(void);
+        uint16_t *dump = memalign(64, 1024 * 32 * 2);
         FILE *file;
-        if (!dump) return;
-        GsGpu_ReadVram(dump);
         char path[320];
+        int y;
+        if (!dump) {
+            printf("ps2: VRAM dump: no memory\n");
+            Ps2_LogSave();
+            return;
+        }
         if (live_input) snprintf(path, sizeof(path), "host:gsvram.bin");
         else snprintf(path, sizeof(path), "%s/YFM-GSVRAM.bin", program_dir);
         if ((file = fopen(path, "wb"))) {
-            fwrite(dump, 2, 1024 * 512, file);
+            for (y = 0; y < 512; y += 32) {
+                GsGpu_ReadVramRows(y, 32, dump);
+                fwrite(dump, 2, 1024 * 32, file);
+            }
             fclose(file);
-        }
+        } else printf("ps2: VRAM dump: cannot write %s\n", path);
         if (live_input) snprintf(path, sizeof(path), "host:cpuvram.bin");
         else snprintf(path, sizeof(path), "%s/YFM-CPUVRAM.bin", program_dir);
         if ((file = fopen(path, "wb"))) {
-            extern const uint16_t *SoftGpu_Vram(void);
             fwrite(SoftGpu_Vram(), 2, 1024 * 512, file);
             fclose(file);
         }

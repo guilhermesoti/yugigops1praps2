@@ -965,6 +965,13 @@ void GsGpu_ReadVram(uint16_t *out)
     for (y = 0; y < 512; y += 64) download(0, y, 1024, 64, out + y * 1024);
 }
 
+/* `rows` rows from `y` (a multiple of 16), for a dump in strips. */
+void GsGpu_ReadVramRows(int y, int rows, uint16_t *out)
+{
+    if (y == 0) flush_pending();
+    download(0, y, 1024, rows, out);
+}
+
 static void environment(void)
 {
     static const int dither[4][4] = {{-4, 0, -3, 1}, {2, -2, 3, -1}, {-3, 1, -4, 0}, {3, -1, 2, -2}};
