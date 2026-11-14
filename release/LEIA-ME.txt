@@ -1,0 +1,16 @@
+Yu-Gi-Oh! Forbidden Memories - port nativo para PlayStation 2 (v0.1.0 beta)
+https://github.com/guilhermesoti/yugiohps1praps2
+
+COMO JOGAR
+1. Copie esta pasta YFM para o pendrive (FAT32 ou exFAT), por exemplo em APPS/YFM.
+2. Coloque na mesma pasta a imagem do SEU disco (Yu-Gi-Oh! Forbidden Memories USA,
+   SLUS-01411) renomeada para YFM.bin. A imagem do jogo NAO vem neste pacote.
+3. No PS2, abra o YFM_PS2.ELF pelo OPL (como app) ou pelo wLaunchELF.
+   No PCSX2: Sistema > Iniciar ELF, com o YFM.bin na mesma pasta.
+4. Os saves ficam em YFM-SAVE/saves/ dentro da pasta.
+
+Problemas? Abra uma issue no GitHub com o arquivo YFM-LOG.txt (criado ao lado do ELF)
+e uma foto da tela.
+
+Este projeto e gratuito e sem fins lucrativos. Nao venda este arquivo.
+Yu-Gi-Oh! e marca de Konami / Kazuki Takahashi. Projeto de fa, sem ligacao com a Konami.

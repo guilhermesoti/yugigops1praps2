@@ -1,0 +1,27 @@
+# Publica uma release a cada tag "v*" enviada (ex.: git tag v0.1.0-beta && git push origin v0.1.0-beta).
+# Empacota o ELF já compilado em release/ com o LEIA-ME, a licença e os créditos.
+# As notas da página saem de release/NOTAS.md. Tags com "-" (beta, rc) viram pré-lançamento.
+name: Release
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: write
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Montar o zip
+        run: |
+          mkdir -p pacote/YFM
+          cp release/YFM_PS2.ELF release/LEIA-ME.txt LICENSE CREDITOS.md pacote/YFM/
+          cd pacote && zip -r "../YFM_PS2_${GITHUB_REF_NAME}.zip" YFM
+      - name: Publicar
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          PRE=""
+          case "$GITHUB_REF_NAME" in *-*) PRE="--prerelease" ;; esac
+          gh release create "$GITHUB_REF_NAME" "YFM_PS2_${GITHUB_REF_NAME}.zip" \
+            --title "$GITHUB_REF_NAME" --notes-file release/NOTAS.md $PRE
