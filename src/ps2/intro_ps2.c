@@ -264,7 +264,7 @@ static void support_screen(int frame, int can_go)
                 if (intro_qr[y][x] == '1') fill(ox + (q + x) * m, oy + (q + y) * m, m, m, 0x000000);
     }
     text_c(350, "Do exterior: ko-fi.com/guilhermesoti", 0x9FE0FF, 1);
-    text_c(372, "github.com/guilhermesoti/yugigops1praps2", 0x9FE0FF, 1);
+    text_c(372, "github.com/guilhermesoti/yugiohps1praps2", 0x9FE0FF, 1);
     if (can_go && (frame / 30) % 2 == 0) text_cs(H - 48, "Pressione X ou START para jogar", 0xFFFFFF, 1);
     else if (!can_go) text_cs(H - 48, "Retrogames Patos de Minas", 0x8890B0, 1);
 }
