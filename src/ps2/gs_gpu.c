@@ -50,7 +50,8 @@ enum {
 #define FBP_24 128       /* the 24-bit picture (movies): 320x256 CT32 */
 #define CACHE_PAGE 168   /* the texture cache: CT16 256x256 slots of 16 pages */
 #define CACHE_SLOTS 19
-#define COMPOSE_PAGE 472 /* 320x240 CT16 (FBW 5): the shown buffer with the port's menus over it */
+#define COMPOSE_PAGE 472 /* 2 x 320x240 CT16 (FBW 5, 20 pages each): the shown buffer with the port's menus over it */
+static int compose_page = COMPOSE_PAGE;
 #define OFFSET 1024      /* XYOFFSET: primitive coordinates are window + 1024 */
 
 #define GS_DISPFB1 ((volatile uint64_t *)0x12000070)
@@ -401,9 +402,14 @@ static inline uint64_t rgbaq(int r, int g, int b, int a)
     return (uint64_t)(r & 255) | ((uint64_t)(g & 255) << 8) | ((uint64_t)(b & 255) << 16) | ((uint64_t)(a & 255) << 24) |
            (0x3F800000ull << 32);
 }
+/* Lines are drawn through the pixels' centres (half a pixel in): the GS
+ * samples at integer positions, and a line lying exactly on them can lose
+ * whole rows on the console (PCSX2 draws it either way). */
+static int line_half;
 static inline uint64_t xyz(int x, int y)
 {
-    return (uint64_t)(((x + OFFSET) << 4) & 0xFFFF) | ((uint64_t)(((y + OFFSET) << 4) & 0xFFFF) << 16);
+    return (uint64_t)((((x + OFFSET) << 4) + line_half) & 0xFFFF) |
+           ((uint64_t)((((y + OFFSET) << 4) + line_half) & 0xFFFF) << 16);
 }
 static inline uint64_t uv(int u, int v) { return (uint64_t)((u << 4) & 0x3FFF) | ((uint64_t)((v << 4) & 0x3FFF) << 16); }
 
@@ -618,7 +624,19 @@ static size_t lines(const uint32_t *words, size_t count)
         vertex_position(&b, words[at++]);
         pair[0] = a;
         pair[1] = b;
-        draw(1, pair, 2);
+        if (!shaded && (a.y == b.y || a.x == b.x)) {
+            /* Level or upright: a sprite over the pixels, both ends included
+             * as the PS1 draws them. */
+            pair[0].x = a.x < b.x ? a.x : b.x;
+            pair[0].y = a.y < b.y ? a.y : b.y;
+            pair[1].x = (a.x < b.x ? b.x : a.x) + 1;
+            pair[1].y = (a.y < b.y ? b.y : a.y) + 1;
+            draw(6, pair, 2);
+        } else {
+            line_half = 8;
+            draw(1, pair, 2);
+            line_half = 0;
+        }
         a = b;
         if (!poly) return at;
         if (at >= count) return 0;
@@ -857,12 +875,12 @@ static int draw_overlay(int x, int y)
     if (!picture) return 0;
     if (changed || overlay_lost) upload(FBP_24 * 32, 5, PSM_CT32, 0, 0, 320, 240, picture, 320 * 240 * 4);
     overlay_lost = 0;
-    reg(R_BITBLTBUF, 0 | ((uint64_t)VRAM_FBW << 16) | ((uint64_t)PSM_CT16 << 24) | ((uint64_t)(COMPOSE_PAGE * 32) << 32) |
+    reg(R_BITBLTBUF, 0 | ((uint64_t)VRAM_FBW << 16) | ((uint64_t)PSM_CT16 << 24) | ((uint64_t)(compose_page * 32) << 32) |
                          (5ull << 48) | ((uint64_t)PSM_CT16 << 56));
     reg(R_TRXPOS, (uint64_t)(x & 2047) | ((uint64_t)(y & 2047) << 16));
     reg(R_TRXREG, 320ull | (240ull << 32));
     reg(R_TRXDIR, 2);
-    reg(R_FRAME, (uint64_t)COMPOSE_PAGE | (5ull << 16) | ((uint64_t)PSM_CT16 << 24));
+    reg(R_FRAME, (uint64_t)compose_page | (5ull << 16) | ((uint64_t)PSM_CT16 << 24));
     reg(R_SCISSOR, 319ull << 16 | 239ull << 48);
     reg(R_FBA, 0);
     reg(R_DTHE, 0);
@@ -890,7 +908,10 @@ void GsGpu_Show(int x, int y, int w, int h, int rgb24)
     flush_pending();
     if (draw_overlay(x & 1023, y & 511)) {
         wait_idle();
-        display(COMPOSE_PAGE, 5, PSM_CT16, 0, 0, w, h, h > 256);
+        display(compose_page, 5, PSM_CT16, 0, 0, w, h, h > 256);
+        /* The next composition goes to the other page: never into the one
+         * being scanned out (that tore the menu). */
+        compose_page = compose_page == COMPOSE_PAGE ? COMPOSE_PAGE + 20 : COMPOSE_PAGE;
         return;
     }
     wait_idle();

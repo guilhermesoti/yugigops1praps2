@@ -751,7 +751,10 @@ const uint32_t *Ps2_OverlayPicture(int *changed)
         if (Menu_NoticeShown()) Menu_Draw(&canvas);
         for (i = 0; i < 320 * 240; i++) {
             uint32_t p = overlay_argb[i], a = p >> 24;
-            overlay_gs[i] = ((p >> 16) & 0xFF) | (p & 0xFF00) | ((p & 0xFF) << 16) | (((a + 1) >> 1) << 24);
+            /* The menus' panels opaque: the game's own text under them
+             * showed through on the console's picture. Edges stay soft. */
+            a = a >= 0x60 ? 0x80 : (a + 1) >> 1;
+            overlay_gs[i] = ((p >> 16) & 0xFF) | (p & 0xFF00) | ((p & 0xFF) << 16) | (a << 24);
         }
         last_signature = signature;
         was_shown = 1;
