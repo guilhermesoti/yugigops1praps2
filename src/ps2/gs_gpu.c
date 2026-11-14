@@ -411,7 +411,15 @@ static inline uint64_t xyz(int x, int y)
     return (uint64_t)((((x + OFFSET) << 4) + line_half) & 0xFFFF) |
            ((uint64_t)((((y + OFFSET) << 4) + line_half) & 0xFFFF) << 16);
 }
-static inline uint64_t uv(int u, int v) { return (uint64_t)((u << 4) & 0x3FFF) | ((uint64_t)((v << 4) & 0x3FFF) << 16); }
+/* Texel centres (+8, half a texel): the console's GS interpolates UV with
+ * a little error, and on the exact texel edge it can round to the texel
+ * before, so a sprite's first row or column took its neighbour's in the
+ * sheet (dark lines across the dialogue portraits, which are made of 16x16
+ * pieces). PCSX2 is exact either way. */
+static inline uint64_t uv(int u, int v)
+{
+    return (uint64_t)(((u << 4) + 8) & 0x3FFF) | ((uint64_t)(((v << 4) + 8) & 0x3FFF) << 16);
+}
 
 /* One pass of a primitive: `type` the GS's (3 triangle, 1 line, 6 sprite). */
 static void emit(int type, const Vertex *v, int count, int pass_semi, int test)
