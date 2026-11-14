@@ -64,6 +64,7 @@ static void video_close(void);
  * YFM-LOG.txt beside the ELF (closed and reopened at each step, so what it
  * says survives a hang: the card's file size is only written at a close). */
 static char log_path[300];
+static char program_dir[256];
 static int boot_screen;
 void Ps2_LogSync(void)
 {
@@ -568,6 +569,15 @@ void Platform_Frame(unsigned frame)
         live_bits = 0;
         GsGpu_FrameLog = 240;
     }
+    {
+        /* L1 + R1 + L2 + R2 + SELECT held: the GS's and the CPU's VRAM to
+         * YFM-GSVRAM.bin and YFM-CPUVRAM.bin beside the ELF (a picture the
+         * console draws differently from an emulator, for the developer). */
+        static int held;
+        int combo = (pad_bits & 0x0F01) == 0x0F01;
+        if (combo && !held) live_bits = 0xFFFF;
+        held = combo;
+    }
     if ((getenv("PS2_DUMP_FRAME") && frame == (unsigned)atoi(getenv("PS2_DUMP_FRAME"))) || live_bits == 0xFFFF) {
         live_bits = 0;
         /* Host debugging only: the buffer is taken for the dump and given back. */
@@ -575,20 +585,26 @@ void Platform_Frame(unsigned frame)
         FILE *file;
         if (!dump) return;
         GsGpu_ReadVram(dump);
-        if ((file = fopen("host:gsvram.bin", "wb"))) {
+        char path[320];
+        if (live_input) snprintf(path, sizeof(path), "host:gsvram.bin");
+        else snprintf(path, sizeof(path), "%s/YFM-GSVRAM.bin", program_dir);
+        if ((file = fopen(path, "wb"))) {
             fwrite(dump, 2, 1024 * 512, file);
             fclose(file);
         }
-        if ((file = fopen("host:cpuvram.bin", "wb"))) {
+        if (live_input) snprintf(path, sizeof(path), "host:cpuvram.bin");
+        else snprintf(path, sizeof(path), "%s/YFM-CPUVRAM.bin", program_dir);
+        if ((file = fopen(path, "wb"))) {
             extern const uint16_t *SoftGpu_Vram(void);
             fwrite(SoftGpu_Vram(), 2, 1024 * 512, file);
             fclose(file);
         }
         free(dump);
         printf("ps2: dumped VRAM at frame %u\n", frame);
+        Ps2_LogSave();
         {
             extern int GsGpu_Trace;
-            GsGpu_Trace = 400;
+            if (live_input) GsGpu_Trace = 400;
         }
     }
     if (frame % 120 == 0) {
@@ -598,7 +614,7 @@ void Platform_Frame(unsigned frame)
 }
 
 /* ---- startup ---- */
-static char program_dir[256];
+
 
 static int exists(const char *path)
 {
@@ -728,11 +744,15 @@ int main(int argc, char **argv)
 #include "pc/saves/save_menu.h"
 #include "pc/saves/deck_menu.h"
 static uint32_t overlay_argb[320 * 240];
-static uint32_t overlay_gs[320 * 240] __attribute__((aligned(64)));
-const uint32_t *Ps2_OverlayPicture(int *changed)
+/* The port's menus on the PS2: drawn on the CPU into an opaque box and
+ * written into the shown picture's copy as plain pixels (gs_gpu.c), with no
+ * texture and no blending on the GS. The box is the menu's own rectangle;
+ * the area it may take is the middle of the screen (Menu_SetOverlayArea). */
+static uint16_t overlay_box[320 * 240] __attribute__((aligned(64)));
+const uint16_t *Ps2_OverlayBox(int *changed, int *bx, int *by, int *bw, int *bh)
 {
     static unsigned last_signature;
-    static int was_shown;
+    static int was_shown, x0, y0, w0, h0;
     int shown = SaveMenu_Active() || DeckMenu_Active() || Menu_NoticeShown();
     unsigned signature;
     if (!shown) {
@@ -742,22 +762,33 @@ const uint32_t *Ps2_OverlayPicture(int *changed)
     signature = SaveMenu_Signature() * 2654435761u ^ DeckMenu_Signature() * 40503u ^ (unsigned)Menu_NoticeShown();
     *changed = !was_shown || signature != last_signature;
     if (*changed) {
-        MenuCanvas canvas = {overlay_argb, 320, 320, 240, 1};
-        int x, y, w, h, i;
-        memset(overlay_argb, 0, sizeof(overlay_argb));
-        Menu_SetOverlayArea(0, 0, 0);
+        /* A window in the middle, 248 x 192 at most, as the game's own. */
+        MenuCanvas canvas = {overlay_argb + 24 * 320, 320, 320, 192, 0};
+        int x = 0, y = 0, w = 0, h = 0, row, i;
+        for (i = 0; i < 320 * 240; i++) overlay_argb[i] = 0x101c58u;
+        Menu_SetOverlayArea(28, 292, 0);
         SaveMenu_Draw(&canvas, &x, &y, &w, &h);
         if (!w || !h) DeckMenu_Draw(&canvas, &x, &y, &w, &h);
-        if (Menu_NoticeShown()) Menu_Draw(&canvas);
-        for (i = 0; i < 320 * 240; i++) {
-            uint32_t p = overlay_argb[i], a = p >> 24;
-            /* The menus' panels opaque: the game's own text under them
-             * showed through on the console's picture. Edges stay soft. */
-            a = a >= 0x60 ? 0x80 : (a + 1) >> 1;
-            overlay_gs[i] = ((p >> 16) & 0xFF) | (p & 0xFF00) | ((p & 0xFF) << 16) | (a << 24);
+        y += 24;
+        if (Menu_NoticeShown()) {
+            Menu_Draw(&canvas);
+            x = 0, y = 0, w = 320, h = 240;
         }
+        /* Whole qwords per row for the GS transfer: x and w by 8 pixels. */
+        if (x < 0) w += x, x = 0;
+        if (y < 0) h += y, y = 0;
+        w += x & 7, x &= ~7, w = (w + 7) & ~7;
+        if (x + w > 320) w = 320 - x;
+        if (y + h > 240) h = 240 - y;
+        for (row = 0; row < h; row++)
+            for (i = 0; i < w; i++) {
+                uint32_t p = overlay_argb[(y + row) * 320 + x + i];
+                overlay_box[row * w + i] = (uint16_t)(((p >> 19) & 31) | (((p >> 11) & 31) << 5) | (((p >> 3) & 31) << 10));
+            }
+        x0 = x, y0 = y, w0 = w, h0 = h;
         last_signature = signature;
         was_shown = 1;
     }
-    return overlay_gs;
+    *bx = x0, *by = y0, *bw = w0, *bh = h0;
+    return w0 > 0 && h0 > 0 ? overlay_box : NULL;
 }

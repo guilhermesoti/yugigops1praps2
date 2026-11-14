@@ -863,40 +863,23 @@ static void display(int fbp, int fbw, int psm, int x, int y, int w, int h, int i
 /* The port's own menus (the save slots, the deck slots, a question):
  * platform_ps2.c renders them into a 320x240 picture with alpha (GS order,
  * alpha 0x80 opaque) and they are blended over the buffer about to be shown. */
-extern const uint32_t *Ps2_OverlayPicture(int *changed);
-static int overlay_lost = 1; /* the movies' picture shares its GS memory */
-/* The buffer the game shows is copied aside and the menus drawn over the
- * copy, which is shown instead: the game's own buffers stay as it drew them
- * (a still screen is not redrawn, and the menus would pile up on it). */
+extern const uint16_t *Ps2_OverlayBox(int *changed, int *bx, int *by, int *bw, int *bh);
+static int overlay_lost = 1; /* kept for the movie path, which still marks it */
+/* The buffer the game shows is copied aside and the menu's box written over
+ * the copy, which is shown instead: the game's own buffers stay as it drew
+ * them. Two copies alternate, so the one on screen is never written. */
 static int draw_overlay(int x, int y)
 {
-    int changed = 0;
-    const uint32_t *picture = Ps2_OverlayPicture(&changed);
-    if (!picture) return 0;
-    if (changed || overlay_lost) upload(FBP_24 * 32, 5, PSM_CT32, 0, 0, 320, 240, picture, 320 * 240 * 4);
-    overlay_lost = 0;
+    int changed = 0, bx, by, bw, bh;
+    const uint16_t *box = Ps2_OverlayBox(&changed, &bx, &by, &bw, &bh);
+    if (!box) return 0;
     reg(R_BITBLTBUF, 0 | ((uint64_t)VRAM_FBW << 16) | ((uint64_t)PSM_CT16 << 24) | ((uint64_t)(compose_page * 32) << 32) |
                          (5ull << 48) | ((uint64_t)PSM_CT16 << 56));
     reg(R_TRXPOS, (uint64_t)(x & 2047) | ((uint64_t)(y & 2047) << 16));
     reg(R_TRXREG, 320ull | (240ull << 32));
     reg(R_TRXDIR, 2);
-    reg(R_FRAME, (uint64_t)compose_page | (5ull << 16) | ((uint64_t)PSM_CT16 << 24));
-    reg(R_SCISSOR, 319ull << 16 | 239ull << 48);
-    reg(R_FBA, 0);
-    reg(R_DTHE, 0);
-    reg(R_CLAMP, 0);
-    reg(R_TEST, (1ull << 16) | (1ull << 17));
-    reg(R_ALPHA, 0 | (1 << 2) | (0 << 4) | (1 << 6)); /* (Cs - Cd) * As + Cd */
-    reg(R_TEX0, (uint64_t)(FBP_24 * 32) | (5ull << 14) | ((uint64_t)PSM_CT32 << 20) | (9ull << 26) | (8ull << 30) |
-                    (1ull << 34) | (1ull << 35));
-    reg(R_PRIM, 6 | 16 | 64 | 256); /* sprite, textured, blended, UV */
-    reg(R_UV, 0);
-    reg(R_XYZ2, xyz(0, 0));
-    reg(R_UV, (uint64_t)(320 << 4) | ((uint64_t)(240 << 4) << 16));
-    reg(R_XYZ2, xyz(320, 240));
-    reg(R_FRAME, 0 | ((uint64_t)VRAM_FBW << 16) | ((uint64_t)PSM_CT16 << 24));
-    set_scissor();
-    set_mask();
+    upload(compose_page * 32, 5, PSM_CT16, bx, by, bw, bh, box, (unsigned)(bw * bh * 2));
+    (void)changed;
     return 1;
 }
 

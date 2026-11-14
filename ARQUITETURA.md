@@ -110,8 +110,10 @@ viram `0xC004xxxx` (negativos). `Memories_Icall` (`thunk.S`) faz assim:
   `VSync`, e a tela piscava mostrando o buffer em desenho.
 - Vídeos (STR, 24 bits): o formato do PS1 é igual ao `PSMCT24` do GS; as linhas são copiadas sem
   conversão (páginas 128–167) e exibidas de lá.
-- Menus do port (tela de save): desenhados num quadro de 320×240 com alfa, compostos numa **cópia**
-  do buffer exibido (páginas 472–491). A VRAM do jogo nunca é alterada.
+- Menus do port (tela de save): desenhados na CPU numa janela opaca (azul com borda dourada, até
+  248×192) e escritos como pixels numa **cópia** do buffer exibido; duas cópias se alternam
+  (páginas 472–491 e 492–511), então a que está na tela nunca é escrita. A VRAM do jogo nunca é
+  alterada.
 
 Mapa da memória do GS (páginas de 8 KB): 0–127 VRAM do PS1, 128–167 vídeo 24 bits / menus,
 168–471 cache de texturas (19 slots), 472–491 composição dos menus.
@@ -157,6 +159,10 @@ Mapa da memória do GS (páginas de 8 KB): 0–127 VRAM do PS1, 128–167 vídeo
   mesmo build.
 - No PCSX2 com o ELF iniciado de `host:`: entrada por arquivo (`input.txt`, `cmd.txt`), dumps de
   VRAM/RAM e amostrador de desempenho (`platform_ps2.c`).
+
+- **L1 + R1 + L2 + R2 + SELECT** no console grava `YFM-GSVRAM.bin` e `YFM-CPUVRAM.bin` (a VRAM do
+  GS e a da CPU, 1024×512 16 bits) ao lado do ELF: para comparar o que o console desenhou com o
+  emulador quando uma imagem sai diferente.
 
 ## 11. Pendências conhecidas
 

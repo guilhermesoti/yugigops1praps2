@@ -400,6 +400,19 @@ static void fill(MenuCanvas *canvas, int x, int y, int w, int h, uint32_t color,
 
 static void frame(MenuCanvas *canvas, int x, int y, int w, int h, int s)
 {
+#ifdef MEMORIES_PS2
+    /* The game's own windows: deep blue, a gold rim with a light line inside. */
+    fill(canvas, x, y, w, h, 0x101c58u, 255);
+    fill(canvas, x, y, w, 2 * s, 0xd8a838u, 255);
+    fill(canvas, x, y + h - 2 * s, w, 2 * s, 0xd8a838u, 255);
+    fill(canvas, x, y, 2 * s, h, 0xd8a838u, 255);
+    fill(canvas, x + w - 2 * s, y, 2 * s, h, 0xd8a838u, 255);
+    fill(canvas, x + 3 * s, y + 3 * s, w - 6 * s, s, 0xe8e8f0u, 255);
+    fill(canvas, x + 3 * s, y + h - 4 * s, w - 6 * s, s, 0xe8e8f0u, 255);
+    fill(canvas, x + 3 * s, y + 3 * s, s, h - 6 * s, 0xe8e8f0u, 255);
+    fill(canvas, x + w - 4 * s, y + 3 * s, s, h - 6 * s, 0xe8e8f0u, 255);
+    return;
+#endif
     fill(canvas, x, y, w, h, 0x0c0e18u, 232);
     fill(canvas, x, y, w, s, 0x6078c0u, 255);
     fill(canvas, x, y + h - s, w, s, 0x6078c0u, 255);
@@ -653,7 +666,11 @@ void SaveMenu_Draw(MenuCanvas *canvas, int *x, int *y, int *w, int *h)
         uint32_t right_color =
             info->status == SAVE_SLOT_DAMAGED || info->status == SAVE_SLOT_UNREADABLE ? COLOR_WARN : color;
         const char *beside = slot_text(slot, line, sizeof(line), details, sizeof(details));
+#ifdef MEMORIES_PS2
+        if (slot == menu.cursor) fill(canvas, px + 6 * s, ry, pw - 12 * s, row_h - 2 * s, 0x3858c8u, 255);
+#else
         if (slot == menu.cursor) fill(canvas, px + 6 * s, ry, pw - 12 * s, row_h - 2 * s, 0x3a5aa8u, 200);
+#endif
         if (layout > 0) {
             int first = ry + 3 * s + line_h / 2;
             draw_text(canvas, px + 16 * s, first, line, color);
