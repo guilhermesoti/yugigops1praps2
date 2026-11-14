@@ -1,0 +1,400 @@
+1625	Mas...{page}{f8 11 02}!!!{page}{fx 49 80}{fx 0D 20}Hã? Que foi, Yugi?{page}{fx 0D 21}{fx 49 00}Olha...
+1626	É o Shadi...{page}{fx 49 80}{fx 0D 20}O quê!?{page}{fx 0D 80}{f8 0E 41 70}{fx 0F 00}Nos encontramos de novo, Yugi.{page}{fx 0F 21}{fx 4B 00}O que faz aqui?
+1627	Procura alguma coisa?{page}{fx 4B 80}{fx 0F 20}O Item do Milênio do Yugi
+1628	me chamou...{page}{fx 0F 21}{fx 49 00}O Enigma do Milênio?{page}{fx 49 80}{fx 0F 20}Isso mesmo.{page}Meu próprio Item do Milênio
+1629	reage como se quisesse
+1630	estar aqui... Aqui e agora.{page}Acho que todos os Itens
+1631	do Milênio estão
+1632	reunidos aqui no torneio.{page}Minha missão é descobrir o
+1633	segredo desses Itens.{page}Por isso vim até aqui.{page}{fx 0F 21}{fx 49 00}Shadi...{page}Tive um sonho estranho
+1634	sobre o Enigma do Milênio.{page}No sonho tinha alguém como
+1635	eu, preso no enigma...
+1636	Em outro mundo.{page}Foi um sonho muito estranho!{page}{fx 49 80}{fx 0F 20}Entendo... Isso pode ter
+1637	relação com o Yami
+1638	Yugi... o seu outro eu.{page}{fx 0F 21}{fx 49 00}O meu outro eu...{page}{fx 49 80}{fx 0F 20}Yugi... já pensou em se
+1639	encontrar com o seu gêmeo sombrio?{page}{fx 0F 21}{fx 49 00}Eu? Me encontrar com ele?{page}{fx 49 80}{fx 4B 00}E como ele vai conseguir isso?{page}{fx 4B 80}{fx 0F 20}Vou usar a minha Chave do Milênio
+1640	para abrir a sua mente, Yugi.{page}Entrando fundo na sua mente,
+1641	é provável que você encontre
+1642	o seu outro eu interior.{page}Yami Yugi nasceu do poder
+1643	do Enigma do Milênio.
+1644	Ele vem de dentro de você.{page}Esse sonho... Talvez ele
+1645	esteja tentando te dizer algo...{page}Acho que é um bom momento
+1646	para encontrá-lo e conversar...{page}{fx 0F 21}{fx 49 00}...
+1647	Entendi.{page}Vou vê-lo se você
+1648	estiver disposto a me ajudar.{page}{fx 49 80}{fx 0F 20}{f8 11 01}Combinado... Tome,
+1649	toque a minha Chave do Milênio.{page}{f8 15 A1}{fx 0F 82}{state 05 08 01}{f8 15 A0}{fx 4C 00}Agora feche os olhos...{page}Relaxe... Abra a mente...{page}{fx 4C 80}{f8 15 91}{jump L56D8}
+1652	{f8 0E 50 70}{state 05 07 00}{f8 15 90}{fx 49 00}Esta é... a minha mente...{page}{fx 49 80}{fx 0C 08}{fx 0C 21}{fx 49 00}E você... é eu...{page}É a primeira vez
+1653	que nos vemos... É tão...
+1654	estranho...{page}Consigo ver dentro da sua mente.{page}Não precisamos de palavras...
+1655	Eu consigo te entender...{page}...só de olhar para você...{page}...{page}...{page}Você quer voltar...
+1656	para o seu mundo...{page}...Eu quero te ajudar...
+1657	O que eu tenho que fazer...?{page}{fx 49 80}{f8 15 A1}{fx 0C 82}{state 05 09 01}{f8 15 A0}{fx 49 00}Uma... carta...?{page}{f8 15 A1}{fx 0C 00}{state 05 07 00}{f8 15 A0}{fx 0C 21}Está...
+1658	em branco...{page}{fx 0C 81}Espere!
+1659	Que carta é esta!?{page}{fx 49 80}{f8 11 00}{f8 15 91}{jump L5889}
+1662	{f8 0E 40 70}{state 05 11 00}{f8 15 90}{fx 49 00}!!{page}{fx 49 80}{fx 0D 00}Yugi?
+1663	Você está bem?{page}{fx 0D 21}{fx 49 00}Hã... estou.{page}{fx 49 80}{fx 0D 80}{fx 0F 00}Funcionou? Você o viu?{page}{fx 0F 21}{fx 49 00}Vi...{page}Mas... a gente conversou
+1664	pouco...{page}Ele disse que era um príncipe
+1665	e que ficou preso no
+1666	enigma... há muito tempo.{page}Disse que precisava voltar
+1667	para o mundo dele...{page}Pediu que eu o ajudasse
+1668	a voltar.{page}Mas não sei como...{page}{fx 49 80}{fx 4B 00}Yugi? O que é isso
+1669	na sua mão?{page}{fx 4B 80}{fx 49 00}Hã?{page}{f8 15 A1}{fx 0F 82}{state 05 10 01}{f8 15 A0}Esta carta...!
+1670	Ele me deu esta carta
+1671	no mundo da mente!{page}Pediu que eu a usasse para
+1672	libertá-lo... Para mandá-lo de
+1673	volta ao mundo dele!{page}{fx 49 80}{fx 4B 00}O que é isso, Shadi?{page}{fx 4B 80}{state 05 11 00}{fx 0F 00}Receio que eu não sei...{page}Mas é provável que tenha
+1674	relação com o Item do Milênio.{page}{fx 0F 21}{fx 49 00}Seis cartas em branco...
+1675	Não entendo...{page}{fx 49 80}{fx 0F 80}{fx 0D 00}Já está na hora de voltar.{page}Por que não pensamos nisso depois?
+1676	Temos duelos pela frente.{page}{fx 0D 80}{jump L5B90}
+1679	{f8 15 A1}{f8 11 83}{f8 0E 70 70}{state 05 09 00}{f8 15 A0}{fx 54 00}1ª partida das finais!
+1680	Yugi contra Shadi!{page}{fx 54 80}{fx 0F 00}Yugi... nossos Itens
+1681	do Milênio nos atraíram.{page}Este duelo estava predestinado!{page}{f8 11 00}{f8 0D 0D 7E 7F 00 E0 71}{end}
+1684	{f8 19 0D}Parece que eu perdi...
+1685	Hmm?{page}{f8 15 A1}{fx 0F 82}{state 05 11 01}{f8 15 A0}{fx 4C 00}Mas o que...?! Minha Chave
+1686	e minha Balança do Milênio!!!{page}{fx 4C 80}{f8 10 2D 00}{f8 15 91}{state 05 12 01}{f8 15 90}{fx 4C 00}Foram puxadas para as cartas...{page}Então é por isso que os Itens
+1687	do Milênio foram
+1688	atraídos uns aos outros hoje...{page}{fx 4C 80}{state 05 09 00}{fx 0F 00}Yugi, parece que o seu amigo
+1689	convocou os Itens
+1690	para atraí-los a estas cartas.{page}{fx 0F 80}{f8 15 21}{state 0F 28 00}{f8 16}{end}
+1693	Que foi, Yugi?
+1694	É tudo o que você sabe fazer?{page}Você não pode perder! Você é o
+1695	Escolhido do Enigma do Milênio!{end}
+1698	Ouvi dizer que você vai muito bem!
+1699	Continue assim!{page}O que você quer fazer?{end}
+1702	{f8 15 A1}{f8 11 83}{fx 16 82}{f8 0E 70 70}{state 05 09 00}{fx 54 00}2ª partida das finais!
+1703	Yugi contra Bakura!{page}{fx 54 80}{fx 14 00}Que estranho... Eu não tinha
+1704	intenção de participar
+1705	deste torneio...{page}Mas o meu Anel do Milênio...
+1706	me chamou para a batalha...{page}...{page}{state 0F 14 00}{fx 14 41}Que bom te ver, Yugi!{page}Já está na hora de
+1707	mostrarmos quem é o
+1708	verdadeiro Rei dos Jogos!!!{page}{f8 11 00}{f8 0D 0E 80 81 00 E0 71}{end}
+1711	{f8 19 0E}Acho que não vou ficar com o
+1712	título de Rei dos Jogos...{page}{f8 15 A1}{fx 14 82}{state 05 13 01}{f8 15 A0}{fx 55 00}Mas o que...!?{page}{f8 10 2D 00}{f8 15 91}{state 05 14 01}{f8 15 90}Meu Anel do Milênio! Está
+1713	sendo absorvido por uma carta!{page}{fx 55 80}{state 05 09 00}{fx 14 00}O anel... me..
+1714	usou...{page}Obrigado, Yugi...
+1715	Finalmente estou livre
+1716	do Anel do Milênio.{page}{fx 14 80}{f8 15 A1}{state 0F 28 00}{f8 16}{end}
+1719	É isso! Fim de jogo!{page}Você não tem o que é preciso
+1720	para ganhar!{end}
+1723	Continue concentrado, Yugi...
+1724	Pense como um VENCEDOR!{page}O que você quer fazer agora?{end}
+1727	{f8 15 A1}{f8 11 83}{fx 16 82}{f8 0E 70 70}{state 05 09 00}{fx 54 00}Partida das quartas de final!
+1728	Yugi contra Pegasus!{page}{fx 54 80}{fx 15 00}Muito bem... Yugi-boy.
+1729	Você percorreu um longo caminho.
+1730	Mas já está na hora de perder.{page}{f8 11 00}{f8 0D 0F 82 83 00 E0 71}{end}
+1733	{f8 19 0F}A derrota pode ser amarga...{page}{f8 15 A1}{fx 3A 82}{state 05 15 01}{f8 15 A0}{fx 56 00}Ai!{page}{f8 10 2D 00}{f8 15 91}{state 05 16 01}{f8 15 90}Não acredito!
+1734	Meu Olho do Milênio...{page}{fx 56 80}{f8 15 21}{state 0F 28 00}{f8 16}{end}
+1737	Yugi-boy...
+1738	Que doce vitória!{page}Você foi tolo o bastante
+1739	para me desafiar...{end}
+1742	Mais um duelo, Yugi! E depois
+1743	vem a batalha final!{page}O que você quer fazer?{end}
+1746	{f8 15 A1}{f8 11 83}{fx 16 82}{f8 0E 70 70}{state 05 09 00}{fx 54 00}Partida das semifinais
+1747	Yugi contra Ishizu!{page}{fx 54 80}{fx 2F 00}É um prazer enfrentar
+1748	você em combate, Yugi.{page}Mas só um sairá daqui
+1749	vitorioso... e serei EU!!!{page}{f8 11 00}{f8 0D 10 84 85 00 E0 71}{end}
+1752	{f8 19 10}Como...?
+1753	Como eu pude perder...?{page}{f8 15 A1}{fx 40 82}{state 05 17 01}{f8 15 A0}{fx 57 00}      {page}{f8 10 2D 00}{f8 15 91}{state 05 18 01}{f8 15 90}O quê...? Meu Colar do Milênio
+1754	está sendo puxado para uma carta!?{page}{fx 57 80}{f8 15 21}{state 0F 28 00}{f8 16}{end}
+1757	Caramba!
+1758	Acho que eu ganhei...
+1759	Não?{page}Ouvi dizer que você era forte...
+1760	mas não o bastante!!!{end}
+1763	Você chegou à final!
+1764	Vou torcer por você!!!{page}O que você quer fazer?{end}
+1767	{f8 15 A1}{f8 11 83}{fx 16 82}{f8 0E 80 70}{state 05 09 00}{fx 54 00}Bom, chegou a hora da verdade!{page}Nossos finalistas são:
+1768	o incrível Kaiba...{page}...e o invicto Yugi!!!{page}{fx 54 80}{fx 0E 00}Eu sabia que
+1769	enfrentaria você, Yugi...{page}O meu Cetro do Milênio é
+1770	o último item...{page}Mas ele me sussurra
+1771	que devo derrotar você.{page}Yugi!
+1772	Prepare-se para perder!!!{page}{f8 11 00}{f8 0D 11 86 87 00 F0 71}{end}
+1775	{f8 19 11}Não pode ser...
+1776	Eu...? Derrotado...?{page}{fx 49 00}...{page}{fx 49 80}{f8 15 A1}{fx 34 82}{state 05 19 01}{f8 15 A0}{fx 58 00}Mas o que...!?
+1777	Uma luz...! Como brilha...!{page}{f8 10 2D 00}{f8 15 91}{state 05 20 01}{f8 15 90}Meu Item do Milênio... puxado
+1778	para dentro... de uma carta?{page}{fx 58 80}{jump L6737}
+1781	HAHAHAHAHAHAHA!!!
+1782	Yugi!!!
+1783	Esperei por este dia!!!{page}É um dia que eu nunca
+1784	vou esquecer!!!{page}HAHAHAHAHAHAHA!!!{end}
+1787	{f8 11 00}{state 05 21 01}{fx 49 00}Agora tenho todas as cartas
+1788	com Itens do Milênio...{page}{fx 49 80}{f8 15 91}{state 05 07 82 60 00 00}{f8 15 90}{f8 10 02 80 1E 00}{state 0B 8C 00 00 00 04 01}{state 0A}{call L125A}...{page}Era isso que você queria...?{page}{f8 15 A1}{f8 16}{end}
+1791	{fx 01 08}{call L125A}... você conseguiu!{page}Agora pode voltar
+1792	para o seu mundo.{page}Você deve agradecer
+1793	àquele garoto...{page}Yugi... Se me permite,
+1794	acho que aquele garoto representa
+1795	o que você vai ser.{page}Com os Itens do Milênio
+1796	se atraindo através do tempo...{page}O portal para o nosso
+1797	mundo pode ser aberto.{page}{f8 15 A1}{fx 01 82}{state 05 22 01}{f8 15 A0}{fx 41 00}Heishin agora possui
+1798	6 dos Itens do Milênio e
+1799	governa um vasto reino.{page}Usando-os, ele conseguiu
+1800	libertar uma parte dos
+1801	poderes das trevas.{page}Ele colocou os itens em
+1802	templos em cada região
+1803	conquistada, para protegê-los.{page}Príncipe {call L125A}...
+1804	Você deve recuperar todos
+1805	os Itens do Milênio...{page}E selá-los
+1806	para sempre.{page}A localização dos templos
+1807	que guardam Itens do Milênio
+1808	pode ser achada nas ruínas.{page}{fx 41 80}{f8 15 A1}{fx 01 00}{state 05 07 00}{f8 15 A0}Chegou a minha hora...{page}Fiz tudo o
+1809	que pude.{page}Minha carne não existe mais...
+1810	Estas serão minhas últimas
+1811	palavras, {call L125A}.{page}O resto fica em suas mãos.{page}Que você tenha sucesso...{page}{f8 11 01}{fx 01 81}{set 4047}{f8 15 91}{f8 16}{state 0F 50 00}{end}
+1814	O que você quer fazer?{end}
+1817	Conseguimos voltar...{page}Parecem as ruínas
+1818	de um templo.{page}Não há ninguém aqui...{end}
+1821	Parecem as ruínas de um templo...{end}
+1824	Não há ninguém aqui...{page}{choice 02}<Entrar>
+1825	<Não entrar>
+1829	{state 05 14 00}{if 0031 L6D5B}Tudo foi destruído...{page}{fx 18 00}Quem é você!?
+1830	A entrada é proibida!
+1831	Fora! Suma daqui!{page}{choice 02}<Duelo>
+1832	<Recusar>
+1836	Ousa resistir a mim!{page}Vou te ensinar uma lição
+1837	que nunca vai esquecer!{page}{f8 11 00}{f8 0D 12 88 89 00 10 72}{end}
+1840	{f8 19 12}Você conhece bem
+1841	suas cartas, garoto...{page}Eu te subestimei...{page}{fx 18 81}{jump L6D5B}
+1844	Estúpido!{page}Você não me deu
+1845	trabalho nenhum, garoto!{end}
+1848	Agora...
+1849	Saia daqui!!!{page}{f8 16}{end}
+1852	Este... era o quarto
+1853	do Simon...{page}{if 0051 L6D8E}{if 0050 L6DA8}{jump L6D8E}
+1856	Tudo foi destruído...{end}
+1859	{choice 02}<Procurar>
+1860	<Não procurar>
+1864	 {page}{state 05 24 01}{call L125A} descobriu
+1865	um papiro antigo!{page}Um mapa das Ruínas Proibidas.{page}Este mapa deve levar até
+1866	as Ruínas Proibidas...{page}{set 4051}{f8 16}{end}
+1869	Acho que vou voltar...{end}
+1875	Está tudo destruído...{page}Não há ninguém...{end}
+1878	Não há ninguém aqui...
+1879	Parece abandonado...{page}{fx 42 00}Ei!
+1880	{call L125A} {page}{fx 42 80}{set 405A}{fx 02 00}Puxa!
+1881	Você está vivo!!!{page}Nunca pensei que fosse
+1882	te ver de novo, {call L125A}!{page}Ainda não acredito!{page}Sabe de uma coisa? Fiquei pasmo
+1883	quando descobri que
+1884	você era um príncipe!{page}Que bom te ver!
+1885	Nunca imaginei que
+1886	você conseguiria escapar!!!{page}{call L125A}... Este lugar mudou depois
+1887	que você sumiu.{page}A situação é triste, mas
+1888	os duelos continuam... num
+1889	lugar secreto aqui perto.{page}Vem, eu te levo até lá.{page}Vamos!{page}{fx 02 80}{jump L77BE}
+1892	Não há ninguém aqui...
+1893	Parece abandonado...{end}
+1896	{if 0053 L76E9}{if 0051 L75F7}{if 0052 L74B2}{fx 17 00}Quem está aí!?{page}Ninguém pode entrar no
+1897	Vale dos Reis! Fora!{page}{fx 17 41}  {page}Meu... meu príncipe!
+1898	Você está vivo!!!{page}{fx 17 40}Sou Sadin! Minha família protege
+1899	o vale há gerações!{page}Pode ter certeza de que
+1900	mantive o Heishin longe
+1901	do vale, meu príncipe.{page}Sinto muito pelo que houve
+1902	com o faraó e a rainha...{page}Os vilões tomaram
+1903	esta terra.{page}Mas, agora...
+1904	Agora que você está vivo...{page}...há esperança outra vez
+1905	para todos.{page}{jump L741A}
+1908	Os restos do faraó e da
+1909	rainha não estão aqui...{page}Lamento dizer que o Heishin
+1910	não permitiria.{page}Deseja mais alguma coisa?{page}{jump L741A}
+1913	{set 4050}As Ruínas Proibidas?{page}O Simon Muran disse
+1914	que era aqui?{page}Desculpe, mas eu nunca
+1915	vi um lugar assim...{page}São tantas tumbas da
+1916	realeza que ninguém sabe
+1917	aonde leva cada túnel...{page}Se existe uma Tumba Proibida,
+1918	não sei onde fica...{page}Minhas desculpas, bom príncipe.{page}Mais alguma coisa, meu príncipe?{page}{jump L741A}
+1921	{choice 03}<Ir à tumba dos pais>
+1922	<Ir às Ruínas Proibidas>
+1923	<Ir embora>
+1927	Se precisar dos meus serviços,
+1928	pode me encontrar aqui.{page}{set 4052}{f8 16}{end}
+1931	{fx 17 00}Como posso ajudar, príncipe?{page}{choice 02}<Ir às Ruínas Proibidas>
+1932	<Ir embora>
+1936	{set 4050}Minhas desculpas, bom príncipe.
+1937	Não sei onde fica a
+1938	Sala Proibida.{page}Talvez se tivesse alguma pista
+1939	do Mestre Simon...{page}{choice 02}<Ir às Ruínas Proibidas>
+1940	<Ir embora>
+1944	Entendo...
+1945	Se precisar dos meus serviços,
+1946	pode me encontrar aqui.{end}
+1949	{fx 17 00}Posso ajudar?{page}{choice 02}<Dar o mapa>
+1950	<Ir embora>
+1954	Então o Mestre Simon deixou
+1955	uma pista da localização
+1956	das ruínas...{page}Deixe-me ver...{page}Certo! Sei onde fica.
+1957	Por favor, me siga...{page}{fx 17 80}{f8 11 00}{jump L97E9}
+1960	Se precisar dos meus serviços,
+1961	pode me encontrar aqui.{end}
+1964	{fx 17 00}Aconteceu algo, meu príncipe?{page}{choice 02}<Ir às Ruínas Proibidas>
+1965	<Voltar>
+1969	Entendo...
+1970	Cuidado, meu príncipe.{page}{fx 17 80}{f8 15 A1}{f8 11 83}{f8 0E 90 71}{jump LA16F}
+1973	{f8 15 A1}{f8 11 83}{f8 0E F0 70}{state 05 19 00}{f8 15 A0}{fx 02 00}Olha... Aqui é onde ficam
+1974	os novos campos de duelo.{page}{call L125A}, os magos passaram dias
+1975	investigando para onde você{page}poderia ter fugido.{page}Quando dissemos que não
+1976	fazíamos ideia, destruíram os
+1977	nossos antigos campos de duelo...{page}Por isso, o dono da loja
+1978	de cartas e eu os trouxemos
+1979	para cá.{page}{fx 02 21}{fx 43 00}{call L125A}{sp}
+1980	Você está vivo!{page}{fx 43 80}{fx 03 01}{fx 03 21}{fx 02 20}E o que você esperava!?
+1981	{call L125A} não é tão bobo
+1982	a ponto de se deixar pegar!{page}{fx 02 21}{fx 03 20}É um milagre você ter
+1983	escapado deles, sabia?{page}{fx 03 21}{fx 02 20}É. Esses caras tomaram
+1984	o reino inteiro. Fazem o que
+1985	querem... Controlam tudo.{page}Eles usam uma magia
+1986	estranha...{page}Ninguém consegue resistir!{page}Do jeito que as coisas vão,
+1987	vamos ter que passar aqui embaixo
+1988	o resto das nossas vidas...{page}{call L125A}...{page}Topa um duelo?{page}É melhor que ficar deprimido
+1989	e preocupado com tudo...{page}{choice 03}<Duelo com Jono>
+1990	<Duelo com Teana>
+1991	<Recusar>
+1998	{fx 02 21}{fx 03 20}Acho que posso te surpreender!{page}{f8 11 00}{f8 0D 14 B3 B4 00 00 72}{end}
+2001	{fx 03 21}{fx 02 20}Tudo bem...
+2002	Quem sabe da próxima vez.{page}O velho cuida da loja de
+2003	cartas aqui. Passe lá
+2004	quando tiver uma chance.{page}{fx 02 21}{fx 03 20}A gente se vê!{end}
+2007	{if 005E L7C4C}Faz tempo que não te vejo...{page}Como pode ver,
+2008	ainda estou por aqui...{page}{set 405E}{choice 02}<Loja de cartas>
+2009	<Campos de duelo>
+2013	O que posso fazer por você?{page}{choice 02}<Loja de cartas>
+2014	<Campos de duelo>
+2021	Olá. O que posso fazer por você?{end}
+2042	Olá, {call L125A}.
+2043	Você está com boa cara...{page}{jump L7D68}
+2046	Topa um duelo?{page}{choice 03}<Duelo>
+2047	<Falar com outro>
+2048	<Sair>
+2052	{if 005B L7D44}{set 405B}Ei! Fiquei sabendo de tudo!
+2053	Você venceu um Grão-Mago!?{page}Você deixou atônitos
+2054	os magos e
+2055	os soldados deles!{page}Isso é demais...
+2056	{call L125A} {page}{choice 03}<Duelo com Jono>
+2057	<Falar com outro>
+2058	<Sair>
+2063	Estamos com problemas!{page}O Seto e os magos vieram
+2064	quando eu não estava...
+2065	e levaram a Teana!{page}Eles estão atrás de você, {call L125A}...
+2066	Acham que vão te atrair
+2067	usando a Teana como isca!!!{page}Vamos, {call L125A}.
+2068	Vamos ao Santuário
+2069	resgatar a Teana!{page}{fx 02 80}{set 405C}{jump LA2C4}
+2072	{if 005F L8000}{set 405F}Essa foi difícil, cara!{page}Bom, pelo menos
+2073	resgatamos a Teana...{page}Esses caras estavam agindo
+2074	de um jeito muito estranho, sabia?{page}{choice 03}<Duelo>
+2075	<Falar com outro>
+2076	<Sair>
+2095	Só resta um Grão-Mago, né?{page}{call L125A},
+2096	Tome cuidado...
+2097	Dependemos de você.{page}{choice 03}<Duelo>
+2098	<Falar com outro>
+2099	<Sair>
+2103	Você conseguiu!!!{page}Você venceu todos eles!
+2104	Agora só falta derrotar
+2105	o Heishin e o Seto, né?{page}Eu sabia que você conseguiria!{page}Quando você for rei, {call L125A},
+2106	e as coisas voltarem ao
+2107	normal, espero que não
+2108	esqueça que somos amigos...{page}...amigos de verdade.{page}{choice 02}<Falar com outro>
+2109	<Sair>
+2116	E aí, {call L125A}?{page}Topa um duelo?{page}{choice 03}<Duelo>
+2117	<Falar com outro>
+2118	<Sair>
+2122	{if 0061 L8218}{set 4061}Ouvi dizer que você venceu um
+2123	Grão-Mago... Eles estão com medo!{page}Muito bem, {call L125A}!{page}{choice 03}<Duelo>
+2124	<Falar com outro>
+2125	<Sair>
+2129	{if 0062 L8362}Obrigada por me ajudar...{page}{call L125A}... Sabia que viria me salvar.
+2130	{set 4062}{page}{choice 03}<Duelo>
+2131	<Falar com outro>
+2132	<Sair>
+2151	Derrote mais um Grão-Mago e
+2152	depois vai enfrentar o Heishin.{page}Boa sorte, {call L125A}!{page}{choice 03}<Duelo>
+2153	<Falar com outro>
+2154	<Sair>
+2158	Agora só resta o Heishin...{page}Ouvi dizer que o Heishin é um
+2159	duelista muito poderoso...
+2160	Tome cuidado.{page}{call L125A}...
+2161	aposto que
+2162	você vai ganhar!{page}{choice 02}<Falar com outro>
+2163	<Sair>
+2170	{call L125A}... Que bom ver que está vivo.{page}Príncipe {call L125A}...
+2171	Então você é da realeza?{page}É tão estranho, depois
+2172	de tudo que passamos...{page}Tudo parece tão irreal...{page}Por isso continuamos duelando.
+2173	Evita que a gente enlouqueça.{page}Espero que não se importe
+2174	se te tratarmos como antes.{page}Vamos, vamos jogar!
+2175	{set 4063}{page}{choice 03}<Duelo>
+2176	<Falar com outro>
+2177	<Sair>
+2181	Ei, {call L125A}!
+2182	Que tal uma partida?{page}{choice 03}<Duelo>
+2183	<Falar com outro>
+2184	<Sair>
+2188	{if 0064 L8737}{set 4064}Notou que os magos andam
+2189	meio desanimados ultimamente?{page}É tudo por sua causa,
+2191	Vamos, vamos jogar!{page}{choice 03}<Duelo>
+2192	<Falar com outro>
+2193	<Sair>
+2212	Rá! Você detonou aqueles
+2213	magos! Fantástico!{page}Ouvi dizer que ainda falta
+2214	um... Boa sorte!{page}{choice 03}<Duelo>
+2215	<Falar com outro>
+2216	<Sair>
+2220	É isso aí!!!{page}Ouvi dizer que você venceu
+2221	todos aqueles Grão-Magos!!!{page}Que notícia boa!!!{page}Puxa! Acho que depois de
+2222	acabar com todos, vou ter que
+2223	te chamar de rei {call L125A}.{page}É melhor eu cuidar da língua, né?{page}Espero que não nos esqueça
+2224	quando for faraó...{page}{choice 02}<Falar com outro>
+2225	<Sair>
+2232	{set 4065}Hoje em dia é muito difícil
+2233	conseguir cartas incomuns.
+2234	Difícil mesmo.{page}Bom, quer jogar?{page}{choice 03}<Duelo>
+2235	<Falar com outro>
+2236	<Sair>
+2240	Quer me enfrentar?{page}{choice 03}<Duelo>
+2241	<Falar com outro>
+2242	<Sair>
+2246	{if 0066 L8B27}{set 4066}Você venceu um Grão-Mago!?{page}Talvez as coisas voltem ao
+2247	normal! E quando isso acontecer,
+2248	quem sabe eu possa colecionar
+2249	cartas raras como antes!
+2250	Quer um duelo?{page}{choice 03}<Duelo>
+2251	<Falar com outro>
+2252	<Sair>
+2271	Você conseguiu!!!{page}Continue assim e talvez as coisas
+2272	voltem ao normal...{page}{choice 02}<Falar com outro>
+2273	<Sair>
+2277	Você conseguiu!{page}Você detonou aqueles magos!
+2278	Não se esqueça de nós
+2279	quando for faraó, tá?{page}{choice 02}<Falar com outro>
+2280	<Sair>
+2287	{set 4067}Quanto tempo, garoto...
+2288	Estive aqui todos os dias.
+2289	Não tenho outro lugar para ir.{page}As coisas mudaram por aqui...{page}Perdi o interesse
+2290	pelos duelos, sabe?{page}A única coisa que faço agora é
+2291	vir aqui trocar cartas.{page}{choice 02}<Falar com outro>
+2292	<Sair>
+2296	Que tal? Quer
+2297	trocar cartas comigo,
+2298	garoto?{page}{choice 02}<Falar com outro>
+2299	<Sair>
+2303	{if 0068 L8E63}{set 4068}Nada mal, {call L125A}...{page}Que tal me dar
+2304	aquela carta rara?{page}{choice 02}<Falar com outro>
+2305	<Sair>
+2324	Acho que duelar não é
+2325	só ganhar e perder, sabe?{page}Colecionar pode ser
+2326	igualmente divertido.{page}{choice 02}<Falar com outro>
+2327	<Sair>
+2331	Pode ser que haja de novo
+2332	uma chance de paz.{page}Se as coisas voltarem ao
+2333	normal, talvez eu sinta
+2334	falta da vida clandestina.{page}{choice 02}<Falar com outro>
+2335	<Sair>
+2348	Sinto que hoje é o meu dia!{page}{f8 11 00}{f8 0D 13 B1 B2 00 00 72}{end}
+2351	Estou avisando! Eu sou bom...{page}{f8 11 00}{f8 0D 14 B3 B4 00 00 72}{end}
+2354	Ganhando ou perdendo... sem mágoa.{page}{f8 11 00}{f8 0D 04 B5 B6 00 00 72}{end}
+2357	Não vá dar para trás...
+2358	Vai se arrepender se fizer isso.{page}{f8 11 00}{f8 0D 05 B7 B8 00 00 72}{end}
+2367	Cara, eu tinha tanta certeza
+2368	de que ia ganhar essa partida!{page}Parece que vou ter que
+2369	me esforçar mais...{page}{f8 19 13}{choice 02}<Falar com outro>
+2370	<Sair>
+2374	Legal... Eu ganhei.{page}Você deve estar
+2375	enferrujado...{end}
+2378	Uau! Como você é bom!

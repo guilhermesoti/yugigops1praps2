@@ -8,6 +8,9 @@ COMO JOGAR
 3. No PS2, abra o YFM_PS2.ELF pelo OPL (como app) ou pelo wLaunchELF.
    No PCSX2: Sistema > Iniciar ELF, com o YFM.bin na mesma pasta.
 4. Os saves ficam em YFM-SAVE/saves/ dentro da pasta.
+5. O jogo esta em portugues (BR): o texto fica em languages/pt-br.txt, que tem de
+   ficar junto do ELF. Para jogar em ingles, crie YFM-SAVE/settings.txt com a
+   linha language=0 (ou apague a pasta languages).
 
 Problemas? Abra uma issue no GitHub com o arquivo YFM-LOG.txt (criado ao lado do ELF)
 e uma foto da tela.

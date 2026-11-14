@@ -170,5 +170,8 @@ Mapa da memória do GS (páginas de 8 KB): 0–127 VRAM do PS1, 128–167 vídeo
 - Vídeos no console real: ainda podem engasgar (decodificação MDEC em software no EE + leitura do
   USB).
 - Áudio a 22 kHz (metade da taxa original) para caber no tempo do EE.
-- Tradução PT-BR: o projeto base tem sistema de idiomas (`languages/*.txt`); falta criar o
-  português e conferir os acentos da fonte.
+- Tradução PT-BR (`languages/pt-br.txt`, idioma 6 = `LANGUAGE_PT_BR`, padrão no PS2): feita a
+  partir do `es.txt` (mesmos códigos e caixas do PAL), descrições refeitas em 20 colunas e até
+  8 linhas. Falta: o nome escrito no topo da arte da carta continua em inglês no PS2 (no PC o
+  `soft_gpu` redesenha a placa; o GS não), e as imagens com texto (menu principal, game over).
+  Ferramentas usadas: `tools/ps2/pt_br/` (montagem e conferência de tamanho das linhas).

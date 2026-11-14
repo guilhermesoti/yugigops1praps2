@@ -1,0 +1,130 @@
+3084	Quanto tempo, garoto,
+3085	desde a última vez!{page}Fico feliz que tenha conseguido
+3086	chegar tão longe...{page}Mas acabou.{page}Não cheguei até aqui
+3087	para um garoto me derrotar!!{page}{f8 11 00}{f8 0D 23 A2 A3 06 30 72}{end}
+3090	Agora você sabe, garoto...{page}Este é o verdadeiro poder!!{end}
+3093	Ridículo...
+3094	Eu... derrotado por...
+3095	esse garoto!!!{page}Não...
+3096	Não vou deixar terminar assim...{page}{fx 33 81}{f8 19 23}{f8 11 00}{fx 44 00}Muito bem...{page}{state 05 08 82 00 00 00}Agora todos os itens
+3097	se uniram em um só...{page}{fx 44 80}{f8 15 A1}{state 05 34 00}{fx 04 00}{f8 15 A0}Vamos às
+3098	Ruínas Proibidas...{page}{f8 15 A1}{fx 04 82}{f8 11 00}{f8 16}{end}
+3101	{fx 04 00}{f8 0E 80 71}{call L125A}... É hora
+3102	de acabar com esta farsa.{page}Vou te derrotar de uma vez
+3103	por todas. E todos
+3104	os itens serão meus!{page}Não se surpreenda...
+3105	Só te ajudei porque eu
+3106	precisava de você nos meus planos.{page}Servi ao Heishin como seu braço
+3107	direito esperando obter
+3108	os Itens do Milênio um dia.{page}Então você chegou, achou
+3109	o templo e encontrou todos
+3110	os valiosos itens...{page}...me poupando o trabalho
+3111	de ter que fazer isso!!!{page}Em resumo, você não passou
+3112	de uma marionete nos meus planos!{page}Eu jamais deixaria que humanos
+3113	humildes como o Heishin ou você
+3114	ficassem com os itens...{page}Eles pertencem à alta linhagem.
+3115	Só um nobre pode possuí-los,
+3116	alguém como eu.{page}{f8 15 A1}{fx 04 82}{state 05 32 01}{f8 15 A0}{fx 44 00}Este lugar é o lar
+3117	dos meus antepassados...{page}A tumba real dos que
+3118	triunfaram com o poder sombrio...{page}Sabe por que é conhecido
+3119	como as Ruínas Proibidas?{page}Pois é... POR ISSO!!!{page}{fx 44 80}{f8 15 A1}{f8 10 2E 00}{state 0F 28 00}{state 05 09 82 60 00 00}{f8 15 A0}{state 0B 00 00 FB FF B4 00}{state 0A}{fx 44 00}Os Itens do Milênio
+3120	representam um pacto para usar
+3121	os poderes das trevas.{page}Os antigos reis e feiticeiros
+3122	obtiveram poder supremo do
+3123	Senhor das Trevas...{page}E agora pretendo invocá-lo...
+3124	aqui, nestas mesmas câmaras.{page}Renovarei o pacto e terei
+3125	poder para governar tudo!!!{page}{fx 44 80}{f8 15 A1}{state 05 35 00}{fx 04 00}{f8 15 A0}E agora... a batalha final!{page}Vou te eliminar de uma vez
+3126	por todas. Os Itens serão meus.{page}{f8 11 00}{f8 0D 24 A4 A5 00 40 72}{end}
+3129	Hahahahahahaha!!!{page}Finalmente...
+3130	tenho todos eles.
+3131	Hoje o poder será meu!!!{page}Muito obrigado, {call L125A}.{end}
+3134	{f8 19 24}Assim não...{page}Estar tão perto...
+3135	e perder para você...{page}Assim não... por favor...{page}{fx 32 81}{f8 16}{end}
+3138	{choice 02}<Destruir os Itens>
+3139	<Não destruí-los>
+3143	{fx 46 00}Parem aí!!!{page}{fx 46 80}{state 05 33 01}{f8 0E B0 71}Se quer que o Seto continue vivo,
+3144	me dê os Itens do Milênio.{page}{fx 46 00}Achou que eu era tolo a ponto
+3145	de cair nessa armadilha boba?{page}Há tempos eu sei que ele
+3146	descende da Casa Sombria.{page}Fechei os olhos à traição dele
+3147	e preparei a minha derrota para
+3148	descobrir as suas intenções!{page}Achou que eu estava senil?
+3149	Cego aos seus planos tristes?{page}Graças a você estou na Sala
+3150	Proibida, que só pode ser
+3151	aberta por alguém das Trevas.{page}Vamos... Me entregue os Itens
+3152	e pouparei este idiota.{page}{jump LDA0E}
+3155	{choice 02}<Entregar os Itens>
+3156	<Recusar>
+3160	Meu caro rapaz...
+3161	Você esgota a minha paciência!{page}{jump LDA0E}
+3164	{fx 46 80}{fx 44 00}Não...{page}{fx 44 80}{f8 15 A1}{state 05 35 00}{fx 07 00}{f8 15 A0}Haha!!! Consegui!
+3165	Finalmente são meus!!!{page}Agora posso invocar
+3166	o DarkNite!!!{page}Príncipes de uma dinastia
+3167	perdida... Verão nascer um
+3168	novo rei! Uma nova era!{page}Venha a mim, Escuridão!!!
+3169	Me dê o poder!!!
+3170	Me dê o mundo!!!{page}{f8 15 A1}{f8 11 82}{fx 07 82}{state 05 34 01}{f8 15 A0}{state 0F 14 00}{f8 10 01 80 78 00}{f8 15 91}{state 0F 8C 00}{f8 0E C0 71}{fx 25 00}{state 05 35 00}{state 0F 23 00}{f8 15 90}{fx 25 21}{fx 46 00}Seja bem-vindo, Sombrio.
+3171	Em nome do antigo pacto...
+3172	eu ordeno que me obedeça!!{page}{fx 46 80}{fx 25 20}Hehehe... Volto depois de milhares
+3173	de anos, e o que encontro...?{page}O que é que você me ordena?{page}{fx 25 21}{fx 46 00}Obedeça! Você deve obedecer...
+3174	Esse é o antigo pacto!{page}{fx 46 80}{fx 25 20}Eu não fiz pacto nenhum
+3175	com gente como você...{page}Por que eu seria obrigado
+3176	a te obedecer...?{page}{fx 25 21}{fx 46 00}Os Itens... Os Itens
+3177	do Milênio! Tenho todos!{page}{fx 46 80}{fx 25 20}Os Itens do Milênio?
+3178	Não vejo nenhum...{page}{fx 25 21}{fx 46 00}Claro que não!
+3179	Eu os usei...
+3180	Eu os usei para te invocar!{page}E agora você deve cumprir o
+3181	pacto! Você deve me obedecer!!!{page}{fx 46 80}{fx 25 20}Estou cansado desta conversa.{page}{fx 25 21}{fx 46 00}Não... NÃO!!!
+3182	Não faça isso! NÃÃÃÃO!!!{page}{fx 46 80}{f8 15 91}{f8 10 2C 00}{fx 25 82}{state 05 35 01}{f8 15 90}{fx 59 00}Assim está melhor...
+3183	Você fica melhor como carta.{page}{fx 59 80}{fx 46 00}Socorro!
+3184	Me ajudeeeeem!!!{page}{fx 46 80}{fx 59 00}É a carta mais barulhenta
+3185	que eu já criei...{page}...sem falar que também
+3186	é a mais feia.{page}Francamente, ela não merece
+3187	um lugar no meu deck...{page}{fx 59 80}{f8 10 28 00}{state 05 29 01}{fx 46 00}Nãããããããããããããããão!!!{page}{fx 46 80}{fx 59 00}Pronto...{page}{fx 59 80}{f8 15 A1}{state 05 35 00}{fx 25 00}{f8 15 A0}Há muito tempo eu divido meu
+3188	poder com as cartas que crio.{page}É hora de colher o prêmio
+3189	pelo meu poder.{page}E o melhor lugar para começar
+3190	é este planeta miserável...
+3191	estas criaturas miseráveis...{page}{fx 25 21}{fx 44 00}   {call L125A}  {sp}
+3192	Seu deck! Ele ainda tem
+3193	a Carta do Milênio...{page}A que você usou para
+3194	voltar a este mundo...{page}Use-a! Use as cartas
+3195	para expulsá-lo...{page}{fx 44 80}{fx 25 20}Hehehe... Acho que vocês dois
+3196	serão ótimos acréscimos
+3197	ao meu deck pessoal...{page}{f8 15 A1}{fx 25 82}{state 05 36 01}{f8 15 A0}{fx 59 00}O quê!?{page}{fx 59 80}{fx 44 00}Ainda temos uma carta como
+3198	sinal do nosso pacto com você.{page}{fx 44 80}{f8 15 A1}{fx 25 00}{state 05 35 00}{f8 15 A0}Estou vendo. Mas não pretendo
+3199	voltar de mãos vazias
+3200	depois de vir até aqui...{page}Sabem de uma coisa?
+3201	Vou dar uma chance a vocês.{page}O justo é que as cartas
+3202	decidam
+3203	o nosso pacto.{page}Me vença num duelo e eu vou
+3204	para casa... tranquilamente.{page}Vamos...
+3205	Vamos jogar...{page}{f8 11 00}{f8 0D 25 A6 A7 00 50 72}{end}
+3208	Patético!!!{page}Devia saber que você era fraco
+3209	demais para ser um desafio!{page}Bom, você conhece as regras.{page}Eu venci...
+3210	E o mundo é meu!
+3211	Hehe...{page}{fx 25 41}Hehehehehehehehehehe!!!
+3212	Hehehehehehehehehehe!!!
+3213	Hehehehehehehehehehe!!!{page}Hehehehehehehehehehe!!!
+3214	Hehehehehehehehehehe!!!
+3215	Hehehehehehehehehehe...!!!{end}
+3218	{f8 19 25}Não... não é justo! Eu...!?
+3219	EU!? Eu não posso perder!!!
+3220	Eu criei as cartas!!!{page}Não...
+3221	Não...{page}EU NÃO POSSO PERDER!!!{page}{f8 15 91}{fx 25 80}{fx 26 00}{f8 15 90}VAMOS, GAROTO!!!
+3222	DE NOVO!!!
+3223	MAIS UMA PARTIDA!!!{page}{f8 11 00}{f8 0D 26 A8 A9 00 60 72}{end}
+3226	E O VENCEDOR...
+3227	SOU EU!!!{page}SIIIIIIM!!!
+3228	O MUNDO É MEU!!!{page}TODO MEU!!!{end}
+3231	{f8 19 26}NÃO!
+3232	DE NOVO NÃO!!!{page}{f8 10 2B 00}NÃAAAAAAAAAAAAAAA
+3233	AAAAAAAAAAAAAAAAA
+3234	AAAAAAAAAAAAAAAAA{page}AAAAAAAAAAAAAAAAA
+3235	AAAAAAAAAAAAAAAAA
+3236	AAAAAAAAAAAAAAAAA{page}{f8 15 91}{fx 26 81}{state 0F 3C 00}{f8 15 90}{state 0F 3C 00}......{page}{f8 15 A1}{state 05 01 82 60 00 00}{f8 15 A0}{state 0B 00 00 0F 00 04 01}{state 0A}{page}{jump LE5B9}
+3239	{state 05 00 00}{f8 0E 20 73}Naquele dia, Seto deixou as ruínas
+3240	e nunca mais foi visto.{page}{state 05 06 82 60 00 00}{f8 15 A0}{state 0B 00 00 00 00 30 02}O Egito voltou a se unificar sob
+3241	o reinado de {call L125A}.
+3242	E para proteger a humanidade...{page}...ele enterrou as Ruínas Proibidas.{page}{call L125A} se tornou o melhor dos faraós e levou
+3243	prosperidade ao seu povo.{page}Os magos malvados sumiram.
+3244	Esta é a lenda de {call L125A},
+3245	aquele a quem chamamos...{page}"Yu-Gi-Oh"{page}{state 0A}{f8 16}{end}

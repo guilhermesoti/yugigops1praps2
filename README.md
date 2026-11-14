@@ -18,12 +18,15 @@ processador do PS2 (Emotion Engine, MIPS R5900) e a imagem é desenhada pelo chi
 1. No pendrive (FAT32 ou exFAT), crie uma pasta (por exemplo `APPS/YFM`).
 2. Copie para ela:
    - `release/YFM_PS2.ELF`
+   - a pasta `languages` com o `pt-br.txt` (o jogo em português; sem ela fica em inglês)
    - a imagem do seu disco renomeada para **`YFM.bin`** (o nome original
      `Yu-Gi-Oh! Forbidden Memories (USA).bin` também funciona).
 3. No PS2 abra o ELF pelo OPL (como app) ou pelo wLaunchELF.
 4. Os saves ficam em `YFM-SAVE/saves/` dentro da mesma pasta.
 
 No PCSX2: *Sistema → Iniciar ELF*, com o `YFM.bin` na mesma pasta do ELF.
+
+Para jogar em inglês, crie `YFM-SAVE/settings.txt` com a linha `language=0`.
 
 Controle: igual ao do PS1. Ao escolher o alvo de um ataque, **Quadrado** mostra a batalha 3D dos
 monstros e **X** faz o ataque rápido.
@@ -40,6 +43,7 @@ Testado no PCSX2 e num PS2 de verdade (USB exFAT, pelo OPL):
 | Vídeos (STR) | 15 fps no PCSX2; no console ainda em ajuste |
 | Som | funciona (mixado a 22 kHz) |
 | Save / load | funciona: 5 slots em `YFM-SAVE/saves/` |
+| Português (BR) | textos, menus, cartas e descrições; nomes das cartas como na dublagem brasileira |
 
 Ao ligar, o port mostra uma abertura da Retrogames e a tela "Apoie o projeto" (START pula a
 abertura; X ou START na tela de apoio começa o jogo). As etapas da inicialização vão para o

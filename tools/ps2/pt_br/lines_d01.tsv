@@ -1,0 +1,400 @@
+1000	Ei, sabia que está tendo
+1001	uma festa na
+1002	praça da cidade?{page}Vamos! Vamos dar uma olhada!{page}Com certeza vamos achar
+1003	o Jono lá!{page}{f8 15 A1}{f8 11 82}{state 0F 3C 00}{jump L2553}
+1006	Vamos, vamos jogar!
+1007	Não vai ser mau perdedor, hein?{page}{f8 11 00}{f8 0D 02 62 63 00 00 72}{end}
+1010	Ahh!
+1011	Parece que eu perdi.
+1012	Bom...{page}Jogo com você de novo
+1013	quando melhorar um pouco.{page}{f8 19 02}{choice 02}<Falar com outro>
+1014	<Sair>
+1018	Ganhei! Ganhei!
+1019	Acho que é a primeira vez
+1020	que ganho de você, {call L125A}!{page}Espero que você não tenha
+1021	me deixado ganhar...{end}
+1024	Vamos jogar!{page}{f8 11 00}{f8 0D 04 64 65 00 00 72}{end}
+1027	Tá bom, tá bom...
+1028	Vamos jogar de novo outra hora...{page}{f8 19 04}{choice 02}<Falar com outro>
+1029	<Sair>
+1033	Que tal?
+1034	Nada mal, né?{end}
+1037	Tudo bem, vamos jogar!{page}{f8 11 00}{f8 0D 05 66 67 00 00 72}{end}
+1040	Você venceu...
+1041	Acho que te devo uma carta.{page}{f8 19 05}{choice 02}<Falar com outro>
+1042	<Sair>
+1046	SIM!!! Eu ganhei!!! Isso
+1047	quer dizer que fico com uma
+1048	das suas cartas! Certo?{end}
+1051	Tudo bem, garoto. Vamos jogar!{page}{f8 11 00}{f8 0D 06 68 69 00 00 72}{end}
+1054	Puxa! Acho que eu perdi...{page}Parece que hoje
+1055	não é o meu dia...{page}{f8 19 06}{choice 02}<Falar com outro>
+1056	<Sair>
+1060	Bom, garoto...
+1061	Parece que eu ganhei.{page}Deixe uma das suas cartas
+1062	aí...{end}
+1065	{fx 02 00}Mas quem esse mago
+1066	pensa que é!?{page}Mas tenho que admitir...
+1067	que ele é durão...{page}Ei, {call L125A},
+1068	topa uma partida
+1069	até ele voltar?{page}{choice 02}<Duelo>
+1070	<Recusar>
+1074	Tudo bem! Vamos nessa!{page}Posso ter perdido a última,
+1075	mas ainda tenho o meu toque!{page}{f8 11 00}{f8 0D 03 6A 6B 00 00 72}{end}
+1078	Puxa, {call L125A}!
+1079	Que surra você me deu!
+1080	Sabe de uma coisa? Você é bom!{page}Me faz um favor e derrota
+1081	aquele mago, tá?{page}{f8 19 03}{jump L1993}
+1084	Que foi, {call L125A}?
+1085	Você pode fazer melhor!{page}Se é só isso que você
+1086	sabe, nunca vai vencer o mago!{end}
+1089	Tem medo de começar
+1090	com o pé esquerdo, é?
+1091	Eu entendo.{page}Vamos esperar o mago.{page}Ele é bom de verdade, sabia?{page}Escuta. Eu jogo aqui
+1092	todo dia. E você sabe
+1093	que eu jogo muito bem...{page}Aliás, não tem muito duelista
+1094	que eu não consiga vencer.{page}Mas aquele mago...
+1095	Nossa...! Ele é muito bom!{page}Eu não tive chance!{page}Escuta, {call L125A}...
+1096	Não subestime aquele cara.{page}Sei que você é bom.
+1097	Mas não se descuide...{page}{jump L1993}
+1100	Lá está ele...
+1101	Ele voltou.{page}{fx 02 80}{fx 30 80}Olha só...
+1102	{state 05 03 82 3C 00 00}{state 0B 00 00 00 00 87 00}{fx 02 80}{fx 42 00}Ele tem fãs...{page}Me faz um favor e dá
+1103	uma surra nele.{page}{fx 42 80}{fx 43 00}Vai lá, {call L125A}!{page}{fx 43 80}{state 0A}{state 05 02 00}{fx 04 00}Não conheço suas habilidades...
+1104	Mas espero que me divirta.{page}Saiba que eu adoro
+1105	uma boa partida...{page}Não me decepcione!{page}{f8 11 00}{f8 0D 07 6C 6D 00 40 72}{end}
+1108	Não...
+1109	Não pode ser: eu perdi...{page}{fx 32 80}{fx 04 00}Mas... espere um momento.
+1110	Você... é...{page}Ora... Entendo...{page}Basta.
+1111	Chega por hoje.{page}Algo me diz que os nossos
+1112	caminhos vão se cruzar de novo...{page}Por enquanto... me despeço.{page}{fx 32 80}{fx 04 80}{f8 19 07}{jump L1BE5}
+1115	Você perdeu, garoto!{page}Vai precisar de cartas
+1116	melhores se quiser
+1117	me vencer!{end}
+1120	{fx 02 12}Você conseguiu!
+1121	{call L125A} {page}Viu a cara dele!?
+1122	Você foi demais!!!{page}{fx 02 21}{fx 03 13}{call L125A}...
+1123	Você é muito bom!{page}{fx 02 20}{fx 03 21}"Por enquanto, me despeço..."
+1124	Rá! Que perdedor!{page}{jump L1C81}
+1128	Bom, e agora?{page}Ainda tem tempo?{page}{choice 02}<Jogar>
+1129	<Sair>
+1133	{fx 03 80}Beleza!
+1134	Uma partida rápida?{page}{choice 02}<Duelo>
+1135	<Falar com outro>
+1139	É? Bom, volte quando
+1140	quiser...{page}Estaremos aqui.{end}
+1143	{fx 02 00}{call L125A}! Você voltou!
+1144	Quer jogar?{page}{choice 03}<Duelo>
+1145	<Falar com outro>
+1146	<Sair>
+1150	{call L0004}{fx 02 00}Ficou bem tarde,
+1151	{call L125A} {page}Quer outra partida?{page}{choice 03}<Duelo>
+1152	<Falar com outro>
+1153	<Sair>
+1157	Tudo bem. Até mais...{end}
+1160	Tudo bem. Te alcanço depois...{page}{jump L1E44}
+1163	{call L0004}{fx 02 80}{fx 30 80}{fx 03 00}Você jogou muito bem antes,
+1164	{call L125A} {page}Um dia talvez eu jogue tão
+1165	bem quanto você,
+1166	{call L125A} {page}{choice 02}<Falar com outro>
+1167	<Sair>
+1171	A gente se vê!{end}
+1174	Tudo bem. Até mais...{page}{call L0004}{fx 02 80}{fx 30 80}{fx 03 00}Acho que vou para casa...{page}Com a festa e tudo, eu
+1175	perdi a noção do tempo.{page}{choice 02}<Falar com outro>
+1176	<Sair>
+1180	{fx 03 80}{if 004E L2017}{fx 2B 00}Que duelo...{page}Nunca tinha visto
+1181	nada igual!{page}Me dá uma chance?
+1182	Vamos, uma partidinha...{page}{choice 03}<Duelo>
+1183	<Falar com outro>
+1184	<Sair>
+1188	{fx 2B 00}Escuta... Preciso descansar.
+1189	Vamos jogar amanhã.{page}{choice 02}<Falar com outro>
+1190	<Sair>
+1194	A gente se vê...{end}
+1197	{call L0004}{if 004F L219B}{fx 2C 00}Conseguiu alguma
+1198	carta rara?{page}Se quiser,
+1199	a gente aposta.{page}{choice 03}<Duelo>
+1200	<Falar com outro>
+1201	<Sair>
+1205	Até a próxima!{end}
+1208	{call L0004}{fx 2D 00}Quer jogar comigo?{page}Escuta. Descobri o quanto você
+1209	era bom no nosso último duelo.{page}Não gosto de perder!{page}{choice 02}<Falar com outro>
+1210	<Sair>
+1214	{call L0004}{fx 2D 00}Se procura o garoto que
+1215	você venceu, ele foi para casa.{page}Eu não vou jogar mais.
+1216	Por que não vai para casa...?{page}{choice 02}<Falar com outro>
+1217	<Sair>
+1221	Tchau.{end}
+1227	Combinado, vamos nessa!{page}{f8 11 00}{f8 0D 03 6E 6F 00 00 72}{end}
+1230	Puxa...
+1231	Você é muito bom!{page}...Ou talvez eu que não seja.{page}{f8 19 03}{choice 02}<Falar com outro>
+1232	<Sair>
+1236	Opa!{page}Parece que hoje é
+1237	o meu dia de sorte!
+1241	Combinado... Vamos jogar!{page}{f8 11 00}{f8 0D 04 70 71 00 00 72}{end}
+1244	Puxa...
+1245	Parece que não ganho.{page}Acho que está na hora de
+1246	tentar outra estratégia.{page}{f8 19 04}{set 404E}{choice 02}<Falar com outro>
+1247	<Sair>
+1251	Que tal?
+1252	Nada mal, né?{end}
+1255	Combinado, vamos jogar!{page}{f8 11 00}{f8 0D 05 72 73 00 00 72}{end}
+1258	Puxa...
+1259	Você é muito bom...{page}Vou para casa...
+1260	A gente se vê.{page}{fx 3D 80}{f8 19 05}{set 404F}{choice 02}<Falar com outro>
+1261	<Sair>
+1265	Consegui! Eu ganhei!{page}Vou ficar com essa carta!{end}
+1268	{if 006F L2512}Muita gente se reuniu
+1269	na praça da cidade...{page}...mas não tem nada interessante.{end}
+1272	Parece que a festa acabou.
+1273	Não tem muita gente por aqui...{page}...e não tem nada interessante.{end}
+1276	{if 0026 L24B7}A festa está rolando...{page}...mas não tem nada interessante.{end}
+1279	{state 05 36 00}{f8 0E 40 73}{f8 15 A0}Nossa... tem muita
+1280	gente por aqui.{page}Olha, os magos estão para
+1281	começar a procissão...{page}{f8 15 A1}{fx 03 82}{state 05 37 01}{f8 15 A0}{fx 43 00}Impressionante...{page}...mas dá um pouco de medo.{page}Deve ser coisa
+1282	daquele odioso
+1283	Grão-Mago Heishin.{page}Quando eu era pequeno,
+1284	isso era bem mais saudável.{page}Até a atitude dos magos
+1285	piorou...{page}Aonde é que nós
+1286	vamos parar...?{page}{fx 43 80}{state 05 36 00}{fx 03 00}Quer ir para outro lugar?{page}{f8 15 A1}{fx 03 82}{state 05 00 00}{f8 15 C0}{fx 43 00}Olha! É o Jono!
+1287	Não acredito, mas
+1288	ele está duelando!{page}{fx 43 80}{f8 15 A0}{state 05 38 01}{fx 42 00}Eu...
+1289	Eu perdi...{page}{fx 42 80}{fx 44 00}Acho que perdi
+1290	meu tempo com um
+1291	micróbio insignificante.{page}{fx 44 80}{fx 42 00}O que você disse?{page}{fx 42 80}{fx 44 00}Não foi isso que eu quis dizer.
+1292	Você foi... até divertido.{page}{fx 44 80}{fx 43 00}Ei! Jono!{page}{fx 43 80}{fx 42 00}Teana e {call L125A}...{page}{fx 42 80}{state 05 37 00}{fx 02 00}{fx 43 00}{fx 02 21}O que houve?{page}{fx 43 80}{fx 02 20}O que você acha?
+1293	Não é óbvio?{page}{fx 02 21}{fx 43 00}Você perdeu...{page}{fx 43 80}{fx 02 20}Não seja tão dura! Eu não
+1294	perdi... Foi só um tropeço...{page}{fx 02 80}{fx 04 00}Esse inseto me cansou...{page}Não há ninguém digno da
+1295	minha atenção entre vocês?{page}{fx 04 21}{fx 42 00}Cara!
+1296	Que cara de pau!{page}{fx 42 80}{fx 43 00}Ei, {call L125A}...
+1297	Por que não desafia ele?{page}Afinal, você é o
+1298	melhor duelista que já vi!{page}Aposto que você pode vencer!{page}{fx 43 80}{fx 42 00}É, {call L125A}!
+1299	Vai lá! Mostra quem
+1300	manda!{page}{fx 42 80}{fx 04 20}Olá...
+1301	Você é a minha próxima vítima?{page}{choice 02}<Duelo>
+1302	<Recusar>
+1306	Espero que seja melhor
+1307	que o último.
+1308	Vamos! Vamos duelar!{page}{fx 04 21}{fx 45 00}Mestre Seto! O Mestre
+1309	Heishin está chamando.{page}{fx 45 80}{fx 04 20}Entendo...{page}Que seja. O duelo fica adiado.{page}Acerto ao supor que você frequenta
+1310	o campo de duelo da cidade?{page}{fx 04 21}{fx 42 00}Isso mesmo.{page}{fx 42 80}{fx 04 20}Então me espere lá...
+1311	Vou honrá-lo com uma visita.{page}Meu nome é Seto.
+1312	Lembre-se dele...{page}{fx 04 80}{fx 02 00}Viu só que cara?
+1313	Um mago cheio de marra!!!{page}{fx 02 21}{fx 43 00}É... Um amor de pessoa.{page}{fx 43 80}{fx 02 20}Algo me diz que {call L125A}
+1314	vai colocá-lo no lugar dele.
+1315	Né, amigo?{page}Vamos dar uma volta e depois
+1316	vamos ao campo de duelo.{page}{fx 02 80}{set 406F}{f8 11 00}{f8 14 0A}{end}
+1319	Ah! O covarde mostra
+1320	sua verdadeira face...
+1321	Por que não me surpreende?{page}Insetos, são todos iguais.{page}{fx 04 21}{fx 42 00}Espere! {call L125A}
+1322	não quer enfrentar você
+1323	aqui, essa é a razão.{page}{fx 42 80}{fx 04 20}Ah, é...?{page}{fx 04 21}{fx 42 00}Tem um campo de duelo
+1324	onde a gente costuma jogar. Lá
+1325	sim é lugar para uma batalha!{page}{fx 42 80}{fx 04 20}O campo da cidade...{page}{fx 04 21}{fx 45 00}Mestre Seto!
+1326	O Mestre Heishin está chamando!{page}{fx 45 80}{fx 04 20}Entendo...
+1327	Que seja. O dever me chama.{page}O campo de duelo, certo?
+1328	Espere lá e vou honrá-lo
+1329	com a minha presença.{page}Meu nome é Seto.
+1330	Lembre-se dele...{page}{fx 04 80}{fx 02 00}Viu só que cara?
+1331	Um mago cheio de marra!!!{page}{fx 02 21}{fx 43 00}É... Um amor de pessoa.{page}{fx 43 80}{fx 02 20}Desculpe, {call L125A}...
+1332	Sei que você não queria
+1333	enfrentar aquele cara.{page}Mas ele te chamou de covarde,
+1334	{call L125A}! Não podia deixar ele sair por cima!{page}Vamos, vamos ao campo de
+1335	duelo esperar por ele!{page}{fx 02 80}{set 406F}{f8 11 00}{f8 14 0A}{end}
+1338	{fx 06 00}O Grão-Mago Heishin
+1339	protege estes salões sagrados!
+1340	Plebeus não são admitidos!{page}Fora daqui!{end}
+1343	{fx 4E 00}Onde está o Seto?{page}{fx 4E 80}{fx 4F 00}Vamos ter que esperar mais?{page}{fx 4F 80}{fx 50 00}Onde ele pode estar
+1344	a uma hora dessas?{page}Parece que o queridinho de
+1345	Heishin está zombando de nós...{page}{fx 50 80}{fx 51 00}O Mestre Heishin tem boa
+1346	opinião da habilidade do Seto.{page}...embora ele seja só um garoto.{page}{fx 51 80}{fx 52 00}Já esperamos demais.
+1347	Vamos embora. O Mestre Heishin
+1348	nos espera...{page}{fx 52 80}{set 404D}{f8 16}{end}
+1351	Ei, olá!{end}
+1354	{fx 01 00}Bom, até que enfim!{page}Vamos, vamos!
+1355	Para o seu quarto!{page}{fx 01 80}{jump L312E}
+1358	{state 05 05 00}{fx 01 00}Espero mesmo
+1359	que você pare com isso...{page}{f8 15 A1}{fx 01 82}{f8 11 00}{jump L3168}
+1362	{state 05 02 01}{f8 15 A0}{fx 41 00}Será que o príncipe faz
+1363	isso só para me irritar...{page}{fx 41 80}{fx 53 00}Senhor Simon Muran!
+1364	Estamos com problemas!{page}O... o Grão-Mago...
+1365	O Grão-Mago Heishin
+1366	e seus homens...{page}Usam um poder estranho...
+1367	Estão invadindo o palácio!{page}{fx 53 80}{fx 01 20}{fx 41 00}{f8 0E B0 71}O quê!?{page}{fx 41 80}{fx 01 21}{fx 53 00}Acho que é feitiçaria, meu
+1368	senhor! Temo que não haja
+1369	nada que possamos fazer...{page}{fx 53 80}{fx 01 20}{fx 41 00}Onde está o Grão-Mago!?{page}{fx 41 80}{fx 53 00}No Salão do palácio, senhor!{page}{fx 53 80}{state 05 00 00}{fx 41 00}Heishin... Heishin! O que deu
+1370	naquele cão?{page}{fx 41 80}{fx 01 80}{state 05 04 82 60 00 00}{fx 41 00}{state 0B 5C 00 00 00 B4 00}O quê...? Mas o quê...?{page}{state 0A}{fx 41 80}{fx 07 00}Que bom te ver de novo,
+1371	Simon Muran...{page}{fx 07 21}{fx 41 00}Você ousa se rebelar...
+1372	Ficou louco!?{page}{fx 41 80}{fx 07 20}Louco...?
+1373	Eu?{page}Acho que não...
+1374	Só vim reclamar
+1375	o meu trono.{page}{fx 07 21}{fx 41 00}O seu trono!?{page}{fx 41 80}{fx 07 20}Sim, o meu trono. Porque agora
+1376	o "Poder" é meu...{page}{fx 07 21}{fx 41 00}O "Poder"...
+1377	Não... Não pode ser...{page}{fx 41 80}{fx 07 20}Vejo nos seus olhos que se lembra.
+1378	Nós dois aprendemos com
+1379	nossos antepassados feiticeiros.{page}{fx 07 21}{fx 41 00}O poder das trevas...?{page}{fx 41 80}{fx 07 20}Isso mesmo. Eu descobri
+1380	o tesouro proibido...{page}{f8 15 A1}{fx 07 82}{state 05 03 01}{f8 15 A0}Tome! Prove o poder
+1381	proibido das trevas!!!{page}{jump L35A0}
+1384	{state 05 05 00}{f8 10 27 00}{state 10 28 00}{state 0F 3C 00}{f8 16}!?{page}{fx 09 00}Príncipe {call L125A}!{page}O Grão-Mago Heishin
+1385	invadiu o palácio!{page}Este lugar é muito perigoso!
+1386	Precisamos sair já!{page}{fx 09 80}{f8 15 A1}{f8 11 83}{state 0F 0A 00}{f8 0E 80 71}{state 05 04 01}{f8 15 A0}{fx 47 00}Não...{page}{fx 47 80}{fx 44 00}Príncipe {call L125A}...
+1387	Acha que pode me evitar?{page}{if 006E L36A0}Nos encontramos de novo...{page}{jump L36A0}
+1390	Muito bem...
+1391	Levem este servo!{page}Quero falar com o príncipe.{page}{fx 44 80}{fx 04 21}{fx 45 00}Às suas ordens!{page}{fx 45 80}{fx 47 00}Príncipe {call L125A}!{page}{fx 47 80}{fx 45 00}Cale-se e venha conosco!{page}{fx 45 80}{fx 04 20}{state 05 06 00}{fx 04 00}Por que foge?
+1392	{call L125A} {page}Heishin já capturou
+1393	o rei e a rainha.{page}Fugir só faria
+1394	o Heishin acabar
+1395	com a vida deles...{page}É isso que você quer?{page}Bem... Vou dizer o que eu quero.
+1396	Algo que só alguém de
+1397	sangue real sabe...{page}...O lugar onde está
+1398	o Item do Milênio.{page}Diga onde está e pouparei
+1399	a vida do rei e da rainha!{page}Você sabe onde está!
+1400	Então... diga!{page}{choice 02}<Recusar>
+1401	<Contar>
+1405	Muito bem... Agora fale!{page}{jump L3913}
+1408	Não me faça de idiota!
+1409	Você sabe onde está!!!{page}{jump L3913}
+1412	{fx 04 21}{fx 48 00}Meu príncipe...!{page}{fx 48 80}{fx 04 20}Simon Muran!{page}{fx 04 80}{state 05 05 01}{fx 48 00}Querido príncipe... Aqui
+1413	está o Item do Milênio...{page}Pegue... Pegue e corra!!{page}{fx 48 80}{call L125A} obtém o Enigma do Milênio!{page}{state 05 06 00}{fx 0A 00}Você precisa impedir que este
+1414	tesouro caia nas mãos
+1415	desses vermes!!!{page}O tesouro é a chave final que
+1416	abre o selo do grande poder.{page}Se caísse nas mãos
+1417	dos malvados, seria
+1418	o fim do mundo...{page}{fx 0A 21}{fx 44 00}Ora... Não podia ter
+1419	trazido em melhor hora.{page}Me entregue a chave agora
+1420	e talvez eu ajude os dois
+1421	a fugir do Heishin.{page}{fx 44 80}{fx 0A 21}Ignore este canalha! Ele é o
+1422	cachorrinho do Heishin!
+1423	Não é de confiança!{page}Deixe comigo, meu príncipe!
+1424	Você precisa fugir!{page}{fx 0A 21}{fx 44 00}Saia do meu caminho, velho!{page}{fx 44 80}{fx 0A 21}Vá, meu príncipe...! Corra!{page}{choice 02}<Correr>
+1425	<Ficar>
+1432	Me escute...
+1433	Saia daqui!{page}{choice 02}<Correr>
+1434	<Ficar>
+1438	{f8 0E B0 71}{fx 0A 82}{state 05 06 00}{f8 15 A0}{fx 07 00}Não se mexa! Você é meu!{page}Vejo que os encontrou,
+1439	Seto. Muito bem.{page}{fx 07 21}{fx 44 00}Sim, meu senhor.{page}{fx 44 80}{fx 07 20}Não achavam que iam escapar
+1440	de mim, achavam?{page}Resistir é inútil.
+1441	Admitam a derrota...{page}...e me entreguem.
+1442	Me deem o Item do Milênio!!{page}{fx 07 21}{fx 48 00}Resta uma opção, meu príncipe.{page}Você deve enfrentar o Heishin.
+1443	Desafie-o para um duelo com
+1444	suas cartas e o Item do Milênio!{page}{fx 48 80}{choice 02}<Duelo>
+1445	<Recusar>
+1449	{fx 07 20}Está perdendo tempo, garoto!
+1450	Você não tem poder
+1451	para me derrotar!{page}{f8 11 00}{f8 0D 08 74 75 06 30 72}{end}
+1454	{fx 48 00}Meu querido príncipe!
+1455	Você precisa enfrentá-lo!{page}O Item do Milênio libertará
+1456	os poderes sombrios
+1457	das suas cartas.{page}Enfrente-o!
+1458	Você precisa derrotar o Heishin!{page}{fx 48 80}{choice 02}<Duelo>
+1459	<Recusar>
+1463	Menino estúpido! Você me
+1464	fez perder tempo!{page}Se insiste em ficar com o
+1465	Enigma do Milênio, vou ter
+1466	que tirá-lo do seu cadáver!{page}{f8 15 C1}{f8 19 08}{fx 07 82}{state 05 06 01}{f8 0E A0 71}{f8 15 C0}{fx 46 00}!!!{page}Saia do meu caminho, velho!
+1467	Senão...{page}{fx 46 80}{fx 48 00}Meu príncipe! Destrua
+1468	o Enigma do Milênio...{page}Não pode entregá-lo
+1469	a esta criatura vil!{page}{fx 48 80}{fx 46 00}Saia do meu caminho, velho!
+1470	Tire as mãos de mim!{page}{fx 46 80}{fx 48 00}Príncipe...
+1471	O enigma...{page}...não entregue
+1472	o enigma...{page}{fx 48 80}{choice 02}<Não quebrar o enigma>
+1473	<Quebrar o enigma>
+1477	{f8 11 03}{state 05 07 01}{f8 10 2A 00}{fx 46 00}NÃO!!!{page}{fx 46 80}{f8 15 91}{state 0F 78 00}{f8 16}{end}
+1480	{fx 48 00}Eu te imploro...
+1481	O enigma...{page}...Quebre-o...{page}{fx 48 80}{choice 02}<Não quebrar>
+1482	<Quebrar>
+1486	Nada mal, garoto.{page}Mas se engana se acha
+1487	que me venceu!{page}{f8 0D 08 74 75 06 30 72}{end}
+1490	{f8 15 90}{fx 01 08}{call L125A}...{page}{fx 01 21}!?{page}{fx 01 20}Bendita seja a deusa! Você acordou!
+1491	Estamos no Enigma do Milênio.{page}Para ser exato, a sua alma
+1492	está selada dentro do enigma.{page}Desculpe, meu príncipe. Mas
+1493	era a única saída para
+1494	salvar você e o enigma.{page}Eu não podia deixar que
+1495	você o entregasse a alguém
+1496	da laia do Heishin.{page}O poder das trevas que
+1497	o Heishin tenta conseguir
+1498	só trará destruição.{page}Um dia, quando alguém
+1499	montar o enigma de novo,
+1500	você voltará ao mundo dos homens.{page}Até esse dia chegar...
+1501	Durma, meu príncipe.{page}Sei que lá fora existe
+1502	alguém destinado a
+1503	montar o Enigma.{page}No fim, essa pessoa e o
+1504	Enigma do Milênio vão guiar você
+1505	de volta ao nosso mundo.{page}Agora descanse, querido
+1506	príncipe. Feche os olhos...{page}{f8 11 00}{f8 15 91}{fx 01 82}{jump L4446}
+1509	{state 0F 0F 00}{state 05 00 00}{f8 15 90}{fx 4B 00}Ei! Yugi!{page}Acorda, Yugi!{page}{fx 4B 80}{fx 49 00}Hã...?{page}{fx 49 80}{state 05 08 00}{f8 0E 40 70}{fx 0D 00}Você pegou no sono, cara!{page}{fx 0D 21}{fx 49 00}Sério...? Desculpa...{page}{fx 49 80}{fx 0D 20}Que foi? Estava tão nervoso
+1510	que não pregou o olho?{page}{fx 0D 21}{fx 49 00}Eu... eu tive...
+1511	um sonho...{page}{fx 49 80}{fx 0D 20}Um sonho!? Cara! Nada
+1512	te preocupa mesmo, né?{page}Vamos. É a hora da
+1513	cerimônia de abertura.{page}{fx 0D 80}{fx 49 00}(... ... ... ...){page}{fx 49 80}{jump L45AC}
+1516	{f8 15 A1}{f8 11 83}{f8 0E 30 70}{state 05 05 82 00 A2 00}{f8 15 A0}{state 0B A2 00 60 00 78 00}{state 0A}{fx 54 00}Bem-vindos ao Torneio
+1517	Mundial de Yu-Gi-Oh, patrocinado
+1518	pela Kaiba Corporation!{page}Estamos na CIDADE DOMINO,
+1519	onde duelistas seletos
+1520	se reuniram para decidir
+1521	quem é o número um!{page}{fx 54 80}{fx 4B 00}É agora, Yugi.{page}{fx 4B 80}{fx 49 00}É...{page}{fx 49 80}{f8 15 81}{state 05 05 82 00 00 00}{fx 2A 00}{f8 15 80}As batalhas estão para
+1522	começar...{page}Mas antes, é preciso
+1523	explicar algumas regras...{page}As regras do torneio são
+1524	divididas em classificatórias
+1525	e finais. Por exemplo...{page}{fx 2A 80}{fx 4B 00}Quem liga para as
+1526	regras? É só ganhar!{page}Certo, Yugi?{page}{fx 4B 80}{fx 49 00}Hã?
+1527	É. Acho que sim...{page}{fx 49 80}{fx 2A 00}...e agora, umas palavras do
+1528	patrocinador, o senhor Kaiba!{page}{fx 2A 80}{fx 0E 00}Agradeço a presença de todos
+1529	para achar o rei dos reis...{page}Nos duelos de hoje
+1530	vamos buscar o Rei dos Jogos...
+1531	o grande duelista!{page}E eu também estou disposto
+1532	a conquistar essa honra...{page}{fx 42 00}{fx 0E 21}O Kaiba me tira do sério!{page}Se alguém tirar ele do
+1533	torneio, espero que seja eu!{page}Yugi, espero te enfrentar
+1534	nas finais... tá bom?{page}{fx 4B 80}{fx 49 00}Claro!{page}{fx 49 80}{fx 0E 80}{fx 2A 00}Muito bem, senhoras e
+1535	senhores!
+1536	Que vença o melhor!
+1537	Que comecem os duelos!!!{page}{f8 15 A1}{fx 2A 82}{f8 16}{end}
+1540	Oi, Yugi!{page}No torneio, estou trabalhando
+1541	meio período na loja de cartas.{page}O que você quer fazer?{end}
+1544	Boa sorte!{page}{f8 15 A1}{fx 16 82}{f8 11 83}{jump L4A4E}
+1547	{f8 0E 60 70}{state 05 09 00}{fx 54 00}1ª partida classificatória
+1548	Yugi contra Rex Raptor!{page}{fx 54 80}{fx 10 00}Quanto tempo, Yugi...{page}Acho que você vai querer
+1549	me ver nas finais!{page}{f8 11 00}{f8 0D 09 76 77 00 D0 71}{end}
+1552	{f8 19 09}Você... me venceu!!!{page}Não acredito!!!{page}{fx 35 80}{f8 15 21}{state 0F 1E 00}{f8 16}{end}
+1555	Há, há, há!
+1556	Parece que...
+1557	o melhor venceu!!!{page}Que pena, moleque!!!{end}
+1560	As coisas vão bem, Yugi.
+1561	As coisas vão bem!{page}O que você quer fazer?{end}
+1564	{f8 15 A1}{f8 11 83}{fx 16 82}{f8 0E 60 70}{state 05 09 00}{fx 54 00}2ª partida classificatória
+1565	Yugi contra Weevil Underwood!{page}{fx 54 80}{fx 11 00}He, he, he...
+1566	É justo te avisar...
+1567	que você não tem chance.{page}Meu exército de insetos
+1568	vai te fazer em pedaços!{page}{f8 11 00}{f8 0D 0A 78 79 00 D0 71}{end}
+1571	{f8 19 0A}Perdi... EU PERDI!!!{page}Meu exército de insetos...
+1572	Derrotado por alguém
+1573	como você...{page}{fx 36 80}{f8 15 21}{state 0F 1E 00}{f8 16}{end}
+1576	Ruá, ruá, ruá!!!
+1577	Ganhei! Ganhei!{page}E você... é um perdedor!
+1578	Vai catar coquinho, perdedor!
+1579	Some daqui!!!{end}
+1582	Ouvi dizer que você vai muito bem!{page}O que você quer fazer?{end}
+1585	{f8 15 A1}{f8 11 83}{fx 16 82}{state 05 09 00}{f8 0E 60 70}{fx 54 00}3ª partida classificatória
+1586	Yugi contra Mai Valentine!{page}{fx 54 80}{fx 12 00}Devia ter desistido
+1587	antes de se meter comigo.{page}Você vai se arrepender!{page}{f8 11 00}{f8 0D 0B 7A 7B 00 D0 71}{end}
+1590	{f8 19 0B}Acho que perdi...{page}Bom... acho que só me
+1591	resta te desejar boa sorte!{page}{fx 37 80}{f8 15 21}{state 0F 1E 00}{f8 16}{end}
+1594	Caramba...
+1595	Foi fácil...{page}E eu achando que você era bom!{end}
+1598	Você joga pesado, Yugi!{page}O que você quer fazer?{end}
+1601	{f8 15 A1}{f8 11 83}{fx 16 82}{f8 0E 60 70}{state 05 09 00}{fx 54 00}4ª partida classificatória
+1602	Yugi contra Bandido Keith!{page}{fx 54 80}{fx 13 00}Faz tempo que não te vejo...
+1603	Vim te enterrar,
+1604	Yugi...{page}Prepare-se para apanhar!{page}{f8 11 00}{f8 0D 0C 7C 7D 00 D0 71}{end}
+1607	{f8 19 0C}Eu... eu... ai... ai{page}Eu... o professor das cartas...
+1608	vencido por... esse garoto!{page}{fx 38 80}{f8 15 21}{state 0F 1E 00}{f8 16}{end}
+1611	Escuta, garoto.
+1612	Você não teve chance.{page}Eu sou bom demais!{end}
+1615	Ouvi dizer que você chegou
+1616	às finais! Que demais!
+1617	Continue assim!{page}O que você quer fazer agora?{end}
+1620	{f8 15 A1}{f8 11 83}{fx 16 82}{f8 0E 40 70}{state 05 11 00}{fx 0D 00}Oi, Yugi!
+1621	Soube que você está ganhando...{page}{fx 0D 21}{fx 49 00}É.
+1622	E você, como está?{page}{fx 49 80}{fx 0D 20}Eu? Bem, ainda
+1623	não me eliminaram!{page}Quem sabe desta vez a gente
+1624	se vê nas finais!!!{page}{fx 0D 21}{fx 49 00}Tomara!

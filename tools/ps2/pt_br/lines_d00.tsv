@@ -1,0 +1,394 @@
+11	botão{end}
+20	NOME:{call L125A}{f8 16}{end}
+23	{f8 04 02}{f8 05 08 10}{f8 00 00}{f8 02 04}{f8 00 80}{f8 01 18}{f8 0A 05}ESTRELA GUARD.
+39	{f8 0A 01} SEU DECK NÃO ESTÁ PRONTO!{end}
+43	{f8 0A 00} MONTAR DECK
+44	 SAIR
+53	PRONTO!{end}
+56	{f8 02 08}ESCOLHA A CARTA A TROCAR
+59	 {call LF001}   ACEITAR
+61	 {call LF003}   CANCELAR
+63	 {f8 0B 24}botão   SELEÇÃO COMPLETA
+65	{f8 02 80}{f8 0B 22}{f8 0B 25}{f8 0B 24}{f8 0A 02}ESCOLHA CARTA{end}
+69	{f8 01 04}{f8 06 00 00}{f8 0A 02}Vitória {f8 03 08 56 1D 80 03}{f8 06 98 00}{f8 0A 06}Derrota {f8 03 0C 56 1D 80 03}{end}
+72	  Escolha o oponente!{end}
+75	{f8 0A 05}{f8 01 F0}Português
+76	{f8 0A 00}{f8 04 02}{f8 05 08 10}3D{f8 06 80 00}NOME
+77	Campanha{f8 06 80 00}Senha
+78	DUELO{f8 06 80 00}FILME
+79	Detalhe{f8 06 80 00}Carregar
+80	Som{f8 06 80 00}Salvar
+81	Romper{f8 06 80 00}Trocar
+82	MAPA 3D{f8 06 80 00}Opção
+83	EditDeck{f8 06 80 00}PERDER
+84	DUELOlivre{f8 06 80 00}de HIRATA
+85	TÍTULO{f8 06 80 00}Sair{end}
+88	{choice 4C 8F}{f8 02 20}SALVAR
+89	{f8 02 14}MONTAR DECK
+90	TELA DE TÍTULO
+91	SAIR DA LOJA
+95	{choice 42}{f8 02 04}NÃO
+96	{f8 02 04}SIM
+109	{f8 0A 01}{f8 02 24}VOCÊ PRECISA MONTAR UM DECK
+110	{f8 02 14}PARA JOGAR O MODO CAMPANHA!{end}
+114	{f8 0A 80}{f8 02 0C}FAZER A TROCA
+116	{f8 0A 81}{f8 02 28}ESCOLHER DE NOVO
+118	{f8 0A 82}TELA DE TÍTULO{end}
+121	{choice 5B 8F}ESCOLHER ESTRELA GUARD.
+127	{choice 53}SAIR DO DUELO?
+128	 NÃO
+129	 SIM
+133	Nº secreto {f8 03 08 56 1D 80 C4}{f8 03 0C 56 1D 80 C4}{end}
+136	{f8 0A 01}{f8 02 3E}DECK DO {f8 03 48 56 1D 80 01}J
+138	{f8 02 38}NÃO ESTÁ PRONTO{end}
+141	{f8 0B 27}{f8 0B 28}botão  INICIAR DUELO
+142	{f8 01 04} {f8 0B 25} botão  TELA DE TÍTULO{end}
+148	NÃO PODEM DUELAR COM OS
+149	MESMOS CÓDIGOS DE DUELISTA!{end}
+152	NÃO PODEM TROCAR COM OS
+153	MESMOS CÓDIGOS DE DUELISTA!{end}
+165	VOCÊ{end}
+168	 J1{end}
+174	CPU{end}
+177	 J2{end}
+211	{f8 01 0C}{f8 06 4C 00}Espadas da Luz Reveladora {f8 04 02}{f8 05 08 10}{f8 0A 05}{f8 03 10 56 1D 80 01}{f8 0A 00}{f8 04 02}{end}
+214	{f8 06 A8 00}{f8 00 10}ESTRELA GUARD.{f8 0A 00}{end}
+242	{f8 01 20}Design original personagens
+243	 Design original monstros
+244	   Design de cenários
+246	{f8 0A 00}    Kazuki TAKAHASHI{end}
+249	{f8 01 20}Diretor geral de
+250	  design de planejamento
+251	e requisitos
+253	  Morikuni KUBO{end}
+256	{f8 01 30}Ambiente
+258	{f8 0A 00}  Masaaki KARUBE{end}
+261	{f8 01 30}Diretor de programação
+263	  GUN{end}
+266	{f8 01 30}Design lógico
+268	  Hidehiro HIRATA
+269	  Morikuni KUBO{end}
+272	{f8 01 30}Dir. 3D e efeitos gráficos
+274	  JUN{end}
+277	Equipe de efeitos gráficos
+279	  Makoto ITAKURA
+280	  TRUTH
+281	  Takuya HASHIMOTO
+282	  UKIN{end}
+285	{f8 01 30}Direção de arte
+287	  Masafumi KAMIO{end}
+292	{f8 0A 03} Design das cartas
+294	{f8 0A 00}    Koji NAMIKOSHI(16)
+295	    Takeshi URABE{end}
+300	{f8 0A 03}Ilustração das cartas
+302	{f8 0A 00}    Yukiko HATANAKA
+303	    Tetsuya KADONO
+304	    Tomoji OMOTANI
+305	    Masafumi KAMIO
+306	    Koji NAMIKOSHI(16){end}
+311	{f8 0A 03} Design da campanha
+313	{f8 0A 00}    Takeshi URABE
+314	    Kenji INOUE
+316	{f8 0A 03} Ilustração da campanha
+318	{f8 0A 00}    Yukiko HATANAKA{end}
+323	{f8 0A 03}Gráficos de componentes
+325	{f8 0A 00}    Yukiko HATANAKA
+326	    Koji NAMIKOSHI(16)
+327	    Kanako KOHYAMA{end}
+332	{f8 0A 03} Roteiro da campanha
+334	{f8 0A 00}    Ikuro ISHIHARA{end}
+339	{f8 0A 03}Modelos e mov. monstros
+341	{f8 0A 00}  Naoki KUMAGAI
+342	  Takeshi URABE
+343	  Mitsuko SAKAMOTO
+344	  Kenji INOUE
+345	  Tomoji OMOTANI
+346	  Masafumi KAMIO
+347	  Tetsuya KADONO
+348	  Noriyuki SUGIMOTO
+349	  Koji NAMIKOSHI(16){end}
+354	{f8 0A 03}Materiais efeitos gráficos
+356	{f8 0A 00}    Tetsuya KADONO
+357	    Masafumi KAMIO
+359	{f8 0A 03}Design do vídeo de abertura
+361	{f8 0A 00}    Yasuhiko TANAKA{end}
+364	{f8 01 20}Música
+366	{f8 0A 00}  Naoko ISHII
+367	  Hiroshi(nabeyan)TANABE
+368	  Waichiro OZAKI{end}
+371	{f8 01 30}Efeitos sonoros
+373	{f8 0A 00}  ARY{end}
+376	{f8 01 30}Programação de som
+378	{f8 0A 00}  Naomitsu TSUGIIWA{end}
+381	Equipe de localização
+383	{f8 0A 03} Programação
+385	{f8 0A 00}    Tsutomu WATANABE
+386	    Makoto ITAKURA
+389	{f8 0A 03} Gráficos
+391	{f8 0A 00}    Yasuhiko TANAKA{end}
+394	{f8 01 30}Design do produto
+396	{f8 0A 00}  Akio MASUDA
+397	  Shizuko SUZUKI{end}
+400	{f8 01 30}Co-design regras cartas
+402	{f8 0A 00}  Nobuhiro YAMADA
+403	  Takuri CHIDA{end}
+408	{f8 0A 00}  Kazuhiko TORISHIMA
+409	  Toshimasa TAKAHASHI
+410	  Yoshihisa HEISHI
+411	  Tomoyuki SHIMA
+412	  Masana TAKAHASHI{end}
+417	{f8 0A 00}  Hideo YOSHIKURA
+418	  Takeshi NOMURA
+419	  Muneharu MACHIDA{end}
+424	{f8 0A 00}  Seiichi SHIMIZU{end}
+429	{f8 0A 00}  Kazumi KITAUE
+430	  Masaki YAMADA
+431	  Takashi NUMAZAWA
+432	  Tetsuya HIYOSHI{end}
+437	{f8 0A 00}  Scott DOLPH
+439	  Takao HIYOSHI
+440	  Hiroaki KAMATA
+441	  Masaya AIHARA
+442	  Momoko MIZUSHIMA
+443	  Kanako NAKAHARA{end}
+448	{f8 0A 00}  4KIDS Entertainment
+449	  ASATSU-DK Inc.
+450	  XAX Entertainment
+451	  INTAC{end}
+454	{f8 01 30}Produtor
+456	{f8 0A 00}  Satoshi SHIMOMURA{end}
+459	{f8 01 30}Produtor executivo
+461	{f8 0A 00}  Motoyuki YOSHIOKA{end}
+464	{f8 01 30}{f8 0A 00}{f8 04 02} Criado por
+466	 Konami Computer Entertainment {f8 0A 06}J{f8 0A 00}apan{end}
+471	Gráficos D{end}
+477	Agradecimentos especiais{end}
+492	{choice 53}CARREGAR DADOS SALVOS?
+493	 INICIAR
+494	 SAIR
+499	{f8 0A 06}{f8 02 4E}DADOS INVÁLIDOS!{end}
+502	{f8 02 5E}FORMATANDO...
+507	{f8 02 48}FORMATAR{jump LF024}
+510	{f8 02 2C}{f8 0A 01}ACESSANDO O MEMORY CARD...
+511	{f8 0A 00}{f8 02 2C}NÃO TIRE NEM COLOQUE O CARTÃO
+512	{f8 02 18}nos encaixes de MEMORY CARD 1 e 2{end}
+515	{f8 02 2C}{f8 0A 01}ACESSANDO O MEMORY CARD...
+516	{f8 0A 00}{f8 02 2C}NÃO TIRE NEM COLOQUE O CARTÃO
+517	{f8 02 28}no encaixe de MEMORY CARD {f8 03 48 56 1D 80 01}{end}
+520	{f8 02 38}MEMORY CARD NÃO CONECTADO
+521	{f8 02 2C}no encaixe de MEMORY CARD {f8 03 48 56 1D 80 01}!{end}
+524	{f8 02 34}{f8 0A 06}1J{f8 0A 00} Encaixe de MEMORY CARD 1
+525	{f8 02 34}{f8 0A 02}2J{f8 0A 00} Encaixe de MEMORY CARD 2
+526	{f8 0A 05}      {f8 0B 22}CARREGAR  {f8 0B 25}CANCELAR{end}
+529	{f8 01 08}{f8 0A 01}{f8 02 38}Encaixe de MEMORY CARD {f8 03 48 56 1D 80 01}
+530	{f8 02 28}SUBSTITUÍDO!
+534	{f8 02 34}{f8 0A 01}TROCANDO CARTA(S)
+535	{f8 0A 00}{f8 02 2A}NÃO TIRE NEM COLOQUE O CARTÃO
+536	{f8 02 18}nos encaixes de MEMORY CARD 1 e 2{end}
+540	{f8 02 4E}ERRO NA TROCA!{end}
+544	{f8 02 4A}TROCA CONCLUÍDA!{end}
+548	{f8 02 4A}CARREGAR{jump LF022}
+551	{choice 53}{f8 0A 01}CARREGAR{cont}
+557	{choice 53}{f8 0A 01}SALVAR{jump LF021}
+560	{choice 53}{f8 0A 01}BAIXAR{jump LF021}
+564	DOWNLOAD INCOMPLETO!{end}
+568	{f8 02 48}BAIXAR{jump LF024}
+572	{f8 02 48}SALVAR{cont}
+574	 INCOMPLETO!{end}
+577	{f8 0A 01}{f8 02 14}NENHUM DADO PARA CARREGAR!
+578	{f8 0A 00}{f8 02 34}CONECTE UM MEMORY CARD
+579	{f8 02 56}COM DADOS SALVOS!{end}
+582	{choice 53}{f8 0A 01}SOBRESCREVER?
+585	 SIM
+586	 NÃO
+591	{f8 02 52}CARREGAR{cont}
+593	 CONCLUÍDO!{end}
+597	{f8 02 4E}SALVAR{jump LF024}
+600	{f8 02 38}PRECISA DE UM MEMORY CARD
+601	no encaixe de MEMORY CARD {f8 03 48 56 1D 80 01}!{end}
+608	{f8 02 5E}NENHUM DADO!{end}
+611	{f8 02 38}{f8 0A 01}ACESSANDO O MEMORY CARD
+614	{f8 02 2C}NÃO TIRE NEM COLOQUE O CARTÃO
+615	{f8 02 28}no encaixe de MEMORY CARD {f8 03 48 56 1D 80 01}{end}
+618	{f8 02 6A}{f8 0A 01}CARREGANDO...
+622	{f8 02 66}{f8 0A 01}SALVANDO...
+626	{f8 02 5E}{f8 0A 01}BAIXANDO...
+631	{f8 02 4A}CARREGAR{cont}
+633	 IN{cont}
+635	COMPLETO!{end}
+639	{f8 02 48}SALVAR{jump LF027}
+642	{f8 02 40}NÃO FOI POSSÍVEL ACESSAR
+643	{f8 02 5A}O MEMORY CARD!{end}
+646	{f8 0A 01}NÃO HÁ ESPAÇO LIVRE SUFICIENTE!
+647	{f8 0A 00}{f8 02 5E}{f8 03 08 56 1D 80 82} BLOCOS USADOS
+648	{f8 02 4E}{f8 03 0C 56 1D 80 02} BLOCOS NECESSÁRIOS{end}
+652	{f8 02 48}BAIXAR{jump LF027}
+656	{f8 02 48}FORMATAR{jump LF027}
+660	{f8 02 34}MEMORY CARD SEM FORMATO!{end}
+663	{choice 53}FORMATAR?
+664	 NÃO
+665	 SIM
+672	{f8 0A 01}ESTRELA
+673	{f8 0A 00}{f8 04 03} {f8 0B 26}x{f8 03 08 56 1D 80 06}{end}
+676	Digite a
+677	'SENHA'
+679	    {f8 0B 22}OK {f8 0B 25}FIM{end}
+682	NÚMERO DA CARTA {f8 03 0C 56 1D 80 C3}
+683	{f8 0B 26}x{f8 03 08 56 1D 80 06}{end}
+689	 TROCAR
+690	{f8 0A 00} SAIR
+698	{f8 0A 01} Esta 'SENHA'
+699	     já foi
+700	    digitada!{end}
+717	{f8 01 18}{f8 02 1C}Digite seu NOME!{end}
+720	{choice 53}Seu NOME é {f8 0A 01}{call L125A}{f8 0A 00}-
+721	 SIM
+722	 NÃO
+729	{f8 1A}{f8 04 02}Seu código de duelista
+730	foi registrado.{page}Não é possível DUELAR nem
+731	TROCAR com o mesmo CÓDIGO DE
+732	DUELISTA.{end}
+735	{choice 53}RESULTADOS DO DUELO
+736	VITÓRIA
+737	DERROTA
+762	{state 05 01 01}Aqui está...{page}Finalmente encontrei...{page}O tesouro proibido dos
+763	antigos feiticeiros...{page}{state 05 00 02}{state 0B C0 00 00 00 2C 01}Hahahahaha!{page}Hahahahaha...
+764	Hahahahahahaha!!!
+768	Meu querido príncipe!
+769	De novo indo à cidade
+770	jogar cartas!?{page}Você tem sangue azul!
+771	Andando pelas ruas
+772	vestido como um plebeu...{page}Não tem vergonha!?
+773	Pois eu tenho, viu!{page}{choice 02}<Ir embora>
+774	<Continuar ouvindo>
+778	O faraó soube das
+779	suas andanças...
+780	E está muito preocupado!{page}{choice 02}<Ir embora>
+781	<Continuar ouvindo>
+785	Sei que a culpa é minha
+786	por te ensinar o jogo.
+787	Mas você exagera, príncipe!{page}{choice 02}<Ir embora>
+788	<Continuar ouvindo>
+792	Já está na hora de deixar
+793	de lado esse passatempo bobo
+794	e se dedicar aos estudos.{page}{choice 02}<Ir embora>
+795	<Continuar ouvindo>
+799	Não é certo preocupar
+800	tanto o faraó e a rainha!{page}Por favor, querido príncipe...
+801	Volte para o seu quarto.{page}{fx 01 80}{set 406E}{jump L312E}
+804	{fx 01 41}Espere! Pare, meu príncipe!{page}{fx 01 40}Puxa!
+805	Ele foi embora...{end}
+808	{fx 01 00}Príncipe {call L125A}.
+809	Você voltou...{page}Já ficou bem tarde...
+810	Volte ao palácio, por favor.{page}Querido príncipe...
+811	Se ainda quer jogar
+812	cartas...{page}...tente a sorte
+813	contra mim.{page}Se perder, terá que
+814	voltar para o seu quarto.{page}Logo verá que sou
+815	um oponente à altura.{page}{choice 02}<Duelo>
+816	<Recusar>
+820	He, he. Meu querido príncipe...
+821	Fui eu que te ensinei o jogo.{page}Não acha mesmo
+822	que vai ganhar, acha?{page}Prepare-se!{page}{f8 11 00}{f8 0D 01 60 61 00 00 72}{end}
+825	{if 006F L05C3}Agora, mocinho...
+826	Para o seu quarto!{page}Hã... por favor.{page}{choice 02}<Não ir>
+827	<Ir>
+831	{fx 01 41}Espere!
+832	Volte!{end}
+835	Ora...
+836	Faz bem em me ouvir.{page}Já é tarde.
+837	Durma bem, meu príncipe.{page}{fx 01 80}{set 406E}{jump L312E}
+840	{fx 01 41}Espere!
+841	Volte aqui!{end}
+844	Você venceu...{page}Parece que eu
+845	te ensinei bem...
+846	Você ficou forte.{page}Venceu de forma justa.
+847	Como prometi, pode ir.
+848	Não tenho mais nada a dizer...{page}{f8 19 01}{f8 16}{end}
+851	Ora...
+852	Parece que eu venci.{page}Já faz muitos dias desde
+853	que te ensinei a jogar... Mas
+854	ainda tem muito a aprender.{page}Agora, por favor...
+855	Volte ao palácio!{end}
+858	{fx 01 00}Já jogou bastante,
+859	meu príncipe?{page}Nunca te contei,
+860	mas existe uma história
+861	ligada a essas cartas...{page}Gostaria de
+862	ouvi-la?{page}{choice 02}<Sim>
+863	<Não>
+867	Então, preste atenção...{page}Hoje em dia, o deck de
+868	cartas de Yu-Gi-Oh é usado
+869	como um simples passatempo.{page}Mas há muito tempo, elas eram
+870	uma valiosa ajuda mágica para
+871	obter poderes de feitiçaria.{page}{f8 15 A1}{fx 01 82}{state 05 02 82 32 00 00}{f8 15 A0}{fx 41 00}{state 0B C0 00 32 00 58 02}Os usuários de magia usavam
+872	seus poderes e invocavam as forças
+873	representadas nas cartas.{page}Alguns criaram reinos.
+874	Outros travaram guerras.{page}Mas as batalhas entre os
+875	místicos se intensificaram...{page}...até que, no fim, o uso
+876	da magia foi proibido.{page}Agora, só as cartas
+877	restaram em nosso reino.{page}São um vestígio daqueles
+878	antigos dias de magia...
+879	{state 0A}{page}{fx 41 80}{state 05 01 00}{fx 01 00}Por isso,
+880	príncipe {call L125A}...{page}Lembre-se desta história quando
+881	enfrentar o próximo
+882	oponente com o seu deck.{page}Não esqueça que a humanidade
+883	já passou dos seus limites e
+884	caminhou para a destruição.{page}{set 4048}{f8 16}{end}
+887	Entendo...{page}Vá, mas tente
+888	voltar numa hora decente...{page}{fx 01 80}{f8 16}{end}
+891	Não há ninguém por aqui...{end}
+894	{if 006F L1644}{fx 03 00}Estava te esperando... {call L125A}.{page}O Jono estava por aqui
+895	agora há pouco.
+896	Mas já foi embora...{page}Topa um duelo?{page}{choice 03}<Duelo>
+897	<Falar com outro>
+898	<Sair>
+902	Tá bom...
+903	A gente se vê.{page}{fx 03 80}{jump L0CF4}
+909	{fx 03 00}Uma partida?{page}{choice 03}<Duelo>
+910	<Falar com outro>
+911	<Sair>
+915	{fx 03 00}Ainda não está pronto para ir?{page}{choice 02}<Falar com outro>
+916	<Sair>
+920	A gente se vê.{page}{fx 03 80}{fx 31 80}{if 0023 L0E30}{if 0049 L0DC8}{jump L0CF4}
+923	{fx 2B 00}Está tendo uma espécie de festa
+924	na praça, sabia?{page}Mas a gente devia jogar
+925	aqui, como sempre.{page}Quer me enfrentar?{page}Vamos... Uma partidinha.{page}{set 4049}{choice 03}<Duelo>
+926	<Falar com outro>
+927	<Sair>
+931	{fx 2B 00}Quer me enfrentar?{page}Vamos... Uma partidinha.{page}{choice 03}<Duelo>
+932	<Falar com outro>
+933	<Sair>
+937	{fx 2B 00}Mais uma?{page}Você me venceu agora há pouco...
+938	Deixe eu bolar uma estratégia.{page}{choice 02}<Falar com outro>
+939	<Sair>
+946	{fx 2C 00}Ei, achou alguma
+947	carta rara?{page}Eu achei uma
+948	muito boa!{page}Se quiser,
+949	vai ter que me vencer.{page}Mas se perder, vai ter que
+950	me dar uma das suas.{page}{set 404A}{choice 03}<Duelo>
+951	<Falar com outro>
+952	<Sair>
+956	{fx 2C 00}Se ganhar,
+957	te dou a minha carta.{page}Se perder, vai ter que
+958	me dar uma das suas.{page}{choice 03}<Duelo>
+959	<Falar com outro>
+960	<Sair>
+964	{fx 2C 00}Puxa...
+965	Chega por hoje.{page}Se eu perder de novo,
+966	vou ficar sem cartas.{page}{choice 02}<Falar com outro>
+967	<Sair>
+974	{fx 2D 00}Falando comigo, garoto?
+975	Tenho coisas melhores a fazer.{page}A menos que queira me desafiar...{page}{set 404B}{choice 03}<Duelo>
+976	<Falar com outro>
+977	<Sair>
+981	{fx 2D 00}Topa uma partida?{page}{choice 03}<Duelo>
+982	<Falar com outro>
+983	<Sair>
+987	{fx 2D 00}Acho que já tive
+988	o bastante, garoto...{page}Perder não tem
+989	graça nenhuma!{page}{choice 02}<Falar com outro>
+990	<Sair>
+994	{call L0004}{fx 31 80}{fx 03 00}Ei, sabia que está tendo
+995	uma festa
+996	na praça da cidade?{page}Vamos! Vamos dar uma olhada!{page}Com certeza vamos achar
+997	o Jono lá!{page}{f8 15 A1}{f8 11 82}{state 0F 3C 00}{jump L2553}

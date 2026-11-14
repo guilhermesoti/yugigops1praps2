@@ -1,0 +1,399 @@
+2379	Não consigo ganhar!{page}Prometo que não vai ser
+2380	tão fácil me derrotar da
+2381	próxima vez...{page}{f8 19 13}{choice 02}<Falar com outro>
+2382	<Sair>
+2386	Que foi, {call L125A}?
+2387	Você pode fazer melhor!{page}Se jogar assim contra os
+2388	magos, eles vão te vencer, bobão!{page}Concentre-se na partida!{end}
+2397	{f8 19 14}Droga! Eu perdi...{page}Sei que joguei melhor
+2398	do que nunca...{page}{choice 02}<Falar com outro>
+2399	<Sair>
+2403	Ééé!
+2404	Ganhei! Ganhei!{page}Nada mal, né?
+2405	Aposto que você ficou
+2406	surpreso de verdade!{end}
+2409	{f8 19 14}Droga! Eu perdi...{page}Puxa... mas o preocupante é
+2410	que eu consegui vencer
+2411	o grande {call L125A}.{page}{choice 02}<Falar com outro>
+2412	<Sair>
+2416	Uhuuu!!!
+2417	Ganhei!!!{page}{call L125A}...
+2418	Vai ter que jogar melhor
+2419	para vencer o Grão-Mago...{end}
+2428	Ufa...!
+2429	Contra você eu não ganho.{page}{f8 19 04}{choice 02}<Falar com outro>
+2430	<Sair>
+2434	Finalmente!
+2435	Finalmente te venci
+2436	de forma justa, {call L125A}!{page}Parece que todo o treino
+2437	valeu a pena!{end}
+2440	Ufa...!
+2441	Contra você eu não ganho.{page}{f8 19 04}Ei, obrigado pela experiência.{page}{choice 02}<Falar com outro>
+2442	<Sair>
+2446	Ora, ora, ora...
+2447	Consegui te vencer,
+2448	{call L125A} {page}Mas nesse caso,
+2449	quem vai salvar o mundo?{end}
+2458	{f8 19 05}Eu perdi...{page}Acho que preciso de
+2459	cartas mais poderosas.{page}{choice 02}<Falar com outro>
+2460	<Sair>
+2464	Ganhei, ganhei!{page}Não acredito!
+2465	Consegui ganhar
+2466	com estas cartas!!!{end}
+2469	{f8 19 05}Acho que perdi...{page}Com as cartas que tenho,
+2470	não me surpreende muito...{page}{choice 02}<Falar com outro>
+2471	<Sair>
+2475	Isso! Ganhei!!!{page}Com certeza isso
+2476	não te deixou muito feliz!{end}
+2479	{set 4053}{f8 15 A1}{state 05 00 00}{f8 15 A0}{fx 4D 00}Mais adiante... você achará
+2480	a sala marcada no mapa.{page}{f8 0E 90 71}Caramba...{page}{fx 4D 80}{f8 15 A1}{state 05 18 00}{f8 15 A0}{fx 4D 00}Já ouvi histórias
+2481	sobre este lugar...{page}Os antigos feiticeiros...
+2482	esconderam os segredos
+2483	da sua magia na Tumba Real.{page}Dizem que alguns dos
+2484	seus segredos foram herdados
+2485	pelos seus descendentes.{page}Então este é o lugar...{page}{fx 4D 80}{fx 17 00}Nesta parede há um desenho
+2486	que representa o passado...{page}E ali há...
+2487	...uma espécie de mapa...{page}{choice 02}<Olhar o mapa>
+2488	<Olhar o desenho>
+2492	{if 0054 L9FC1}{set 4054}{fx 17 80}{state 05 25 01}{fx 4D 00}Este mapa...{page}Há uma espécie de marca...{page}{fx 4D 80}{fx 44 00}O desenho indica a localização
+2493	dos Itens do Milênio.{page}Agora mostra os lugares
+2494	do templo onde o Heishin
+2495	escondeu os dele.{page}Os magos continuarão
+2496	poderosos enquanto os Itens
+2497	do Milênio estiverem lá...{page}...dando a eles uma
+2498	fonte para a sua magia.{page}{f8 11 02}{fx 44 80}{fx 4D 00}Você!{page}{fx 4D 80}{state 05 18 00}{f8 0E 80 71}{fx 04 00}Eu te segui até aqui.
+2499	Também estive procurando
+2500	as Ruínas Proibidas.{page}Acho que o Heishin também
+2501	encontrou este lugar.{page}Ele descobriu os Itens
+2502	do Milênio guiando-se
+2503	pelo desenho da parede.{page}Mesmo sendo um mago, ele vem
+2504	de uma linhagem de feiticeiros.{page}Planeja achar todos os
+2505	Itens do Milênio para
+2506	conseguir governar o mundo...{page}{fx 04 21}{fx 4D 00}E por que o lacaio do Heishin
+2507	nos contaria isso!?{page}{fx 4D 80}{fx 04 20}Por quê?{page}Logo você vai descobrir...{page}Mas antes, vejamos do que é
+2508	capaz o príncipe {call L125A}.{page}Agora você sabe onde achar
+2509	os Grão-Magos...{page}Se for metade do mestre das
+2510	cartas que pensa ser, use
+2511	seu Item do Milênio e vença-os.{page}{fx 04 21}{fx 4D 00}Não temos que te ouvir...{page}{fx 4D 80}{fx 04 20}Não falo com você, guardião,
+2512	e sim com o príncipe!{page}Adeus!{page}{fx 04 80}{fx 4D 00}{f8 11 02}Pare!{page}{f8 0E 90 71}{fx 4D 80}{fx 17 00}Tem algo errado nisso...{page}O Seto... é o braço direito do
+2513	Heishin. Por que razão ele
+2514	iria querer te ajudar?{page}Meu príncipe, recomendo
+2515	cautela. É mais
+2516	complicado do que parece.{page}{jump L9EF9}
+2519	{choice 02}<Olhar o mapa>
+2520	<Olhar o desenho>
+2524	{choice 03}<Olhar o mapa>
+2525	<Olhar o desenho>
+2526	<Voltar>
+2530	{if 0060 LA03B}{f8 15 A1}{fx 17 80}{state 05 00 82 00 C0 00}{f8 15 A0}{fx 4D 00}Parece o desenho de algum
+2531	tipo de feitiço...{page}Seria a descrição
+2532	de um Item Proibido?{page}{fx 4D 80}{set 4060}{f8 15 A1}{fx 17 00}{state 05 18 00}{f8 15 A0}{if 0054 L9EF9}{jump L9ECF}
+2535	{f8 15 A1}{fx 17 82}{state 05 25 01}{f8 15 A0}O mapa indica onde ficam
+2536	os Santuários em que estão
+2537	escondidos os Itens do Milênio.{page}{f8 15 A1}{fx 17 00}{state 05 18 00}{f8 15 A0}{if 0054 L9EF9}{jump L9ECF}
+2540	{f8 15 A1}{fx 17 82}{state 05 00 82 00 C0 00}{f8 15 A0}Parece o desenho
+2541	de um antigo feitiço...{page}{f8 15 A1}{fx 17 00}{state 05 18 00}{f8 15 A0}{if 0054 L9EF9}{jump L9ECF}
+2544	Vamos voltar...{page}{fx 17 80}{f8 11 00}{state 05 17 00}{f8 0E 00 71}{fx 17 00}Sinto que nessa câmara
+2545	há mais segredos escondidos...{page}Meu príncipe... cuidado com os
+2546	planos vis do Heishin e
+2547	dos seus capangas.{page}Estarei sempre aqui.
+2548	Se precisar de mim,
+2549	é só chamar.{end}
+2552	{state 05 18 00}{choice 03}<Olhar o mapa>
+2553	<Olhar o desenho>
+2554	<Voltar>
+2558	{state 05 25 01}O mapa indica onde estão
+2559	os Itens do Milênio
+2560	no templo.{page}{jump LA16F}
+2563	{state 05 00 82 00 C0 00}Parece o desenho
+2564	de um antigo feitiço...{page}{jump LA16F}
+2567	{f8 15 A1}{f8 11 83}{f8 0E 00 71}{state 05 17 00}{fx 17 00}Estarei aqui se precisar,
+2568	meu príncipe.{end}
+2571	{if 005D LB550}{fx 18 00}Garoto, este é um templo
+2572	sagrado do Mestre Heishin...{page}Não é para gente como você!
+2573	Fora!{end}
+2579	{f8 15 A1}{f8 11 83}{f8 0E 60 71}{state 05 21 00}{f8 15 A0}{fx 42 00}É aqui...
+2580	Este lugar me dá arrepios.{page}Para ser sincero,
+2581	não gosto de estar aqui.{page}Como não há nenhum mago para
+2582	nos deter, devemos supor
+2583	que estão nos esperando.{page}Vamos, vamos...{page}{fx 42 80}{jump LA393}
+2589	{f8 15 A1}{if 006C LA5F6}{if 006B LA56F}{if 006A LA4D9}{if 0069 LA449}{state 05 38 00}{fx 2E 00}{f8 15 A0}É um prazer dar a vocês
+2590	as boas-vindas ao seu
+2591	funeral, seus tolos!{page}{fx 2E 21}{fx 42 00}Sai fora! Temos coisas mais
+2592	importantes para fazer!{page}{fx 42 80}{fx 2E 20}{f8 11 00}{f8 0D 1F B9 BA 00 10 72}{end}
+2595	{state 05 38 00}{fx 2E 00}{f8 15 A0}Bem-vindos...
+2596	Espero que estejam prontos para
+2597	ver seus antepassados!{page}{fx 2E 21}{fx 42 00}Vocês de novo!?
+2598	{call L125A}, pega pesado com eles!{page}{fx 42 80}{f8 11 00}{f8 0D 1F B9 BA 00 10 72}{end}
+2601	{state 05 38 00}{fx 2E 00}{f8 15 A0}Bem-vindos...
+2602	Espero que estejam prontos para
+2603	ver seus antepassados!{page}{fx 2E 21}{fx 42 00}Eles não desistem!
+2604	Vamos ter que acabar com ele!{page}{fx 42 80}{f8 11 00}{f8 0D 1F B9 BA 00 10 72}{end}
+2607	{state 05 38 00}{fx 2E 00}{f8 15 A0}Bem-vindos...
+2608	Espero que estejam prontos para
+2609	ver seus antepassados!{page}{fx 2E 21}{fx 42 00}Acho que nos perdemos...{page}{fx 42 80}{f8 11 00}{f8 0D 1F B9 BA 00 10 72}{end}
+2612	{state 05 38 00}{fx 2E 00}{f8 15 A0}Bem-vindos...
+2613	Espero que estejam prontos para
+2614	ver seus antepassados!{page}{fx 2E 21}{fx 42 00}De novo não!
+2615	Vamos, vamos cuidar dele!{page}{fx 42 80}{f8 11 00}{f8 0D 1F B9 BA 00 10 72}{end}
+2618	{if 006C LA950}{if 006B LA8A4}{if 006A LA7F7}{if 0069 LA768}{set 4069}Ninguém sobreviverá
+2619	a este labirinto...{page}{f8 19 1F}{fx 3F 81}{fx 42 00}Olha, ignora esse cara...
+2620	Vamos em frente!{page}{fx 42 80}{choice 02}<Ir à direita>
+2621	<Ir à esquerda>
+2625	Seto e Heishin...
+2626	Isso vai alegrar meus Mestres!
+2627	Hahahahaha...!{end}
+2630	{set 406A}Ninguém sobreviverá
+2631	a este labirinto...{page}{fx 3F 81}{fx 42 00}Vamos, vamos!
+2632	A Teana está nos esperando!{page}{fx 42 80}{choice 02}<Ir à direita>
+2633	<Ir à esquerda>
+2637	{set 406B}Ninguém sobreviverá
+2638	a este labirinto...{page}{fx 3F 81}{fx 42 00}Por que sinto que já
+2639	vivi isso antes...?{page}Que caminho a gente pega?{page}{fx 42 80}{choice 02}<Ir à direita>
+2640	<Ir à esquerda>
+2644	{set 406C}Ninguém sobreviverá
+2645	a este labirinto...{page}{fx 3F 81}{fx 42 00}Puxa! Esses caras estão
+2646	por toda parte!!!{page}Vamos, vamos em frente!{page}{fx 42 80}{choice 02}<Ir à direita>
+2647	<Ir à esquerda>
+2651	Ninguém sobreviverá
+2652	a este labirinto...{page}{fx 3F 81}{fx 42 00}Ei, vamos tentar uma rota
+2653	que leve a algum lugar.{page}{fx 42 80}{choice 02}<Ir à direita>
+2654	<Ir à esquerda>
+2658	{state 05 38 00}{fx 42 00}Não sei se aguento muito mais.{page}{fx 42 80}{choice 02}<Ir à direita>
+2659	<Ir à esquerda>
+2663	{state 05 38 00}{fx 42 00}E agora, por onde?{page}{fx 42 80}{choice 02}<Ir à direita>
+2664	<Ir à esquerda>
+2668	{state 05 38 00}{fx 42 00}Todos os lugares são iguais!
+2669	Onde estamos!?{page}{fx 42 80}{choice 02}<Ir à direita>
+2670	<Ir à esquerda>
+2674	{state 05 39 00}{fx 42 00}Acho que finalmente conseguimos...{page}Vamos...{page}{fx 42 80}{jump LAB2E}
+2677	{if 006D LB191}{state 05 40 01}{fx 44 00}Finalmente chegaram...{page}{fx 44 80}{fx 42 00}Viemos buscar a Teana!{page}{fx 42 80}{fx 46 00}Ora, nunca pensei que o
+2678	príncipe ainda estivesse vivo...{page}Há muito a dizer sobre o
+2679	poder do Enigma do Milênio.{page}Devo agradecer à minha boa
+2680	estrela que o Enigma ainda
+2681	exista, pois ele será meu.{page}Seto... Destrua o príncipe.{page}Derrote-o e farei de você
+2682	o guardião do Enigma.{page}{fx 46 80}{fx 44 00}Eu agradeço, meu senhor.
+2683	Deixe que eu cuido dele...{page}{fx 44 80}{fx 46 00}Assim farei...
+2684	Ele é todo seu!{page}Encontrarei você
+2685	no Santuário Sombrio.{page}{fx 46 80}{f8 15 A1}{state 05 41 01}{f8 15 A0}{fx 44 00}Ora... Me surpreende que
+2686	tenham superado as provas
+2687	do labirinto...{page}{fx 44 80}{fx 42 00}Tá brincando? A gente podia
+2688	ter feito isso com as mãos
+2689	amarradas nas costas!{page}É só isso que você sabe fazer!?{page}{fx 42 80}{f8 15 A1}{fx 04 00}{state 05 22 00}{f8 15 A0}Ah, a refém...
+2690	Podem levá-la.{page}{if 006E LAE5C}{call L125A}...
+2691	Eu esperava a chance
+2692	de enfrentar você de novo!!!{page}{jump LAE99}
+2696	Você não sabe a vontade que eu
+2697	tinha de enfrentar você...{page}{jump LAE99}
+2700	Trocar a refém pelo seu
+2701	item não tem graça nenhuma...{page}Melhor duelarmos, {call L125A}!{page}{f8 11 00}{f8 0D 20 BB BC 00 40 72}{end}
+2707	{f8 19 20}Nada mal... Nada mal mesmo.{page}Nesse ritmo, duvido que os
+2708	magos consigam te deter...{page}Você venceu...
+2709	Fique com a carta e a garota.{page}Até a próxima...{page}{fx 04 80}{jump LB01C}
+2712	Que decepção...{page}Você não terá a menor chance
+2713	contra os magos se isso é
+2714	tudo o que sabe fazer.{page}Seu Item do Milênio...
+2715	é meu!
+2716	Hahaha...{end}
+2719	{fx 02 00}Teana...
+2720	Você está bem?{page}{fx 02 21}{fx 43 00}Ah, estou...
+2721	Obrigada, {call L125A}...
+2722	Você também, Jono.{page}{fx 43 80}{fx 02 20}Já cansei disso.
+2723	Vamos sair daqui.{page}{fx 02 80}{f8 11 00}{state 05 19 00}{f8 0E F0 70}{fx 02 00}Tem algo estranho nesse Seto,
+2724	não acha?{page}{fx 02 21}{fx 43 00}É... É como se ele,
+2725	na verdade, não quisesse
+2726	derrotar o {call L125A}.{page}Como se os objetivos dele
+2727	fossem outros...{page}{fx 43 80}{fx 02 20}Sei do que você está falando...{page}Escuta, {call L125A}...
+2728	Cuidado com esse cara.{page}Ele é perigoso.{end}
+2731	{state 05 41 01}{f8 15 A0}{fx 42 00}Viemos buscar a Teana!{page}{fx 42 80}{fx 44 00}Ora... Me surpreende que
+2732	tenham superado as provas
+2733	do labirinto...{page}{fx 44 80}{fx 42 00}Tá brincando? A gente podia
+2734	ter feito isso com as mãos
+2735	amarradas nas costas!{page}É só isso que você sabe fazer!?{page}{fx 42 80}{f8 15 A1}{fx 04 00}{state 05 22 00}{f8 15 A0}Ah, a refém...
+2736	Podem levá-la.{page}Não a usei como isca
+2737	para ficar com
+2738	o seu precioso Item...{page}Fiz isso para guiar vocês
+2739	até as câmaras do Heishin.{page}Ele está naquele templo ali.
+2740	Enfrente-o e derrote-o!
+2742	{fx 04 21}{fx 42 00}Não dê ouvidos, {call L125A}!
+2743	É uma armadilha!{page}{fx 42 80}{fx 04 20}Não seja tolo...{page}Estou te dando a chance
+2744	de derrotar o Heishin...
+2745	Vai deixá-la passar?{page}{choice 02}<Seguir em frente>
+2746	<Ignorar a chance>
+2750	Você escolheu sabiamente,
+2751	querido príncipe.{page}{fx 04 21}{fx 42 00}Vai seguir, {call L125A}?{page}Se é isso que você quer,
+2752	não vou te impedir...{page}Mas tome cuidado, tá?
+2753	Vamos esperar por você!{page}{fx 42 80}{fx 43 00}É. Vamos te esperar...{page}{fx 43 80}{jump LB5BA}
+2756	Se não for agora, não terá
+2757	outra chance...{page}{choice 02}<Seguir em frente>
+2758	<Ignorar a chance>
+2762	{choice 02}<Seguir em frente>
+2763	<Ignorar a chance>
+2767	{state 05 22 00}{fx 04 00}Olhe...
+2768	Uma passagem secreta...{page}Vou abri-la para você.{page}{jump LB5BA}
+2771	{f8 15 A1}{f8 10 00 80 00 00}{fx 04 82}{state 05 26 01}{f8 15 A0}{fx 44 00}O Santuário Sombrio do Heishin
+2772	fica logo ali na frente...{page}No caminho você achará magos
+2773	que juraram protegê-lo.{page}Todo cuidado é pouco...{page}{fx 44 80}{f8 15 A1}{jump LCDD9}
+2776	{if 0034 LB7FD}{if 0037 LB709}{if 0039 LB709}{if 003B LB709}{if 003D LB709}Você! Quem é você...?{page}Espere! Você... é...
+2777	o príncipe {call L125A}!{page}Como chegou até aqui!?{page}Tanto faz...
+2778	Você não sairá vivo!{page}{f8 11 00}{f8 0D 15 8A 8B 05 10 72}{end}
+2781	Você conseguiu chegar!{page}Receio que não possa
+2782	entrar no Santuário do Mar.{page}Nosso dever é proteger
+2783	os Itens do Milênio, fonte
+2784	do nosso poder místico.{page}Você descansará eternamente
+2785	no Santuário do Mar!{page}Prepare-se para perder!{page}{f8 11 00}{f8 0D 15 8A 8B 05 10 72}{end}
+2788	Você voltou!?{page}Desta vez não vai escapar!{page}{f8 11 00}{f8 0D 15 8A 8B 05 10 72}{end}
+2791	Foi tolice pensar
+2792	que nos derrotaria...{page}Hahahaha...!{end}
+2795	Não...{page}Não pode ser...
+2796	Você não devia ganhar...{page}Secmeton...
+2797	Me perdoe...{page}{f8 19 15}{fx 19 81}{choice 02}<Avançar>
+2798	<Voltar>
+2808	{f8 15 A1}{state 05 24 00}{fx 1A 00}{f8 15 A0}Sou o Grão-Mago
+2809	Secmeton...{page}Desde tempos imemoriais,
+2810	nossa tarefa é proteger
+2811	os Itens do Milênio...{page}E jamais devemos permitir
+2812	que caiam em suas mãos!{page}Prepare-se para o meu Deck do
+2813	Mar! Ele será a sua perdição!{page}Você vai pagar caro
+2814	pela sua loucura!{page}{f8 11 00}{f8 0D 16 8C 8D 05 20 72}{end}
+2817	Espero que tenha aprendido!{page}Pena que é tarde demais!{end}
+2820	{f8 19 16}Você é... muito... poderoso...{page}Mas não tem chance contra
+2821	o poder do Mestre Heishin!{page}{fx 1A 81}{f8 15 A1}{f8 0E 60 73}{state 05 17 01}{f8 15 A0}{call L125A} obtém o Colar do Milênio.
+2825	Não há ninguém neste santuário.{end}
+2828	{if 0036 LBC3C}{if 0035 LBBA8}{if 0039 LBBA8}{if 003B LBBA8}{if 003D LBBA8}Quem!?{page}Você...!?
+2829	Príncipe {call L125A}!{page}É incrível que tenha
+2830	conseguido chegar tão longe!{page}Que pena... Você jamais
+2831	sairá daqui com vida!!!{page}{f8 11 00}{f8 0D 17 8E 8F 01 10 72}{end}
+2834	Este é o Santuário do Bosque.{page}Infelizmente,
+2835	você não sairá daqui.{page}De fato... Este lugar
+2836	será a sua tumba...{page}Eu vou garantir isso!!!{page}{f8 11 00}{f8 0D 17 8E 8F 01 10 72}{end}
+2839	Você!
+2840	Não vai pôr as mãos
+2841	no Item do Milênio...{page}Eu vou garantir isso!!!{page}{f8 11 00}{f8 0D 17 8E 8F 01 10 72}{end}
+2844	Meu Deck do Bosque é
+2845	poderoso! Qual é o gosto
+2846	da derrota!?{page}Hahaha...!!!{end}
+2849	Você me venceu...{page}Mas o nosso Grão-Mago não
+2850	será uma presa tão fácil.{page}{f8 19 17}{fx 1B 81}{choice 02}<Avançar>
+2851	<Voltar>
+2861	{f8 15 A1}{state 05 26 00}{fx 1C 00}{f8 15 A0}Eu governo o bosque...
+2862	Sou o Grão-Mago Anubisius!{page}E aqui estou para proteger
+2863	o Item do Milênio que
+2864	o Mestre Heishin me confiou...{page}Aqui é onde deve ficar
+2865	o Item do Milênio.
+2866	E aqui é onde ele vai ficar!{page}Nosso destino é proteger
+2867	o que alimenta a nossa magia!{page}Enfrente o meu Deck do
+2868	Bosque! Prepare-se para lutar!{page}E para perder!!!{page}{f8 11 00}{f8 0D 18 90 91 01 20 72}{end}
+2871	Menino estúpido...{page}Você cometeu um grave erro
+2872	ao me enfrentar!!!{end}
+2875	{f8 19 18}Não... Não pode ser...{page}O Mestre Heishin
+2876	vai me vingar...!{page}Nos... veremos... no... no...{page}{fx 1C 81}{f8 15 A1}{f8 0E 60 73}{state 05 27 01}{f8 15 A0}{call L125A} obtém
+2877	a Chave do Milênio!!!{page}{if 8035 LCD0A}{if 8039 LCD0A}{if 803B LCD0A}{if 803D LCD0A}{if 8037 LCD0A}{if 805C LCDD3}{state 05 26 00}{jump LCD0D}
+2880	Não há ninguém neste santuário.{end}
+2883	{if 0038 LC129}{if 0037 LC07B}{if 0035 LC07B}{if 003B LC07B}{if 003D LC07B}Quem!?{page}Você...!?
+2884	O príncipe {call L125A}!{page}Me espanta que esteja aqui!{page}Que pena... Você jamais
+2885	sairá daqui com vida!!!{page}{f8 11 00}{f8 0D 19 92 93 03 10 72}{end}
+2888	Meus parabéns...{page}Mas vai se arrepender de estar
+2889	no Santuário da Montanha!{page}Logo ali descansa
+2890	um Item do Milênio sagrado.{page}Jurei protegê-lo
+2891	com a minha vida!{page}{f8 11 00}{f8 0D 19 92 93 03 10 72}{end}
+2894	Foi tolice voltar
+2895	para me enfrentar...{page}Prepare-se para perder!!!{page}{f8 11 00}{f8 0D 19 92 93 03 10 72}{end}
+2898	Idiota!{page}Achou que derrotaria
+2899	um mago das montanhas?{end}
+2902	O quê!?
+2903	Não pode ser...{page}Não acredito...{page}{f8 19 19}{fx 1D 81}{choice 02}<Avançar>
+2904	<Voltar>
+2914	{f8 15 A1}{state 05 28 00}{fx 1E 00}{f8 15 A0}Sou o protetor das
+2915	montanhas...
+2916	O Grão-Mago Atenza...{page}O Item do Milênio que você busca
+2917	está sob a minha proteção.{page}Se o deseja, enfrente
+2918	a fúria do meu poderoso
+2919	Deck da Montanha!{page}Prepare-se para a batalha!!{page}{f8 11 00}{f8 0D 1A 94 95 03 20 72}{end}
+2922	Eu te avisei...
+2923	Você não pode ganhar.{page}Você está preso ao chão...
+2924	destinado a vagar pela terra
+2925	e ser enterrado nela.{end}
+2928	{f8 19 1A}Como é possível...?{page}Eu...?
+2929	Derrotado...?{page}{fx 1E 81}{f8 15 A1}{f8 0E 60 73}{state 05 13 01}{f8 15 A0}{call L125A} obtém
+2930	o Anel do Milênio!!!{page}{if 8035 LCD0A}{if 8039 LCD0A}{if 803B LCD0A}{if 803D LCD0A}{if 8037 LCD0A}{if 805C LCDD3}{state 05 28 00}{jump LCD0D}
+2933	Não há ninguém neste santuário.{end}
+2936	{if 003B LC7EE}{if 003A LC58A}{if 0037 LC4C3}{if 0039 LC4C3}{if 0035 LC4C3}{if 003D LC4C3}Quem!?{page}Você...!?
+2937	O príncipe {call L125A}!{page}Me espanta que esteja aqui!{page}Que pena... Você jamais
+2938	sairá daqui com vida!!!{page}{f8 11 00}{f8 0D 1B 96 97 02 10 72}{end}
+2941	Você já me fez esperar
+2942	bastante...{page}Os Itens do Milênio são
+2943	a fonte do poder místico...
+2944	e continuarão sendo!{page}Eles jamais serão seus!!!{page}O Santuário do Deserto
+2945	será a sua tumba!!!{page}{f8 11 00}{f8 0D 1B 96 97 02 10 72}{end}
+2948	Então você voltou...
+2949	Vai desejar não ter voltado.{page}Vou te mostrar por quê!!!{page}{f8 11 00}{f8 0D 1B 96 97 02 10 72}{end}
+2952	Que pena que o Mestre
+2953	Heishin não está aqui
+2954	para te ver morrer...{page}Que pena...{end}
+2957	Não...
+2958	Não posso... perder...{page}Assim não...{page}{f8 19 1B}{fx 1F 81}{choice 02}<Avançar>
+2959	<Voltar>
+2969	{f8 15 A1}{state 05 30 00}{fx 20 00}{f8 15 A0}Sou o Grão-Mago Martis...
+2970	Senhor do deserto.{page}Jurei proteger
+2971	o Item do Milênio.{page}Meu destino é eliminar você!!!{page}Que o deserto seja a sua tumba...{page}Defenda-se!!!{page}{f8 11 00}{f8 0D 1C 98 99 02 20 72}{end}
+2974	Este é o seu destino...{page}O deserto acolhe seus restos.{end}
+2977	{f8 19 1C}O deserto me protegeu...{page}{fx 20 81}{f8 15 A1}{f8 0E 60 73}{state 05 28 01}{f8 15 A0}{call L125A} obtém
+2978	a Balança do Milênio!{page}{if 8035 LCD0A}{if 8039 LCD0A}{if 803B LCD0A}{if 803D LCD0A}{if 8037 LCD0A}{if 805C LCDD3}{state 05 30 00}{jump LCD0D}
+2981	Não há ninguém neste santuário.{end}
+2984	{if 003C LC961}{if 0037 LC8BF}{if 0039 LC8BF}{if 003B LC8BF}{if 0035 LC8BF}Quem!?{page}Você...!?
+2985	O príncipe {call L125A}!{page}Me espanta que tenha
+2986	conseguido chegar tão longe!{page}Que pena... Você jamais
+2987	sairá daqui com vida!!!{page}{f8 11 00}{f8 0D 1D 9A 9B 04 10 72}{end}
+2990	Devo te dar os parabéns por
+2991	chegar tão longe...{page}Mas daqui você não passa.
+2992	O Grão-Mago Kepura não se
+2993	preocupa com gente como você!{page}Prepare-se para perder!!!{page}{f8 11 00}{f8 0D 1D 9A 9B 04 10 72}{end}
+2996	{call L125A}...?{page}Desta vez você não vai ganhar!{page}{f8 11 00}{f8 0D 1D 9A 9B 04 10 72}{end}
+2999	Rá!
+3000	Aqui é onde termina
+3001	a sua história!{page}Hahaha...{end}
+3004	{call L125A}... Você vai
+3005	se arrepender desta vitória.{page}Pois vai enfrentar o poder
+3006	do Grão-Mago Kepura...{page}{f8 19 1D}{fx 21 81}{choice 02}<Avançar>
+3007	<Voltar>
+3017	{f8 15 A1}{state 05 32 00}{fx 22 00}{f8 15 A0}Sou o guardião das planícies,
+3018	o Grão-Mago Kepura.{page}Você é o protetor da luz...
+3019	dono do Enigma do Milênio.{page}Nosso Item do Milênio
+3020	não é para gente como você...
+3021	Ele jamais será seu!{page}O Item do Milênio é a nossa
+3022	chave e a do Mestre Heishin
+3023	para dominar o mundo.{page}Primeiro vou te vencer...
+3024	e depois vou tomar o Enigma
+3025	do Milênio e oferecê-lo
+3026	ao Mestre Heishin.
+3027	Prepare-se para se defender!!{page}{f8 11 00}{f8 0D 1E 9C 9D 04 20 72}{end}
+3030	Esperava mesmo enfrentar
+3031	o Mestre Heishin...?{page}Menino estúpido...{end}
+3034	{f8 19 1E}Então... este... é
+3035	o poder da luz...{page}Heishin... meu senhor...
+3036	eu falhei...{page}{fx 22 81}{f8 15 A1}{f8 0E 60 73}{state 05 15 01}{f8 15 A0}{call L125A} obtém
+3037	o Olho do Milênio!!!{page}{if 8035 LCD0A}{if 8039 LCD0A}{if 803B LCD0A}{if 803D LCD0A}{if 8037 LCD0A}{if 805C LCDD3}{state 05 32 00}{jump LCD0D}
+3040	Não há ninguém neste santuário.{end}
+3047	Você já derrotou
+3048	os Grão-Magos...{page}Só resta o Santuário
+3049	Sombrio do Heishin. Mas
+3050	você não pode ir direto para lá.{page}Você deve voltar...
+3051	Volte ao Santuário Vasto.{page}{fx 04 80}{set 405D}{f8 16}{end}
+3057	{f8 15 A1}{f8 11 83}{f8 0E 70 71}{state 05 33 00}{fx 23 00}Alto!!!{page}{fx 24 01}{fx 23 21}Você não pode
+3058	continuar!{page}{fx 24 21}{fx 23 20}Assim disseram os Magos Reais
+3059	Sebek, o Poderoso, e...{page}{fx 23 21}{fx 24 20}Neku, o Hábil.
+3060	Aqui tudo termina...{page}{fx 24 80}{fx 23 20}Prepare-se para perder!!!{page}{f8 11 00}{f8 0D 21 9E 9F 06 20 72}{end}
+3063	Hahaha!
+3064	Somos os duelistas escolhidos.
+3065	Os jogadores definitivos...{page}Você não tem chance alguma...
+3066	Hahaha!!!{end}
+3069	{f8 19 21}Maldito seja, {call L125A}...
+3070	Você me venceu por enquanto...{page}Mas o Neku
+3071	vai te derrotar!!!{page}{fx 23 81}{fx 24 01}Nunca pensei que veria
+3072	o Sebek derrotado...{page}Vamos ver do que você é feito!!{page}{f8 11 00}{f8 0D 22 A0 A1 06 20 72}{end}
+3075	Ora! Você encontrou
+3076	alguém à sua altura!{page}E pensava enfrentar o
+3077	Mestre Heishin... RÁ!!!{end}
+3080	{f8 19 22}Então...
+3081	este é... o seu poder...{page}Eu te subestimei...{page}{fx 24 81}{f8 15 A1}{f8 11 83}{state 0F 28 00}{f8 16}{end}

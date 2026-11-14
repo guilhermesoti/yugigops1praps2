@@ -24,6 +24,8 @@ jobs:
           TAG: ${{ github.event.release.tag_name || inputs.tag }}
         run: |
           mkdir -p pacote/YFM
+          mkdir -p pacote/YFM/languages
           cp release/YFM_PS2.ELF release/LEIA-ME.txt LICENSE CREDITOS.md pacote/YFM/
+          cp languages/pt-br.txt pacote/YFM/languages/
           (cd pacote && zip -r "../YFM_PS2_${TAG}.zip" YFM)
           gh release upload "$TAG" "YFM_PS2_${TAG}.zip" --clobber
