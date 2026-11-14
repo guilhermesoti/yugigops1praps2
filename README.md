@@ -79,7 +79,21 @@ técnicas e no conceito do menu de save. O que cada um fez está em **[CREDITOS.
 O port é e vai continuar gratuito. Se ele te ajudou e você quiser apoiar os próximos (como um port do
 Tekken 3), pode doar qualquer valor:
 
-<!-- DOACAO: link e QR code do Pix entram aqui -->
+<p align="center">
+  <img src="docs/pix-qrcode.png" alt="QR code Pix para doação" width="220"><br>
+  <b>Pix (chave aleatória):</b> <code>f19e4d1b-f35c-4541-919b-87a2cb540b9c</code>
+</p>
+
+<details>
+<summary>Pix copia e cola</summary>
+
+```
+00020126580014br.gov.bcb.pix0136f19e4d1b-f35c-4541-919b-87a2cb540b9c5204000053039865802BR5914GUILHERME SOTI6014PATOS DE MINAS62070503***63048E1F
+```
+</details>
+
+Toda doação é voluntária e não dá acesso a nada extra: o código e as builds continuam livres para
+todo mundo. Obrigado por apoiar a cena retro!
 
 ## Licença
 
