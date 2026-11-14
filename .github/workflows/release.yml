@@ -1,27 +1,29 @@
-# Publica uma release a cada tag "v*" enviada (ex.: git tag v0.1.0-beta && git push origin v0.1.0-beta).
-# Empacota o ELF já compilado em release/ com o LEIA-ME, a licença e os créditos.
-# As notas da página saem de release/NOTAS.md. Tags com "-" (beta, rc) viram pré-lançamento.
+# Quando uma release é publicada no GitHub (página Releases > Draft a new release),
+# esta Action monta o zip com o ELF de release/, o LEIA-ME, a licença e os créditos
+# e anexa à release. Não precisa subir arquivo nenhum à mão.
+# Também dá para rodar à mão (Actions > Release > Run workflow) informando a tag.
 name: Release
 on:
-  push:
-    tags: ["v*"]
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag da release que recebe o zip (ex.: v0.1.0-beta)"
+        required: true
 permissions:
   contents: write
 jobs:
-  release:
+  zip:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Montar o zip
+      - name: Montar o zip e anexar
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name || inputs.tag }}
         run: |
           mkdir -p pacote/YFM
           cp release/YFM_PS2.ELF release/LEIA-ME.txt LICENSE CREDITOS.md pacote/YFM/
-          cd pacote && zip -r "../YFM_PS2_${GITHUB_REF_NAME}.zip" YFM
-      - name: Publicar
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          PRE=""
-          case "$GITHUB_REF_NAME" in *-*) PRE="--prerelease" ;; esac
-          gh release create "$GITHUB_REF_NAME" "YFM_PS2_${GITHUB_REF_NAME}.zip" \
-            --title "$GITHUB_REF_NAME" --notes-file release/NOTAS.md $PRE
+          (cd pacote && zip -r "../YFM_PS2_${TAG}.zip" YFM)
+          gh release upload "$TAG" "YFM_PS2_${TAG}.zip" --clobber

@@ -1,4 +1,4 @@
-<!-- Notas da próxima release: a Action em .github/workflows/release.yml publica este texto. -->
+<!-- Texto para colar na página da release. O zip é anexado sozinho pela Action (.github/workflows/release.yml). -->
 
 Primeira versão pública (beta) do port **nativo** de Yu-Gi-Oh! Forbidden Memories (PS1, SLUS-01411) para PlayStation 2. Não é emulador: o código do jogo roda direto no Emotion Engine e a imagem é desenhada pelo GS.
 
