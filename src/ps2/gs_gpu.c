@@ -850,7 +850,11 @@ static void display(int fbp, int fbw, int psm, int x, int y, int w, int h, int i
     if (w != mode_w || h != mode_h || interlace != mode_interlace) {
         graph_set_mode(interlace ? GRAPH_MODE_INTERLACED : GRAPH_MODE_NONINTERLACED, GRAPH_MODE_NTSC,
                        GRAPH_MODE_FRAME, GRAPH_DISABLE);
-        graph_set_screen(0, 0, w, h);
+        /* O libgraph poe o NTSC sem entrelacamento na linha 26 com 224 linhas.
+         * O PS1 mostra 240 linhas de 16 a 256: com 240 a partir da 26 as
+         * ultimas ~8 linhas caem fora da area visivel da TV (cortava a caixa
+         * do FIELD embaixo no tabuleiro). Sobe a imagem o que passa de 224. */
+        graph_set_screen(0, (!interlace && h > 224) ? -((h - 224) / 2) : 0, w, h);
         graph_set_bgcolor(0, 0, 0);
         graph_set_output(1, 0, 1, 0, 1, 0xFF);
         mode_w = w, mode_h = h, mode_interlace = interlace;
