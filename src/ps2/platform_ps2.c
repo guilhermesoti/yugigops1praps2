@@ -665,9 +665,9 @@ int main(int argc, char **argv)
     static char *pc_argv[2] = {"memories-ps2", NULL};
     printf("ps2: Yu-Gi-Oh! Forbidden Memories PS2 port starting (%s)\n", argc > 0 ? argv[0] : "?");
     iop_start();
-    init_scr();
-    boot_screen = 1;
-    scr_printf("\n\n  Yu-Gi-Oh! Forbidden Memories - PS2 (debug)\n\n");
+    /* Sem a tela de texto de debug: as etapas vao so para o YFM-LOG.txt; a
+     * tela mostra a abertura (intro_ps2.c) e, se algo falhar, Ps2_Fatal. */
+    boot_screen = 0;
     Ps2_Stage("IOP: usb %d, controle %d, audio %d", usb_ok, pad_ok, audio_ok);
     {
         extern void Ps2_InstallFaultHandlers(void);
@@ -709,6 +709,16 @@ int main(int argc, char **argv)
         }
     }
     Ps2_Stage("disco: %s", disc);
+    {
+        extern void Ps2_Intro(int pad_ok, int audio_ok, int fast);
+        FILE *want = strncmp(program_dir, "host", 4) ? NULL : fopen("host:intro.txt", "rb");
+        if (want) fclose(want);
+        if (strncmp(program_dir, "host", 4) || want) {
+            Ps2_Stage("abertura");
+            Ps2_Intro(pad_ok, audio_ok, 0);
+            Ps2_Stage("abertura terminou");
+        }
+    }
 
     {
         struct timespec a, b;

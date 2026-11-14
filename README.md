@@ -41,8 +41,9 @@ Testado no PCSX2 e num PS2 de verdade (USB exFAT, pelo OPL):
 | Som | funciona (mixado a 22 kHz) |
 | Save / load | funciona: 5 slots em `YFM-SAVE/saves/` |
 
-O jogo grava `YFM-LOG.txt` ao lado do ELF e mostra as etapas da inicialização na tela. Se algo der
-errado, mande o `YFM-LOG.txt` e uma foto da tela.
+Ao ligar, o port mostra uma abertura da Retrogames e a tela "Apoie o projeto" (START pula a
+abertura; X ou START na tela de apoio começa o jogo). As etapas da inicialização vão para o
+`YFM-LOG.txt`, gravado ao lado do ELF. Se algo der errado, mande o `YFM-LOG.txt` e uma foto da tela.
 
 ## Como compilar
 

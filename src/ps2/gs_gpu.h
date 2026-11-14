@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 void GsGpu_Init(void);
+void GsGpu_IntroFrame(const uint32_t *abgr);
 int GsGpu_Active(void);
 size_t GsGpu_Gp0(const uint32_t *words, size_t count);
 void GsGpu_Load(int x, int y, int w, int h);

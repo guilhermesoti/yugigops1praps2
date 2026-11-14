@@ -979,6 +979,42 @@ static void environment(void)
     flush();
 }
 
+/* A abertura (intro_ps2.c), antes do jogo: quadros 640 x 448 CT32 enviados
+ * direto para um de dois framebuffers (paginas 0 e 140) e mostrados no
+ * proximo vsync, em modo entrelacado. NULL: fim (GsGpu_Init refaz tudo). */
+void GsGpu_IntroFrame(const uint32_t *abgr)
+{
+    static int started, back;
+    if (!abgr) {
+        if (started) {
+            wait_idle();
+            *GS_DISPFB1 = *GS_DISPFB2 = 0;
+        }
+        started = 0;
+        return;
+    }
+    if (!started) {
+        dma_channel_initialize(DMA_CHANNEL_GIF, NULL, 0);
+        dma_channel_fast_waits(DMA_CHANNEL_GIF);
+        graph_initialize(0, 640, 448, PSM_CT32, 0, 0);
+        started = 1, back = 140;
+    }
+    FlushCache(0);
+    upload(back * 32, 10, PSM_CT32, 0, 0, 640, 448, abgr, 640 * 448 * 4);
+    wait_idle();
+    graph_wait_vsync();
+    display(back, 10, PSM_CT32, 0, 0, 640, 448, 1);
+    if (started == 1) {
+        /* 448 linhas entrelacadas: cada campo le uma linha sim, outra nao
+         * (FFMD campo), com o filtro anti-tremido para o texto. */
+        graph_set_mode(GRAPH_MODE_INTERLACED, GRAPH_MODE_NTSC, GRAPH_MODE_FIELD, GRAPH_ENABLE);
+        graph_set_screen(0, 0, 640, 448);
+        graph_set_output(1, 0, 1, 0, 1, 0xFF);
+        started = 2;
+    }
+    back = back ? 0 : 140;
+}
+
 void GsGpu_Init(void)
 {
     dma_channel_initialize(DMA_CHANNEL_GIF, NULL, 0);
