@@ -89,6 +89,18 @@ uint16_t *SoftGpu_Bank(int bank)
     return banks[bank];
 }
 
+static unsigned bank_generation[SOFT_GPU_BANKS];
+
+void SoftGpu_BankTouch(int bank)
+{
+    if (bank > 0 && bank < SOFT_GPU_BANKS) bank_generation[bank]++;
+}
+
+unsigned SoftGpu_BankGeneration(int bank)
+{
+    return bank > 0 && bank < SOFT_GPU_BANKS ? bank_generation[bank] : 0;
+}
+
 const uint16_t *SoftGpu_BankPixels(int bank)
 {
     return bank > 0 && bank < SOFT_GPU_BANKS ? banks[bank] : NULL;

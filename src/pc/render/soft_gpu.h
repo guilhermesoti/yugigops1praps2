@@ -45,6 +45,12 @@ uint16_t *SoftGpu_Bank(int bank);
 /* The bank's pixels if it has been made, NULL otherwise (a primitive naming
  * a bank that was never made samples VRAM). */
 const uint16_t *SoftGpu_BankPixels(int bank);
+/* A writer that changed a bank's pixels after a primitive may have sampled
+ * them says so: the PS2's GS renderer keeps decoded copies of bank pages and
+ * goes by this count to know one is stale (glyphs.c, for letters it adds
+ * as the text first needs them). */
+void SoftGpu_BankTouch(int bank);
+unsigned SoftGpu_BankGeneration(int bank);
 /* A textured polygon that samples a bank can also fade into what is under
  * it: the upper half of its third texture-coordinate word, which the hardware
  * ignores, is SOFT_GPU_FADE | amount, amount 0 (opaque) to 255 (gone). Both

@@ -2,7 +2,8 @@
 #define MEMORIES_PC_LANGUAGE_H
 /* Game > Language: the game's own European translations (notes/translation.md,
  * "The official languages"). Their text ships with the port, one listing a
- * language in languages/ beside the program (en-eu, fr, de, it, es .txt),
+ * language in languages/ beside the program (en-eu, fr, de, it, es .txt;
+ * pt-br.txt is the PS2 port's own Brazilian Portuguese, made from es.txt),
  * written off the PAL discs by tools/pc/export_languages.py; a PAL disc in
  * `game/languages` or `game/pal` (any .bin or .cue, found by what is on it)
  * is read when a pack is not there. MEMORIES_LANGUAGES_DIR names the one
@@ -11,7 +12,7 @@
  * comes from is language.c's `sources` table. */
 #include <stddef.h>
 
-enum { LANGUAGE_US, LANGUAGE_EN_EU, LANGUAGE_FR, LANGUAGE_DE, LANGUAGE_IT, LANGUAGE_ES, LANGUAGE_COUNT };
+enum { LANGUAGE_US, LANGUAGE_EN_EU, LANGUAGE_FR, LANGUAGE_DE, LANGUAGE_IT, LANGUAGE_ES, LANGUAGE_PT_BR, LANGUAGE_COUNT };
 
 /* The name the menu shows, in the language itself (UTF-8). */
 const char *Language_Label(int language);

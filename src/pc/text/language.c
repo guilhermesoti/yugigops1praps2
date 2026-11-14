@@ -47,12 +47,13 @@ static int disc_count, scanned, current;
  * Spanish ones (which carry the final text of all four), then the French and
  * German (an earlier German and Spanish). English only from its own. */
 static const int preference[LANGUAGE_COUNT][SERIALS] = {
-    {-1}, {0, -1}, {1, 3, 4, 2, -1}, {2, 3, 4, 1, -1}, {3, 4, 1, 2, -1}, {4, 3, 1, 2, -1}};
+    {-1}, {0, -1}, {1, 3, 4, 2, -1}, {2, 3, 4, 1, -1}, {3, 4, 1, 2, -1}, {4, 3, 1, 2, -1}, {-1}};
 
 const char *Language_Label(int language)
 {
     static const char *const labels[LANGUAGE_COUNT] = {"English (US)", "English (Europe)", "Français",
-                                                       "Deutsch",      "Italiano",         "Español"};
+                                                       "Deutsch",      "Italiano",         "Español",
+                                                       "Português (BR)"};
     return language >= 0 && language < LANGUAGE_COUNT ? labels[language] : "";
 }
 
@@ -272,7 +273,7 @@ static int disc_available(int language) { return disc_for(language) != NULL; }
  * working folder, or in MEMORIES_LANGUAGES_DIR), each the listing
  * disc_listing gives for the language, written by
  * tools/pc/export_languages.py. */
-static const char *const pack_names[LANGUAGE_COUNT] = {NULL, "en-eu", "fr", "de", "it", "es"};
+static const char *const pack_names[LANGUAGE_COUNT] = {NULL, "en-eu", "fr", "de", "it", "es", "pt-br"};
 #define PACK_LIMIT (16u << 20)
 
 static FILE *open_pack(int language, char *path, size_t size)
@@ -515,6 +516,38 @@ static const char *const own_words[LANGUAGE_COUNT] = {
                     "[FE37]\n%s EN %d SOBRES{end}\n\n"
                     "[FE38]\n%d CARTA{end}\n\n"
                     "[FE39]\nYA TODAS{end}\n",
+    [LANGUAGE_PT_BR] = "\n@bank dialog\n\n"
+                    "[FE00]\nNOVA{end}\n\n"
+                    "[FE01]\nMAIS %d CARTA{end}\n\n"
+                    "[FE02]\nMAIS %d CARTAS{end}\n\n"
+                    "[FE03]\nPÁGINA %d DE %d{end}\n\n"
+                    "[FE10]\nDECKS{end}\n\n"
+                    "[FE20]\nPACOTES{end}\n\n"
+                    "[FE21]\nCOMPRAR{end}\n\n"
+                    "[FE22]\nSAIR{end}\n\n"
+                    "[FE23]\nVOLTAR{end}\n\n"
+                    "[FE24]\nINFO{end}\n\n"
+                    "[FE25]\nSEGUE{end}\n\n"
+                    "[FE26]\nPULAR{end}\n\n"
+                    "[FE27]\nOK{end}\n\n"
+                    "[FE28]\nFIM{end}\n\n"
+                    "[FE29]\nESGOTADO{end}\n\n"
+                    "[FE2A]\nRESTAM %d{end}\n\n"
+                    "[FE2B]\n%d CARTAS{end}\n\n"
+                    "[FE2C]\nBLOQUEADO{end}\n\n"
+                    "[FE2D]\nVENÇA %s{end}\n\n"
+                    "[FE2E]\nVENÇA %s x%d{end}\n\n"
+                    "[FE2F]\nGANHE %d DUELOS{end}\n\n"
+                    "[FE30]\nAVANCE NA HISTÓRIA{end}\n\n"
+                    "[FE31]\nTENHA %s{end}\n\n"
+                    "[FE32]\nTENHA %d %s{end}\n\n"
+                    "[FE33]\nGASTE MAIS %d{end}\n\n"
+                    "[FE34]\nABRA MAIS %d PACOTES{end}\n\n"
+                    "[FE35]\nABRA %s x%d{end}\n\n"
+                    "[FE36]\nPELO MENOS %d %s{end}\n\n"
+                    "[FE37]\n%s EM %d PACOTES{end}\n\n"
+                    "[FE38]\n%d CARTA{end}\n\n"
+                    "[FE39]\nJÁ TEM TODAS{end}\n",
 };
 
 /* The opponents' short names (TEXT_OWN_OPPONENT + id), only where
@@ -537,6 +570,8 @@ static const char *const own_names[LANGUAGE_COUNT] = {
                     "[FE67]\nMaestro K{end}\n",
     [LANGUAGE_ES] = "\n@bank dialog\n\n"
                     "[FE67]\nMaestro K{end}\n",
+    [LANGUAGE_PT_BR] = "\n@bank dialog\n\n"
+                       "[FE67]\nMestre K{end}\n",
 };
 
 /* `listing` (`*length` bytes, malloc'd) with `extra` after it, if it can

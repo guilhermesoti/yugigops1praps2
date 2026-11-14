@@ -297,7 +297,8 @@ static Menu submenus[SUB_COUNT] = {
                   {"", 0, ITEM_RADIO, RADIO_LANGUAGE, SET_LANGUAGE, LANGUAGE_FR},
                   {"", 0, ITEM_RADIO, RADIO_LANGUAGE, SET_LANGUAGE, LANGUAGE_DE},
                   {"", 0, ITEM_RADIO, RADIO_LANGUAGE, SET_LANGUAGE, LANGUAGE_IT},
-                  {"", 0, ITEM_RADIO, RADIO_LANGUAGE, SET_LANGUAGE, LANGUAGE_ES}}, 6},
+                  {"", 0, ITEM_RADIO, RADIO_LANGUAGE, SET_LANGUAGE, LANGUAGE_ES},
+                  {"", 0, ITEM_RADIO, RADIO_LANGUAGE, SET_LANGUAGE, LANGUAGE_PT_BR}}, 7},
     /* PGXP recovers the GTE's discarded depth to fix affine texture warping
      * on tilted polygons (pgxp.h). Level 2, precise positions, is not
      * offered yet (settings.c clamps it). */

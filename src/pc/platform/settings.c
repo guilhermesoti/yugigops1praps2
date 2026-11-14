@@ -31,8 +31,15 @@ static const SettingInfo info[SET_COUNT] = {
     [SET_OPPONENT_NAME] = {"opponent_name", NULL, "MEMORIES_OPPONENT_NAME", NULL, 0, 0, 1},
     /* Cards a won duel deals; 1 is the console's (src/pc/cards/drops.h). */
     /* Game > Language (src/pc/text/language.h): 0 English (US), 1 English (Europe), 2 French, 3 German,
-     * 4 Italian, 5 Spanish, from the player's PAL disc; at the next launch. */
-    [SET_LANGUAGE] = {"language", NULL, "MEMORIES_LANGUAGE", NULL, 0, 0, 5},
+     * 4 Italian, 5 Spanish, from the player's PAL disc, 6 Brazilian Portuguese (the PS2 port's own
+     * languages/pt-br.txt); at the next launch. */
+    [SET_LANGUAGE] = {"language", NULL, "MEMORIES_LANGUAGE", NULL,
+#ifdef MEMORIES_PS2
+                      6, /* o port de PS2 comeca em portugues (BR) */
+#else
+                      0,
+#endif
+                      0, 6},
     [SET_CARD_DROPS] = {"card_drops", NULL, "MEMORIES_CARD_DROPS", NULL, 1, 1, 99},
     /* 1: the Library lays out every card never seen as a seen one, while it
      * is open; nothing is given or saved (Cards_LibraryPlaceholder, cards.h). */

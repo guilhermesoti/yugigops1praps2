@@ -223,7 +223,7 @@ static unsigned signature_of(int bank, int page_x, int page_y, int depth, int cl
     const uint16_t *clut = (source ? source : SoftGpu_Vram()) + (clut_y & 511) * 1024;
     unsigned sum = 2166136261u;
     for (i = 0; i < entries; i++) sum = (sum ^ clut[(clut_x + i) & 1023]) * 16777619u;
-    if (bank) sum ^= 0x9E3779B9u * (unsigned)bank;
+    if (bank) sum = (sum ^ 0x9E3779B9u * (unsigned)bank) * 31u + SoftGpu_BankGeneration(bank);
     for (by = (page_y & 511) >> 5; by < (((page_y & 511) + 256) >> 5) && by < 16; by++)
         for (bx = (page_x & 1023) >> 6; bx < (((page_x & 1023) + width) >> 6); bx++)
             sum = sum * 31u + gen[by * 16 + (bx & 15)];
@@ -348,12 +348,12 @@ static struct {
 
 static uint64_t tex0_for(int u0, int v0, int u1, int v1)
 {
-    int bank = 0, page_x = gpu.page_x, page_y = gpu.page_y, depth = gpu.depth;
+    int bank = gpu.bank, page_x = gpu.page_x, page_y = gpu.page_y, depth = gpu.depth;
     if (prim.page_word >= 0) {
         bank = (prim.page_word >> 11) & 15;
         bank |= ((prim.page_word >> 10) & 1) << 4;
-        if (bank && !SoftGpu_BankPixels(bank)) bank = 0;
     }
+    if (bank && !SoftGpu_BankPixels(bank)) bank = 0;
     if (depth == 2 && !bank) {
         /* Straight from VRAM: the page's origin is a page of the buffer. */
         int bp = (((page_y & 511) / 64) * 16 + (page_x & 1023) / 64) * 32;
@@ -483,7 +483,11 @@ static void set_draw_mode(uint32_t word)
     gpu.depth = (word >> 7) & 3;
     gpu.dither = (word >> 9) & 1;
     gpu.draw_display = (word >> 10) & 1;
-    gpu.texture_off = (word >> 11) & 1;
+    /* Bits 11-14: the port's texture bank (soft_gpu.h; an E1 names banks
+     * 0-15), not the texture-off bit, which retail never sets: the added
+     * letters of a translation (bank 15) came out as blank boxes. */
+    gpu.texture_off = 0;
+    gpu.bank = (word >> 11) & 15;
 }
 
 static void set_scissor(void)
@@ -538,7 +542,7 @@ static size_t polygon(const uint32_t *words, size_t count)
             } else if (i == 1) {
                 /* The polygon's own page and depth for itself and after it. */
                 uint32_t page = t >> 16;
-                set_draw_mode((page & 0x9FF) | ((uint32_t)gpu.dither << 9) | ((uint32_t)gpu.draw_display << 10));
+                set_draw_mode((page & 0x79FF) | ((uint32_t)gpu.dither << 9) | ((uint32_t)gpu.draw_display << 10));
                 prim.page_word = (int)page;
             }
         } else {

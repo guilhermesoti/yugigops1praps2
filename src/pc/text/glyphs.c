@@ -871,6 +871,7 @@ static void store_at(uint16_t *bank, int page, int u, int v, const Cell *cell)
             *word = (uint16_t)((*word & ~(0xF << shift)) | (cell->pixels[y][x] << shift));
         }
     }
+    SoftGpu_BankTouch(GLYPHS_BANK); /* a page the PS2's renderer may have decoded already */
 }
 
 static void store(uint16_t *bank, int n, int size, const Cell *cell)
