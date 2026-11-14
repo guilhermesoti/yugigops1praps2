@@ -14,4 +14,9 @@ void *Memories_GuestCallTarget(uint32_t address);
 void Ps2_Stage(const char *format, ...) __attribute__((format(printf, 1, 2)));
 void Ps2_LogSync(void);
 void Ps2_LogQuiet(void);
+void Ps2_LogSave(void);
+/* The audio mix kept ahead of the player (platform_ps2.c). */
+void Ps2_PumpAudio(void);
+void Ps2_MovieFrame(int rgb24);
+extern unsigned long long Ps2_ReadUs, Ps2_MdecUs;
 #endif

@@ -61,6 +61,12 @@ static void run_tick(uint64_t game_now, uint64_t real_now)
     int budget = 8; /* after a stall, catch up a little and drop the rest */
     Memories_DiscService(game_now);
     Memories_MdecService();
+#ifdef MEMORIES_PS2
+    {
+        void Ps2_PumpAudio(void);
+        Ps2_PumpAudio();
+    }
+#endif
     if (!counter_running || !counter_handler || !counter_period_us) {
         Platform_SetTickDue(0);
         return;

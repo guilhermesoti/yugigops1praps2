@@ -752,6 +752,12 @@ void Platform_WaitVBlank(unsigned count_at_entry)
                 continue;
             }
 #endif
+#ifdef MEMORIES_PS2
+            {
+                void Ps2_PumpAudio(void);
+                Ps2_PumpAudio(); /* waiting: the audio queue topped up */
+            }
+#endif
             nanosleep(&nap, NULL); /* on Windows (interrupt clock), returns at once */
         }
     }

@@ -900,6 +900,10 @@ void GsGpu_Show(int x, int y, int w, int h, int rgb24)
 void GsGpu_Present(const uint16_t *vram, int x, int y, int w, int h, int rgb24)
 {
     if (!active) return;
+    {
+        extern void Ps2_MovieFrame(int rgb24);
+        Ps2_MovieFrame(rgb24);
+    }
     if (GsGpu_Trace) printf("ps2: present %d,%d %dx%d %d\n", x, y, w, h, rgb24);
     if (GsGpu_FrameLog) {
         GsGpu_FrameLog--;

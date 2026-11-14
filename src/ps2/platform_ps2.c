@@ -72,7 +72,7 @@ void Ps2_LogSync(void)
     if (!freopen(log_path, "a", stdout)) log_path[0] = 0;
     else setvbuf(stdout, NULL, _IOLBF, 0);
 }
-static char quiet_buffer[16384];
+static char quiet_buffer[16384], quiet_path[300];
 void Ps2_LogQuiet(void)
 {
     if (!log_path[0]) return;
@@ -82,7 +82,17 @@ void Ps2_LogQuiet(void)
         return;
     }
     setvbuf(stdout, quiet_buffer, _IOFBF, sizeof(quiet_buffer));
-    log_path[0] = 0; /* no more syncs, but Ps2_Fatal's flush */
+    snprintf(quiet_path, sizeof(quiet_path), "%s", log_path);
+    log_path[0] = 0; /* no more syncs, but Ps2_Fatal's flush and Ps2_LogSave */
+}
+/* The log written out and its file closed now (so the stick has it), at a
+ * moment the game is not reading the disc: the end of a movie. */
+void Ps2_LogSave(void)
+{
+    if (!quiet_path[0]) return;
+    fflush(stdout);
+    if (freopen(quiet_path, "a", stdout)) setvbuf(stdout, quiet_buffer, _IOFBF, sizeof(quiet_buffer));
+    else quiet_path[0] = 0;
 }
 void Ps2_Stage(const char *format, ...)
 {
@@ -411,7 +421,6 @@ int Platform_PadConnected(int port) { return port == 0; }
 static void (*mixer)(int16_t *frames, size_t count);
 static int16_t mix_buffer[2048 * 2] __attribute__((aligned(64)));
 static unsigned underruns;
-static uint64_t audio_clock_us;
 
 static uint64_t now_us(void)
 {
@@ -420,27 +429,74 @@ static uint64_t now_us(void)
     return (uint64_t)now.tv_sec * 1000000u + (uint64_t)now.tv_nsec / 1000u;
 }
 
-static void pump_audio(void)
+/* The mix follows the clock: each call mixes the samples the time since the
+ * last one calls for (22050 a second), and the first adds AUDIO_LEAD samples
+ * (about 0.1 s) that stay queued ahead of the player, so a long frame (a
+ * movie's decode) does not drain it. It is called at each frame, from the
+ * clock's ticks, the waits and the movie decoder (Ps2_PumpAudio), on the
+ * game's thread: the mixer reads what the game's sound driver writes there.
+ * audsrv's queued/available counts are not reliable on every IOP image, so
+ * only the free room bounds a call (more is dropped, not queued late). */
+#define AUDIO_LEAD 2205
+static uint64_t audio_clock_us, audio_last_pump, audio_longest_gap;
+void Ps2_PumpAudio(void)
 {
     int room;
     uint64_t now;
     size_t frames;
-    if (!mixer || !audio_ok) return;
+    static int pumping;
+    if (!mixer || !audio_ok || pumping) return;
     now = now_us();
-    if (!audio_clock_us) audio_clock_us = now;
-    frames = (size_t)((now - audio_clock_us) * 22050u / 1000000u);
-    if (frames < 64) return;
-    audio_clock_us += (uint64_t)frames * 1000000u / 22050u;
+    if (audio_last_pump && now - audio_last_pump > audio_longest_gap) audio_longest_gap = now - audio_last_pump;
+    audio_last_pump = now;
+    if (!audio_clock_us || now - audio_clock_us > 300000u) {
+        /* The start, or a stall (a load): from now, with the lead again. */
+        audio_clock_us = now;
+        frames = AUDIO_LEAD;
+    } else {
+        frames = (size_t)((now - audio_clock_us) * 22050u / 1000000u);
+        if (frames < 64) return;
+        audio_clock_us += (uint64_t)frames * 1000000u / 22050u;
+    }
     room = audsrv_available() / 4;
     if ((int)frames > room) {
         frames = room > 0 ? (size_t)room : 0;
         underruns++;
     }
+    pumping = 1;
     while (frames) {
         size_t part = frames > 2048 ? 2048 : frames;
         mixer(mix_buffer, part);
         audsrv_play_audio((const char *)mix_buffer, (int)(part * 4));
         frames -= part;
+    }
+    pumping = 0;
+}
+static void pump_audio(void) { Ps2_PumpAudio(); }
+
+/* Movie numbers for YFM-LOG.txt (guest_ps2.c's disc reads, libpress.c's
+ * decode): every 30 frames of a 24-bit picture, and the log saved at its end. */
+unsigned long long Ps2_ReadUs, Ps2_MdecUs;
+void Ps2_MovieFrame(int rgb24)
+{
+    static unsigned frames, total;
+    static uint64_t since;
+    uint64_t now = now_us();
+    if (rgb24) {
+        if (!frames++) since = now, Ps2_ReadUs = Ps2_MdecUs = 0, audio_longest_gap = 0;
+        total++;
+        if (frames == 30) {
+            unsigned elapsed = (unsigned)(now - since);
+            printf("ps2: video %u quadros: %u ms em 30 (%u fps), disco %u ms, mdec %u ms, maior pausa do audio %u ms, "
+                   "audio cortado %u vezes\n", total, elapsed / 1000, elapsed ? 30000000u / elapsed : 0,
+                   (unsigned)(Ps2_ReadUs / 1000), (unsigned)(Ps2_MdecUs / 1000), (unsigned)(audio_longest_gap / 1000),
+                   underruns);
+            frames = 0;
+        }
+    } else if (total) {
+        printf("ps2: video terminou (%u quadros)\n", total);
+        total = frames = 0;
+        Ps2_LogSave();
     }
 }
 

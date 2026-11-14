@@ -3,6 +3,7 @@
  * buffer, and DecDCTout requests are decoded on the next interrupt tick,
  * each followed by the game's callback in interrupt context as on hardware.
  * The IDCT is floating point, so pixels can differ from the MDEC by a step. */
+#include <time.h>
 #include "types.h"
 #include "psyq/libpress.h" /* the declarations the game calls through */
 #include "pc/sdk/disc.h"
@@ -239,9 +240,24 @@ static void complete_request(void);
 void Memories_MdecService(void)
 {
     int strips = 64; /* a 640-wide frame is 27 strips */
+#ifdef MEMORIES_PS2
+    void Ps2_PumpAudio(void);
+    extern unsigned long long Ps2_MdecUs;
+    struct timespec t0, t1;
+    int done = 0;
+    clock_gettime(CLOCK_MONOTONIC, &t0);
+    while (output && input && strips--) {
+        complete_request();
+        if (++done % 4 == 0) Ps2_PumpAudio(); /* the audio queue keeps up through a frame's 20 strips */
+    }
+    clock_gettime(CLOCK_MONOTONIC, &t1);
+    if (done)
+        Ps2_MdecUs += (unsigned long long)((t1.tv_sec - t0.tv_sec) * 1000000 + (t1.tv_nsec - t0.tv_nsec) / 1000);
+#else
     while (output && input && strips--) {
         complete_request();
     }
+#endif
 }
 
 #ifdef MEMORIES_PS2

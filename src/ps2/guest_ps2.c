@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <time.h>
 #include <sys/stat.h>
 #undef fread
 #undef fwrite
@@ -305,9 +306,13 @@ ssize_t pread(int fd, void *buffer, size_t count, off_t offset)
     if (count <= 4096) {
         if (fd != ahead_fd || offset < ahead_start || offset + (off_t)count > ahead_start + (off_t)ahead_length) {
             ssize_t filled;
+            struct timespec t0, t1;
             ahead_fd = -1;
+            clock_gettime(CLOCK_MONOTONIC, &t0);
             if (lseek(fd, offset, SEEK_SET) < 0) return -1;
             filled = read(fd, ahead, sizeof(ahead));
+            clock_gettime(CLOCK_MONOTONIC, &t1);
+            Ps2_ReadUs += (unsigned long long)((t1.tv_sec - t0.tv_sec) * 1000000 + (t1.tv_nsec - t0.tv_nsec) / 1000);
             if (filled <= 0) return filled;
             ahead_fd = fd;
             ahead_start = offset;
