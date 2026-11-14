@@ -743,7 +743,7 @@ int main(int argc, char **argv)
 #include "pc/platform/menu.h"
 #include "pc/saves/save_menu.h"
 #include "pc/saves/deck_menu.h"
-static uint32_t overlay_argb[320 * 240];
+static uint32_t overlay_argb[640 * 480]; /* drawn at twice the screen, then halved */
 /* The port's menus on the PS2: drawn on the CPU into an opaque box and
  * written into the shown picture's copy as plain pixels (gs_gpu.c), with no
  * texture and no blending on the GS. The box is the menu's own rectangle;
@@ -762,28 +762,37 @@ const uint16_t *Ps2_OverlayBox(int *changed, int *bx, int *by, int *bw, int *bh)
     signature = SaveMenu_Signature() * 2654435761u ^ DeckMenu_Signature() * 40503u ^ (unsigned)Menu_NoticeShown();
     *changed = !was_shown || signature != last_signature;
     if (*changed) {
-        /* A window in the middle, 248 x 192 at most, as the game's own. */
-        MenuCanvas canvas = {overlay_argb + 24 * 320, 320, 320, 192, 0};
+        /* Drawn at twice the screen's size and halved: the menu's text at
+         * its smallest is 16 pixels, too big for a 320 x 240 picture. The
+         * window takes the middle, at most 200 x 130 of the screen. */
+        MenuCanvas canvas = {overlay_argb + 110 * 640, 640, 640, 260, 0};
         int x = 0, y = 0, w = 0, h = 0, row, i;
-        for (i = 0; i < 320 * 240; i++) overlay_argb[i] = 0x101c58u;
-        Menu_SetOverlayArea(28, 292, 0);
+        for (i = 0; i < 640 * 480; i++) overlay_argb[i] = 0x101c58u;
+        Menu_SetOverlayArea(120, 520, 0);
         SaveMenu_Draw(&canvas, &x, &y, &w, &h);
         if (!w || !h) DeckMenu_Draw(&canvas, &x, &y, &w, &h);
-        y += 24;
+        y += 110;
         if (Menu_NoticeShown()) {
-            Menu_Draw(&canvas);
-            x = 0, y = 0, w = 320, h = 240;
+            MenuCanvas whole = {overlay_argb, 640, 640, 480, 0};
+            Menu_Draw(&whole);
+            x = 0, y = 0, w = 640, h = 480;
         }
-        /* Whole qwords per row for the GS transfer: x and w by 8 pixels. */
+        /* To screen pixels; whole qwords per row for the GS transfer: x and w
+         * by 8 pixels. */
         if (x < 0) w += x, x = 0;
         if (y < 0) h += y, y = 0;
+        w = (x + w + 1) / 2 - x / 2, h = (y + h + 1) / 2 - y / 2, x /= 2, y /= 2;
         w += x & 7, x &= ~7, w = (w + 7) & ~7;
         if (x + w > 320) w = 320 - x;
         if (y + h > 240) h = 240 - y;
         for (row = 0; row < h; row++)
             for (i = 0; i < w; i++) {
-                uint32_t p = overlay_argb[(y + row) * 320 + x + i];
-                overlay_box[row * w + i] = (uint16_t)(((p >> 19) & 31) | (((p >> 11) & 31) << 5) | (((p >> 3) & 31) << 10));
+                const uint32_t *q = overlay_argb + (size_t)(y + row) * 2 * 640 + (size_t)(x + i) * 2;
+                uint32_t a = q[0], b = q[1], c = q[640], d = q[641];
+                unsigned r = (((a >> 16) & 255) + ((b >> 16) & 255) + ((c >> 16) & 255) + ((d >> 16) & 255) + 2) >> 2;
+                unsigned g = (((a >> 8) & 255) + ((b >> 8) & 255) + ((c >> 8) & 255) + ((d >> 8) & 255) + 2) >> 2;
+                unsigned bl = ((a & 255) + (b & 255) + (c & 255) + (d & 255) + 2) >> 2;
+                overlay_box[row * w + i] = (uint16_t)((r >> 3) | ((g >> 3) << 5) | ((bl >> 3) << 10));
             }
         x0 = x, y0 = y, w0 = w, h0 = h;
         last_signature = signature;
